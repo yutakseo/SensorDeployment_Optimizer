@@ -6,7 +6,6 @@ from createArray import *
 from cornerDetector import harris_corner
 from modelEvaluation import evaluation
 
-TEST = 1
 
 src = test_data4
 dst = harris_corner(src, 2, 3, 0.01)
