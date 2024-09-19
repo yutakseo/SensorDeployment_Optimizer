@@ -19,7 +19,7 @@ class sensor_GA:
         
         self.__init__chromsome__ = np.random.choice([0,1], size=self.feasible_positions.shape[0], p=[0.1, 0.9])
         self.num_of_parents_mating = 120
-        self.solutions_per_pop = 120
+        self.solutions_per_pop = 240
         self.num_of_genes = len(self.feasible_positions)
         self.last_fitness = 0
         
@@ -75,7 +75,7 @@ class sensor_GA:
                         parent_selection_type="sss",
                         crossover_type="two_points",
                         mutation_type="adaptive",
-                        mutation_probability=[1.0, 1.0],
+                        mutation_probability=[1.0, 0.7],
                         on_generation = self.on_generation,
                         stop_criteria=["saturate_1000"],
                         parallel_processing=24)
