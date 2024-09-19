@@ -90,4 +90,4 @@ class Main:
 if __name__ == "__main__":
     for i in range(10):
         map_name = "rectangle_140by140"
-        algorithm = Main(map_name, 20, 500).run()
+        algorithm = Main(map_name, 20, 1).run()
