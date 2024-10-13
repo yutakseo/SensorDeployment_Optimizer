@@ -90,4 +90,4 @@ class Main:
 if __name__ == "__main__":
     for i in range(1):
         map_name = "site4_ugv"
-        algorithm = Main(map_name, 20, 50).run()
+        algorithm = Main(map_name, 20, 100).run()
