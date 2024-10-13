@@ -18,7 +18,7 @@ class Main:
         self.coverage = COV
 
         # 동적으로 MAP 모듈 임포트
-        map_module_path = f"__MAPS__.{map_name}"
+        map_module_path = f"__MAPS__.validation_maps.{map_name}"
         map_module = importlib.import_module(map_module_path)
         self.MAP = np.array(getattr(map_module, "MAP"))
 
@@ -88,26 +88,6 @@ class Main:
 
 
 if __name__ == "__main__":
-    for i in range(10):
-        map_name = "stair_140by140"
+    for i in range(1):
+        map_name = "site4_ugv"
         algorithm = Main(map_name, 20, 50).run()
-
-if __name__ == "__main__":
-    for i in range(10):
-        map_name = "stair_140by140"
-        algorithm = Main(map_name, 20, 100).run()
-        
-if __name__ == "__main__":
-    for i in range(10):
-        map_name = "stair_140by140"
-        algorithm = Main(map_name, 20, 200).run()
-        
-if __name__ == "__main__":
-    for i in range(10):
-        map_name = "stair_140by140"
-        algorithm = Main(map_name, 20, 500).run()
-        
-if __name__ == "__main__":
-    for i in range(10):
-        map_name = "stair_140by140"
-        algorithm = Main(map_name, 20, 1000).run()
