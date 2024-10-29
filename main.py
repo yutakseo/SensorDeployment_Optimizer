@@ -88,10 +88,11 @@ class Main:
 
 
 if __name__ == "__main__":
-    for i in range(10):
+    for i in range(1):
         map_name = "stair_140by140"
         algorithm = Main(map_name, 20, 50).run()
-
+        
+"""
 if __name__ == "__main__":
     for i in range(10):
         map_name = "stair_140by140"
@@ -110,4 +111,4 @@ if __name__ == "__main__":
 if __name__ == "__main__":
     for i in range(10):
         map_name = "stair_140by140"
-        algorithm = Main(map_name, 20, 1000).run()
+        algorithm = Main(map_name, 20, 1000).run()"""

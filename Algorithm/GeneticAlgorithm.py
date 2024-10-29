@@ -16,8 +16,8 @@ class sensor_GA:
         self.feasible_positions = np.argwhere(self.map_data == 1)
         
         self.__init__chromsome__ = np.random.choice([0,1], size=self.feasible_positions.shape[0], p=[0.1, 0.9])
-        self.num_of_parents_mating = 120
-        self.solutions_per_pop = 240
+        self.num_of_parents_mating = 60
+        self.solutions_per_pop = 120
         self.num_of_genes = len(self.feasible_positions)
         self.last_fitness = 0
         
@@ -40,7 +40,15 @@ class sensor_GA:
             return 1
         else:
             return 0
-        
+            
+    def overlap_penalty(self, simulation):
+        penalty = 0  # 패널티 초기화
+         # simulation에서 2 이상인 값이 하나라도 있으면
+        penalty = np.sum(simulation >=2)
+        print(penalty)
+        return penalty
+
+         
     def fitness_func(self, ga_instance, solution, solution_idx):
         # 적합도 함수는 센서 개수 최소화(목적), 제약조건: 모든 현장 커버리지 커버
         simulation = self.deploy_simulation(solution=solution)
@@ -51,8 +59,9 @@ class sensor_GA:
         
         # Constraint
         cond1 = self.check_cover_restriction(simulation=simulation)
+        cond2 = self.overlap_penalty(simulation=simulation)
 
-        return round((Minimize * cond1) / self.num_of_genes * 100, 3)
+        return round((Minimize * cond1 - cond2) / self.num_of_genes * 100, 3)
 
     # 중간 결과를 출력할 세대 리스트
     checkpoints = [10,20,30,50,100]
