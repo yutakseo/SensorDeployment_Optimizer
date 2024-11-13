@@ -9,6 +9,7 @@ from Visual import *
 from ComputerVisionModule.cv_detector import *
 from SensorModule import Sensor
 
+
 # 사용할 알고리즘
 from Algorithm.GeneticAlgorithm import *
 
@@ -42,25 +43,24 @@ class Main:
         metadata = {
             "Timestamp": current_time,
             "CPU Name": cpu_info,
-            "Runtime (s)": float(runtime),  # float으로 변환
+            "Runtime (s)": float(runtime),
             "Map Name": self.map_name,
-            "Total Sensors": int(num_sensor),  # int로 변환
+            "Total Sensors": int(num_sensor),
             "Sensor Positions": sensor_positions
         }
 
-        # JSON 파일로 메타데이터 저장 (줄바꿈 없이)
         with open(output_file, mode='w') as file:
-            json.dump(metadata, file, separators=(',', ':'))  # separators 옵션으로 줄바꿈 없이 저장
+            json.dump(metadata, file, separators=(',', ':'))
 
     def run(self):
         start = time.time()
         sensor = Sensor(self.MAP)
 
         # 최외곽 지점 추출 및 배치
-        corner_position = ComputerVision(self.MAP).harris_corner(7, 3, 0.01)
-        for i in corner_position:
+        corner_position = ComputerVision(self.MAP).harris_corner(3, 3, 0.01)
+        """for i in corner_position:
             sensor.deploy(i, self.coverage)
-        self.MAP = sensor.result()
+        self.MAP = sensor.result()"""
 
         # 알고리즘 선택 및 실행
         """cord = sensor_GA(self.MAP, self.coverage, self.GEN).run()
@@ -73,21 +73,22 @@ class Main:
         runtime = time.time() - start
         num_sensor = len(dst)
 
-        # 결과 프롬프트 출력
         print(dst)
         print(f"경과시간(초) : {runtime:.4f}")
         print(f"총 센서 수 : {num_sensor}")
 
         # 센서 배치 형태 시각화
         self.MAP = sensor.result()
-        self.vis.showJetMap("RESULT", self.MAP)
+        self.vis.showJetMap_circle("RESULT", self.MAP, self.coverage, sensor_positions=dst)
 
         # 메타데이터 기록
         self.record_metadata(runtime, num_sensor, dst)
         return dst
 
 
+
+
 if __name__ == "__main__":
     for i in range(1):
-        map_name = "site3_uav"
-        algorithm = Main(map_name, 1, 100).run()
+        map_name = "bot_uav"
+        algorithm = Main(map_name, 10, 100).run()
