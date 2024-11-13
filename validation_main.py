@@ -57,18 +57,18 @@ class Main:
         sensor = Sensor(self.MAP)
 
         # 최외곽 지점 추출 및 배치
-        corner_position = ComputerVision(self.MAP).harris_corner(2, 3, 0.01)
+        corner_position = ComputerVision(self.MAP).harris_corner(7, 3, 0.01)
         for i in corner_position:
             sensor.deploy(i, self.coverage)
         self.MAP = sensor.result()
 
         # 알고리즘 선택 및 실행
-        cord = sensor_GA(self.MAP, self.coverage, self.GEN).run()
+        """cord = sensor_GA(self.MAP, self.coverage, self.GEN).run()
         for i in cord:
-            sensor.deploy(i, self.coverage)
+            sensor.deploy(i, self.coverage)"""
 
         # 결과 처리
-        dst = corner_position + cord
+        dst = corner_position #+cord
         dst = [(y, x) for x, y in dst]
         runtime = time.time() - start
         num_sensor = len(dst)
@@ -89,5 +89,5 @@ class Main:
 
 if __name__ == "__main__":
     for i in range(1):
-        map_name = "site4_ugv"
-        algorithm = Main(map_name, 20, 100).run()
+        map_name = "site3_uav"
+        algorithm = Main(map_name, 1, 100).run()
