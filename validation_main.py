@@ -3,11 +3,11 @@ import importlib
 import numpy as np
 from cpuinfo import get_cpu_info
 from Visual import *
-from ComputerVisionModule.cv_detector import *
-from SensorModule import Sensor
+from _HarrisCorner.cv_detector import *
+from _SensorModule import Sensor
 
 # 사용할 알고리즘
-from Algorithm.GA import *
+from _Algorithm.GA import *
 
 class Main:
     def __init__(self, map_name, coverage, generation):

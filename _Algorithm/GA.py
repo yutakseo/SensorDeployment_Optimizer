@@ -5,7 +5,7 @@ from datetime import datetime
 
 __file__ = os.getcwd()
 __root__ = os.path.dirname(__file__)
-sys.path.append(os.path.join(__file__,"SensorModule"))
+sys.path.append(os.path.join(__file__,"_SensorModule"))
 from Sensor import *
 
 class sensor_GA:
