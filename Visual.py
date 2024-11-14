@@ -47,4 +47,3 @@ class VisualTool:
                     grid.append("("+str(j+1)+","+str(i+1)+")")
         return grid
     
-    

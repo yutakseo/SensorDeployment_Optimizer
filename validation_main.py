@@ -1,38 +1,57 @@
-import os
-import sys
-import time
+import os, sys, time, importlib, json
 import importlib
 import numpy as np
-import json
 from cpuinfo import get_cpu_info
 from Visual import *
 from ComputerVisionModule.cv_detector import *
 from SensorModule import Sensor
 
-
 # 사용할 알고리즘
-from Algorithm.GeneticAlgorithm import *
-
+from Algorithm.GA import *
 
 class Main:
-    def __init__(self, map_name, COV, GEN):
-        self.coverage = COV
-
+    def __init__(self, map_name, coverage, generation):
         # 동적으로 MAP 모듈 임포트
         map_module_path = f"__MAPS__.validation_maps.{map_name}"
         map_module = importlib.import_module(map_module_path)
         self.MAP = np.array(getattr(map_module, "MAP"))
-
-        self.GEN = GEN
+        
         self.vis = VisualTool()
+        self.coverage = coverage
+        self.GEN = generation
         self.map_name = map_name
+
+    def run(self):
+        start = time.time()
+
+        #최외곽 지점 추출 및 배치
+        corner_position = ComputerVision(self.MAP).harris_corner(3, 3, 0.01)
+
+        #알고리즘 선택 및 실행
+        cord = sensor_GA(self.MAP, self.coverage, self.GEN).run()
+
+        #결과 처리
+        dst = corner_position +cord
+        dst = [(y, x) for x, y in dst]
+        runtime = time.time() - start
+        num_sensor = len(dst)
+
+        print(dst)
+        print(f"경과시간(초) : {runtime:.4f}")
+        print(f"총 센서 수 : {num_sensor}")
+
+        # 센서 배치 형태 시각화
+        self.vis.showJetMap_circle("RESULT", self.MAP, self.coverage, sensor_positions=dst)
+        # 메타데이터 기록
+        self.record_metadata(runtime, num_sensor, dst)
+        
+        return dst
 
     def record_metadata(self, runtime, num_sensor, sensor_positions, output_dir="__RESULTS__"):
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
-
         output_file = os.path.join(output_dir, f"result_{time.strftime('%Y%m%d_%H%M%S')}.json")
-
+        
         current_time = time.strftime("%Y-%m-%d %H:%M:%S")
         cpu_info = get_cpu_info()['brand_raw']
 
@@ -48,47 +67,12 @@ class Main:
             "Total Sensors": int(num_sensor),
             "Sensor Positions": sensor_positions
         }
-
         with open(output_file, mode='w') as file:
             json.dump(metadata, file, separators=(',', ':'))
-
-    def run(self):
-        start = time.time()
-        sensor = Sensor(self.MAP)
-
-        # 최외곽 지점 추출 및 배치
-        corner_position = ComputerVision(self.MAP).harris_corner(3, 3, 0.01)
-        """for i in corner_position:
-            sensor.deploy(i, self.coverage)
-        self.MAP = sensor.result()"""
-
-        # 알고리즘 선택 및 실행
-        """cord = sensor_GA(self.MAP, self.coverage, self.GEN).run()
-        for i in cord:
-            sensor.deploy(i, self.coverage)"""
-
-        # 결과 처리
-        dst = corner_position #+cord
-        dst = [(y, x) for x, y in dst]
-        runtime = time.time() - start
-        num_sensor = len(dst)
-
-        print(dst)
-        print(f"경과시간(초) : {runtime:.4f}")
-        print(f"총 센서 수 : {num_sensor}")
-
-        # 센서 배치 형태 시각화
-        self.MAP = sensor.result()
-        self.vis.showJetMap_circle("RESULT", self.MAP, self.coverage, sensor_positions=dst)
-
-        # 메타데이터 기록
-        self.record_metadata(runtime, num_sensor, dst)
-        return dst
-
 
 
 
 if __name__ == "__main__":
     for i in range(1):
-        map_name = "bot_uav"
-        algorithm = Main(map_name, 10, 100).run()
+        map_name = "test_map"
+        algorithm = Main(map_name, 3, 5000).run()

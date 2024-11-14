@@ -10,7 +10,7 @@ from ComputerVisionModule.cv_detector import *
 from SensorModule import Sensor
 
 # 사용할 알고리즘
-from Algorithm.GeneticAlgorithm import *
+from Algorithm.GA import *
 
 
 class Main:
