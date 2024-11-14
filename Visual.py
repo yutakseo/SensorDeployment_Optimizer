@@ -4,7 +4,7 @@ from matplotlib.patches import Circle
 
 
 class VisualTool:
-    def showNumpyMap(self, title:str, data):
+    def showNumpyMap(self, title:"Test", data):
         print(title)
         matrix = np.array(data)
         print(matrix)
@@ -23,13 +23,12 @@ class VisualTool:
         plt.show()
         return matrix
 
-    def showJetMap(self, title:str, data):
+    def showJetMap(self, data):
         plt.imshow(data, cmap='jet')
         plt.show()
 
-    def showJetMap_circle(self, title, map_data, radius, sensor_positions=None):
+    def showJetMap_circle(self, map_data, radius, sensor_positions=None):
             plt.imshow(map_data, cmap='jet')
-            plt.title(title)
             
             if sensor_positions:
                 for pos in sensor_positions:

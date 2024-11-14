@@ -1,26 +1,33 @@
 import cv2
 import numpy as np
-from Visual import *
 
-class ComputerVision():
-    def __init__(self, map):
-        self.map = map
-        self.map_data = np.array(self.map, dtype=np.uint8)
-        self.vis = VisualTool()
-        
-    def harris_corner(self, block_size, ksize, k):
-        #입력된 맵 데이터 가우시안 블러 처리
-        self.map_data = cv2.GaussianBlur(self.map_data, (9,9), 0,0)
-        #헤리스 코너 탐색
-        self.result = cv2.cornerHarris(self.map_data, block_size, ksize, k)
-        
-        #추출된 결과 상 최대값 검출
-        max_val = np.max(self.result)
-        #0과 1로 구성된 맵 데이터 생성
-        binary_image = np.zeros_like(self.result, dtype=np.uint8)
-        #이진 맵 상에서 검출된 최대값 대비 50% 이상 값을 갖는 지점에 대하여 코너점이라 판별
-        binary_image[self.result >= 0.5*max_val] = 1
-        dst = np.where(binary_image == 1)
-        
-        return list(zip(dst[0],dst[1]))
+class HarrisCorner():
+    def __init__(self, MAP):
+        self.map_data = np.array(MAP, dtype=np.uint8)
+    
+    def gaussianBlur(self, map, ksize=(9,9), sigX=0, sigY=0):
+        blurred_map = cv2.GaussianBlur(src=np.array(map,dtype=np.uint8), ksize=ksize, sigmaX=sigX, sigmaY=sigY)
+        return blurred_map
+    
 
+    def harrisCorner(self, map, block_size=3, ksize=3, k=0.01):
+        # Harris 코너 탐지 실행
+        filtered_map = cv2.cornerHarris(src=np.array(map,dtype=np.uint8), blockSize=block_size, ksize=ksize, k=k)
+        # 임계값 설정
+        threshold = 0.01 * filtered_map.max()
+        filtered_map[filtered_map < threshold] = 0
+        
+        # 비최대 억제 적용
+        dilated_map = cv2.dilate(filtered_map, None)  # 최대 응답값 지점 강조
+        non_max_suppressed = np.zeros_like(filtered_map)
+        non_max_suppressed[(filtered_map == dilated_map) & (filtered_map > threshold)] = filtered_map[(filtered_map == dilated_map) & (filtered_map > threshold)]
+        
+        # 이진화된 결과 생성
+        binarized_result = np.zeros_like(non_max_suppressed, dtype=np.uint8)
+        binarized_result[non_max_suppressed > 0] = 1
+        
+        return binarized_result
+    
+    def extract(self, map):
+        points = np.where(map == 1)
+        return list(zip(points[0], points[1]))
