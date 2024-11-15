@@ -14,7 +14,7 @@ class HarrisCorner():
         # Harris 코너 탐지 실행
         filtered_map = cv2.cornerHarris(src=np.array(map,dtype=np.uint8), blockSize=block_size, ksize=ksize, k=k)
         # 임계값 설정
-        threshold = 0.01 * filtered_map.max()
+        threshold = 0.1 * filtered_map.max()
         filtered_map[filtered_map < threshold] = 0
         
         # 비최대 억제 적용
