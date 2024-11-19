@@ -9,7 +9,10 @@ class HarrisCorner():
         blurred_map = cv2.GaussianBlur(src=np.array(map,dtype=np.uint8), ksize=ksize, sigmaX=sigX, sigmaY=sigY)
         return blurred_map
     
-
+    def Blur(self, map, ksize=(9,9)):
+        blurred_map = cv2.blur(src=np.array(map), ksize=ksize)
+        return blurred_map
+    
     def harrisCorner(self, map, block_size=3, ksize=3, k=0.01):
         # Harris 코너 탐지 실행
         filtered_map = cv2.cornerHarris(src=np.array(map,dtype=np.uint8), blockSize=block_size, ksize=ksize, k=k)
