@@ -16,15 +16,13 @@ class VisualTool:
         
         plt.imshow(matrix, cmap=cmap_custom, interpolation='nearest', extent=[0, cols, rows, 0], origin='upper')
         plt.title(title)
-        plt.xticks(np.arange(0, cols, step=1))
-        plt.yticks(np.arange(0, rows, step=1))
-        plt.tick_params(axis='x', which='both', bottom=False, top=True, labelbottom=False, labeltop=True)
-        plt.grid(which='both', color='black', linestyle='-', linewidth=0.5)
+
         plt.show()
         return matrix
 
-    def showJetMap(self, data):
+    def showJetMap(self, title:str, data):
         plt.imshow(data, cmap='jet')
+        plt.title(title)
         plt.show()
 
     def showJetMap_circle(self, map_data, radius, sensor_positions=None):
