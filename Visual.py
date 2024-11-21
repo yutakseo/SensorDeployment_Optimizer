@@ -25,15 +25,17 @@ class VisualTool:
         plt.title(title)
         plt.show()
 
-    def showJetMap_circle(self, map_data, radius, sensor_positions=None):
+    def showJetMap_circle(self, title, map_data, radius, sensor_positions:list):
             plt.imshow(map_data, cmap='jet')
-            
+            plt.title(title)
             if sensor_positions:
                 for pos in sensor_positions:
-                    inner = Circle(pos, radius=radius, edgecolor='green', facecolor='white', alpha=0.1, linewidth=1)
-                    border = Circle(pos, radius=radius, edgecolor='green', facecolor='none', linewidth=2)
+                    inner = Circle(pos, radius=radius, edgecolor='green', facecolor='white', alpha=0.02, linewidth=0.02)
+                    border = Circle(pos, radius=radius, edgecolor='green', facecolor='none', linewidth=0.2)
+                    center = Circle(pos, radius=0.2, edgecolor='red', facecolor='red', linewidth=0.02)
                     plt.gca().add_patch(inner)
                     plt.gca().add_patch(border)
+                    plt.gca().add_patch(center)
             plt.show()
             
     def returnCordinate(self, data):

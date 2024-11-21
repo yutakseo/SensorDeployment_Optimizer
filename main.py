@@ -25,7 +25,8 @@ class Main:
         start = time.time()
 
         #최외곽 지점 추출 및 배치
-        corner_points = HarrisCorner(self.MAP).run()
+        corner_instance =  HarrisCorner(self.MAP)
+        corner_points = corner_instance.extract(corner_instance.harrisCorner(corner_instance.gaussianBlur(self.MAP)))
 
         #알고리즘 선택 및 실행
         inner_points = sensor_GA(self.MAP, self.coverage, self.GEN).run()
@@ -74,5 +75,5 @@ class Main:
 
 if __name__ == "__main__":
     for i in range(1):
-        map_name = "test_map"
-        algorithm = Main(map_name, 3, 5000).run()
+        map_name = "top_uav"
+        algorithm = Main(map_name, 20, 1).run()
