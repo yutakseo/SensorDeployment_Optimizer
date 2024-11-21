@@ -90,7 +90,7 @@ class sensor_GA:
                         mutation_type="adaptive",
                         mutation_probability=[1.0, 0.7],
                         on_generation=self.on_generation,
-                        stop_criteria=["saturate_500"],
+                        stop_criteria=["saturate_1000"],
                         parallel_processing=24)
         ga_instance.run()
         

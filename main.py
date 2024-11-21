@@ -75,5 +75,5 @@ class Main:
 
 if __name__ == "__main__":
     for i in range(1):
-        map_name = "top_uav"
-        algorithm = Main(map_name, 20, 1000).run()
+        map_name = "mid_uav"
+        algorithm = Main(map_name, 20, 500).run()
