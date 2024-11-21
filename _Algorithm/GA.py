@@ -10,7 +10,7 @@ from Sensor import *
 
 class sensor_GA:
     # 중간 결과를 출력할 세대 리스트
-    checkpoints = [10,20,30,50,100,150,200,250,300,350,400,450,500,550,600,650,700,750,800,850,900,950,1000]
+    checkpoints = [10,50,100,150,200,250,300,350,400,450,500,550,600,650,700,750,800,850,900,950,1000]
     generation_results = []
     def __init__(self, map, coverage, generation):
         self.map_data = np.array(map)

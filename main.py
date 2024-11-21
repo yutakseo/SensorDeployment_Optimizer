@@ -42,7 +42,7 @@ class Main:
         print(f"총 센서 수 : {num_sensor}")
 
         # 센서 배치 형태 시각화
-        self.vis.showJetMap_circle("RESULT", self.MAP, self.coverage, sensor_positions=positions)
+        self.vis.showBinaryMap_circle("RESULT", self.MAP, self.coverage, sensor_positions=positions)
         # 메타데이터 기록
         self.record_metadata(runtime, num_sensor, positions)
         
@@ -76,4 +76,4 @@ class Main:
 if __name__ == "__main__":
     for i in range(1):
         map_name = "top_uav"
-        algorithm = Main(map_name, 20, 1).run()
+        algorithm = Main(map_name, 20, 1000).run()
