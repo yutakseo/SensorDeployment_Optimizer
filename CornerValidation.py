@@ -9,7 +9,7 @@ instance = HarrisCorner(MAP)
 tool.showJetMap("Original", np.array(MAP))
 #가우시안 블러 적용
 #tool.showJetMap(instance.Blur(MAP))
-#tool.showJetMap(instance.gaussianBlur(MAP))
+tool.showJetMap("Gaussian Map",instance.gaussianBlur(MAP))
 #헤리스 코너만 탐색
 #tool.showJetMap(instance.harrisCorner(MAP))
 #가우시안 적용 후, 헤리스 코너 탐색
