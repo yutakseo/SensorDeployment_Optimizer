@@ -31,6 +31,12 @@ class HarrisCorner():
         
         return binarized_result
     
+    def harrisCorner_non_dilated(self, map, block_size=3, ksize=3, k=0.01):
+        # Harris 코너 탐지 실행
+        filtered_map = cv2.cornerHarris(src=np.array(map,dtype=np.uint8), blockSize=block_size, ksize=ksize, k=k)
+  
+        return filtered_map
+    
     def extract(self, map):
         points = np.where(map == 1)
         return list(zip(points[0], points[1]))
