@@ -1,5 +1,5 @@
 from _HarrisCorner.cv_detector import HarrisCorner
-from __MAPS__.validation_maps.top_uav import *
+from __MAPS__.validation_maps.bot_uav import *
 from Visual import *
 
 
