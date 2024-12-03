@@ -1,6 +1,6 @@
 from _HarrisCorner.cv_detector import HarrisCorner
 from __MAPS__.validation_maps.bot_uav import *
-from __MAPS__.validation_maps.ground import true_map
+from __MAPS__.validation_maps.corner_groundTruth import true_map
 from Visual import *
 from mpl_toolkits.mplot3d import Axes3D
 
