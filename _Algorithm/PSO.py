@@ -22,7 +22,7 @@ class SensorPlacementPSO:
     def optimize(self, num_particles=30):
         """Run the PSO optimization process."""
         particles = [np.random.choice(len(self.valid_positions), size=len(self.valid_positions) // 2, replace=False) for _ in range(num_particles)]
-        velocities = [np.zeros_like(particle) for particle in particles]
+        velocities = [np.zeros_like(particle, dtype=float) for particle in particles]  # 수정: float 타입으로 초기화
 
         personal_best = particles[:]
         personal_best_scores = [self.fitness([self.valid_positions[i] for i in particle]) for particle in particles]
@@ -34,7 +34,7 @@ class SensorPlacementPSO:
             for i, particle in enumerate(particles):
                 velocities[i] += np.random.uniform(0, 1) * (personal_best[i] - particle)
                 velocities[i] += np.random.uniform(0, 1) * (global_best - particle)
-                particles[i] = np.clip(particle + velocities[i].astype(int), 0, len(self.valid_positions) - 1)
+                particles[i] = np.clip(particle + velocities[i].astype(int), 0, len(self.valid_positions) - 1)  # 수정: int로 변환
 
                 unique_positions = set(particles[i])
                 positions = [self.valid_positions[idx] for idx in unique_positions]
