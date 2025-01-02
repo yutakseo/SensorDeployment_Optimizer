@@ -51,4 +51,4 @@ class SensorPlacementPSO:
             print(f"Iteration {iteration + 1}/{self.iterations}, Best Score: {global_best_score}")
 
         best_positions = [self.valid_positions[idx] for idx in global_best]
-        return best_positions, global_best_score
+        return best_positions
