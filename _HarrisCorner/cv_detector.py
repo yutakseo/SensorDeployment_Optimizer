@@ -6,7 +6,7 @@ class HarrisCorner():
         self.map_data = np.array(MAP, dtype=np.uint8)
     
     """가우시안 블러"""
-    def gaussianBlur(self, map, ksize=(3,3), sigX=0, sigY=0):
+    def gaussianBlur(self, map, ksize=(9,9), sigX=0, sigY=0):
         blurred_map = cv2.GaussianBlur(src=np.array(map,dtype=np.uint8), ksize=ksize, sigmaX=sigX, sigmaY=sigY)
         return blurred_map
     
@@ -15,7 +15,7 @@ class HarrisCorner():
         return blurred_map
     
     """헤리스 코너 탐색"""
-    def harrisCorner(self, map, block_size=7, ksize=3, k=0.03):
+    def harrisCorner(self, map, block_size=3, ksize=3, k=0.03):
         # Harris 코너 탐지 실행
         filtered_map = cv2.cornerHarris(src=np.array(map,dtype=np.uint8), blockSize=block_size, ksize=ksize, k=k)
         # 임계값 설정
@@ -32,6 +32,15 @@ class HarrisCorner():
         binarized_result[non_max_suppressed > 0] = 1
         
         return binarized_result
+    
+    def onlyHarris(self, map, block_size=7, ksize=3, k=0.03):
+    # Harris 코너 탐지 실행
+        filtered_map = cv2.cornerHarris(src=np.array(map,dtype=np.uint8), blockSize=block_size, ksize=ksize, k=k)
+        threshold = 0#-100 * filtered_map.max()
+        filtered_map[filtered_map != threshold] = 1
+        return filtered_map
+    
+    
     
     #실험-대조 메서드
     def harrisCorner_non_dilated(self, map, block_size=3, ksize=3, k=0.01):
