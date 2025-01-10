@@ -1,8 +1,9 @@
 from _HarrisCorner.cv_detector import HarrisCorner
 from __MAPS__.validation_maps.Naju_MAP import *
-from __MAPS__.validation_maps.top_uav import *
 from Visual import *
 from mpl_toolkits.mplot3d import Axes3D
+from Visual import *
+from _HarrisCorner.cv_detector import *
 
 
 data = MAP
@@ -10,7 +11,7 @@ tool = VisualTool()
 instance = HarrisCorner(MAP)
 
 #그라운드 맵
-#tool.showBinaryMap("GroundTruth",true_map)
+#tool.showJetMap("GroundTruth",data)
 
 #tool.showJetMap("Original", np.array(MAP))
 
@@ -22,7 +23,7 @@ instance = HarrisCorner(MAP)
 
 #헤리스 코너만 탐색
 #tool.showJetMap("Harris Corner Result",instance.harrisCorner(MAP))
-tool.showBinaryMap("Harris Corner Result",instance.onlyHarris(MAP))
+#tool.showBinaryMap("Harris Corner Result",instance.onlyHarris(MAP))
 
 #가우시안 적용 후, 헤리스 코너 탐색
 #tool.showBinaryMap("Harris after gaussian",instance.harrisCorner(instance.gaussianBlur(MAP)))
@@ -32,10 +33,10 @@ tool.showBinaryMap("Harris Corner Result",instance.onlyHarris(MAP))
 
 
 
+positions = [(37,5), (77,20), (123,32), (178,57), (210,72), (160,63), (110,52), (95,62)]
 
-
-
-
+vis = VisualTool()
+vis.showJetMap_circle("RESULT", data, 45, sensor_positions=positions)
 
 
 
