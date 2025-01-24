@@ -31,8 +31,8 @@ class Main:
         corner_points = corner_instance.extract(corner_instance.harrisCorner(corner_instance.gaussianBlur(self.MAP)))
 
         #알고리즘 선택 및 실행
-        inner_points = sensor_GA(self.MAP, self.coverage, self.GEN).run()
-        #inner_points = SensorPlacementPSO(self.MAP, self.coverage, self.GEN).optimize()
+        #inner_points = sensor_GA(self.MAP, self.coverage, self.GEN).run()
+        inner_points = SensorPlacementPSO(self.MAP, self.coverage, self.GEN).optimize()
         
         #결과 처리
         positions = corner_points + inner_points
@@ -79,4 +79,4 @@ class Main:
 if __name__ == "__main__":
     for i in range(1):
         map_name = "mid_uav"
-        algorithm = Main(map_name, 45, 50).run()
+        algorithm = Main(map_name, 40, 50).run()
