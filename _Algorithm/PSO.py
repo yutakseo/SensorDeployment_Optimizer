@@ -1,4 +1,6 @@
-import numpy as np
+import numpy
+from Visual import *
+from __MAPS__.rectangle_10by10 import MAP
 
 class SensorPlacementPSO:
     def __init__(self, map_2d, coverage, iterations):
@@ -7,6 +9,7 @@ class SensorPlacementPSO:
         self.iterations = iterations
         self.rows, self.cols = self.map_2d.shape
         self.valid_positions = [(i, j) for i in range(self.rows) for j in range(self.cols) if self.map_2d[i][j] == 1]
+        self.visual_tool = VisualTool()
 
     def fitness(self, positions):
         """Calculate fitness based on coverage and minimizing overlaps."""
@@ -22,7 +25,7 @@ class SensorPlacementPSO:
     def optimize(self, num_particles=30):
         """Run the PSO optimization process."""
         particles = [np.random.choice(len(self.valid_positions), size=len(self.valid_positions) // 2, replace=False) for _ in range(num_particles)]
-        velocities = [np.zeros_like(particle, dtype=float) for particle in particles]  # 수정: float 타입으로 초기화
+        velocities = [np.zeros_like(particle, dtype=float) for particle in particles]
 
         personal_best = particles[:]
         personal_best_scores = [self.fitness([self.valid_positions[i] for i in particle]) for particle in particles]
@@ -34,7 +37,7 @@ class SensorPlacementPSO:
             for i, particle in enumerate(particles):
                 velocities[i] += np.random.uniform(0, 1) * (personal_best[i] - particle)
                 velocities[i] += np.random.uniform(0, 1) * (global_best - particle)
-                particles[i] = np.clip(particle + velocities[i].astype(int), 0, len(self.valid_positions) - 1)  # 수정: int로 변환
+                particles[i] = np.clip(particle + velocities[i].astype(int), 0, len(self.valid_positions) - 1)
 
                 unique_positions = set(particles[i])
                 positions = [self.valid_positions[idx] for idx in unique_positions]
@@ -48,7 +51,14 @@ class SensorPlacementPSO:
                     global_best = particles[i]
                     global_best_score = score
 
+            # Visualize the current state
+            current_positions = [self.valid_positions[idx] for idx in set(global_best)]
+            self.visual_tool.visualize_pso_progress(f"PSO Iteration {iteration + 1}", self.map_2d, current_positions)
+
             print(f"Iteration {iteration + 1}/{self.iterations}, Best Score: {global_best_score}")
 
         best_positions = [self.valid_positions[idx] for idx in global_best]
         return best_positions
+    
+    
+temp_instance = SensorPlacementPSO(MAP, 5, 10)
