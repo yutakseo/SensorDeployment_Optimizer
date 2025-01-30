@@ -1,5 +1,4 @@
 import os, sys, time, importlib, json
-import importlib
 import numpy as np
 from cpuinfo import get_cpu_info
 from Visual import *
