@@ -74,7 +74,7 @@ class Main:
             json.dump(metadata, file, separators=(',', ':'))
 
 
-
+#코드본체
 if __name__ == "__main__":
     for i in range(1):
         map_name = "mid_uav"
