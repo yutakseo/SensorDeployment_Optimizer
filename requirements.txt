@@ -1,7 +1,7 @@
-numpy
-py-cpuinfo
-matplotlib 
-opencv-python
-scipy
-numba
-pygad
+numpy==1.26.4
+py-cpuinfo==9.0.0
+matplotlib==3.8.2
+opencv-python==4.9.0.80
+scipy==1.11.4
+numba==0.58.1
+pygad==3.2.0

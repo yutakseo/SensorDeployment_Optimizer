@@ -17,5 +17,5 @@ COPY . /app
 RUN pip install --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
-# 6. 컨테이너 실행 시 수행할 명령어
-CMD ["python", "main.py"]
+# 6. 개발 환경 유지 (bash로 대기)
+CMD ["bash"]
