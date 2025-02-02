@@ -1,111 +1,135 @@
 import pygad
-import os, sys, random, copy, time, csv
+import os, csv, time
 import numpy as np
-from datetime import datetime
-os.environ["NUMBA_THREADING_LAYER"] = "omp"
+from _SensorModule.Sensor import Sensor
 
+RESULTS_DIR = "__RESULTS__"
 
-
-__file__ = os.getcwd()
-__root__ = os.path.dirname(__file__)
-sys.path.append(os.path.join(__file__,"_SensorModule"))
-from Sensor import *
-
-class sensor_GA:
-    # 중간 결과를 출력할 세대 리스트
-    checkpoints = [10,50,100,150,200,250,300,350,400,450,500,550,600,650,700,750,800,850,900,950,1000]
-    generation_results = []
-    def __init__(self, map, coverage, generation):
-        self.map_data = np.array(map)
+class SensorGA:
+    """GA 기반 센서 배치 최적화 클래스"""
+    
+    def __init__(self, map_data, coverage, generations):
+        self.map_data = np.array(map_data)
         self.coverage = coverage
-        self.generations = generation
+        self.generations = generations
         self.feasible_positions = np.argwhere(self.map_data == 1)
-        self.__init__chromsome__ = np.random.choice([0,1], size=self.feasible_positions.shape[0], p=[0.9, 0.1])
-        self.num_of_parents_mating = 60
-        self.solutions_per_pop = 120
-        self.num_of_genes = len(self.feasible_positions)
-        self.last_fitness = 100
+        self.num_genes = len(self.feasible_positions)
+        self.last_fitness = None  # 이전 적합도 저장
+        self.stagnation_counter = 0  # 정체 탐지 변수
         
-        # 초기 염색체 생성 함수
-        function_inputs = self.__init__chromsome__
-        # 기대값 설정
-        desired_output = 95
-        # 유전자 해 범위 설정
-        self.range_ben = [{"low": 0, "high": 1.1} for i in range(self.num_of_genes)]
-         
-    def deploy_simulation(self, solution):
-        self.sensor_instance = Sensor(self.map_data)
-        for i in range(self.num_of_genes):
-            if solution[i] == 1:
-                self.sensor_instance.deploy(sensor_position=self.feasible_positions[i], coverage=self.coverage)
-        return self.sensor_instance.result()
-         
-    #새 적합도 함수
-    def fitness_func(self, ga_instance, solution, solution_idx):
-        # 적합도 함수는 센서 개수 최소화(목적), 제약조건: 모든 현장 커버리지 커버
-        self.dst = self.deploy_simulation(solution=solution)
-        
-        numb_of_sensor = np.sum(solution == 1)
-        feasible_grid = np.sum(self.dst >=1)
-        uncover = 1 if (np.sum(self.dst == 1)) == 0 else 0
-        overlap_grid = np.sum(self.dst >= 20)
-        
-        # Objective Function
-        Minimize = round((self.num_of_genes - numb_of_sensor) / self.num_of_genes * 100, 3)
-        Minimize_overlap = overlap_grid / feasible_grid * 100
-        
-        return min(Minimize, Minimize_overlap)* uncover
+        num_sensors_init = np.random.randint(30, 50)  # 초기 센서 개수를 30~50개 사이에서 랜덤 설정
+        sensor_indices = np.random.choice(self.num_genes, size=num_sensors_init, replace=False)
+        self.init_chromosome[sensor_indices] = 1  # 초기 해 생성
 
-    def on_generation(self, ga_instance):
-        generation = ga_instance.generations_completed
-        print("\nGeneration = {generation}".format(generation=generation))
-        print("Fitness    = {fitness}".format(fitness=ga_instance.best_solution(pop_fitness=ga_instance.last_generation_fitness)[1]))
-        print("Change     = {change}".format(change=ga_instance.best_solution(pop_fitness=ga_instance.last_generation_fitness)[1] - self.last_fitness))
-        self.last_fitness = ga_instance.best_solution(pop_fitness=ga_instance.last_generation_fitness)[1]
         
-        # 중간 결과를 저장
-        if generation in self.checkpoints:
+        self.range_ben = [{"low": 0, "high": 1.1} for _ in range(self.num_genes)]
+
+        # GA 인스턴스 생성
+        self.ga_instance = pygad.GA(
+            num_generations=self.generations,
+            num_parents_mating=40,  # 부모 개체 수 감소 (더 신중한 선택)
+            sol_per_pop=100,  # 개체 수 감소 (과적합 방지)
+            num_genes=self.num_genes,
+            gene_type=int,
+            gene_space=self.range_ben,
+            initial_population=np.tile(self.init_chromosome, (100, 1)),  # ✅ 초기 해 적용
+            fitness_func=self.fitness_function,
+            parent_selection_type="rws",  # 룰렛 휠 선택 적용
+            crossover_type="uniform",
+            mutation_type="adaptive",
+            mutation_probability=[0.8, 0.5]  # 변이율 증가
+            on_generation=self.on_generation_callback,
+            stop_criteria=["saturate_500"],
+            parallel_processing=None
+        )
+
+    def deploy_simulation(self, solution):
+        """센서 배치 시뮬레이션"""
+        sensor_instance = Sensor(self.map_data)
+        for i in range(self.num_genes):
+            if solution[i] == 1:
+                sensor_instance.deploy(sensor_position=self.feasible_positions[i], coverage=self.coverage)
+        return sensor_instance.result()
+
+    def fitness_function(self, ga_instance, solution, solution_idx):
+        """적합도 함수: 센서 개수 최소화 + 겹침 방지 + 강제 센서 개수 제한"""
+        dst = self.deploy_simulation(solution)
+
+        numb_of_sensor = np.sum(solution == 1)  # 배치된 센서 개수
+        feasible_grid = np.sum(dst >= 1)  # 커버된 영역 개수
+        uncover = 1 if (np.sum(dst == 1)) == 0 else 0
+
+        overlap_grid = np.sum(dst > 1)  # 중복 커버된 영역 개수
+        overlap_penalty = (overlap_grid / feasible_grid) * 200  # 패널티 2배 적용
+
+        # ✅ 센서 개수가 30개 이하일 때 추가 보상 (더 적은 센서 사용 유도)
+        if numb_of_sensor <= 30:
+            sensor_bonus = 50  # 센서 개수가 적으면 추가 보상
+        else:
+            sensor_bonus = 0
+
+        # ✅ 센서 개수가 급증하면 강한 패널티 부여
+        if numb_of_sensor > 150:
+            sensor_penalty = (numb_of_sensor - 150) * 3  # 150개 초과 시 패널티 적용
+        else:
+            sensor_penalty = 0
+
+        # 📌 새로운 적합도 공식 (센서 개수 제한 적용)
+        fitness_score = (100 - numb_of_sensor * 0.4 - overlap_penalty - sensor_penalty + sensor_bonus) * uncover
+
+        return fitness_score
+
+    def on_generation_callback(self, ga_instance):
+        """세대별 콜백 함수 (50세대마다 체크포인트 기록)"""
+        generation = ga_instance.generations_completed
+        fitness = ga_instance.best_solution(pop_fitness=ga_instance.last_generation_fitness)[1]
+        
+        # 지역 최적해 탐지
+        if self.last_fitness is not None and abs(fitness - self.last_fitness) < 1e-5:
+            self.stagnation_counter += 1
+        else:
+            self.stagnation_counter = 0  # 변화 발생 시 초기화
+
+        print(f"\nGeneration = {generation}")
+        print(f"Fitness    = {fitness}")
+        print(f"Stagnation Counter = {self.stagnation_counter}")
+
+        self.last_fitness = fitness  # 적합도 갱신
+
+        if generation % 50 == 0:
             solution, solution_fitness, solution_idx = ga_instance.best_solution(ga_instance.last_generation_fitness)
-            num_sensors = np.sum(solution == 1)  # 해에서 1의 개수(센서의 수) 계산
-            print(f"중간 세대 {generation}의 최적 해: {solution}")
+            num_sensors = np.sum(solution == 1)
+
+            print(f"중간 세대 {generation}의 최적 해 저장")
             print(f"중간 세대 {generation}의 적합도: {solution_fitness}")
             print(f"센서의 수 (1의 개수): {num_sensors}")
-            # generation_results 리스트에 저장
-            self.generation_results.append((generation, solution, solution_fitness, num_sensors))
-            # CSV 파일로 저장 (세대, 최적 해, 적합도, 1의 개수)
-            with open("generation_results.csv", mode="a", newline='') as file:
-                writer = csv.writer(file)
-                #solution 잠깐 제거했음
-                writer.writerow([generation, solution, solution_fitness, num_sensors])
-        return self.last_fitness
-        
+
+            self.save_checkpoint(generation, solution_fitness, num_sensors)
+
+    def save_checkpoint(self, generation, solution_fitness, num_sensors):
+        """CSV 파일로 중간 결과 저장"""
+        os.makedirs(RESULTS_DIR, exist_ok=True)
+        file_path = os.path.join(RESULTS_DIR, "generation_results.csv")
+
+        with open(file_path, mode="a", newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow([generation, solution_fitness, num_sensors])
+
     def run(self):
-        ga_instance = pygad.GA(
-                        num_generations=self.generations,
-                        num_parents_mating=self.num_of_parents_mating,
-                        sol_per_pop=self.solutions_per_pop,
-                        num_genes=self.num_of_genes,
-                        gene_type=int,
-                        gene_space=self.range_ben,
-                        fitness_func=self.fitness_func,
-                        parent_selection_type="sss",
-                        crossover_type="two_points",
-                        mutation_type="adaptive",
-                        mutation_probability=[1.0, 0.7],
-                        on_generation=self.on_generation,
-                        stop_criteria=["saturate_1000"],
-                        parallel_processing=24)
-        ga_instance.run()
-        
-        solution, solution_fitness, solution_idx = ga_instance.best_solution(ga_instance.last_generation_fitness)
-        print("최종 최적 해: {solution}".format(solution=solution))
-        print("최종 적합도 값: {solution_fitness}".format(solution_fitness=solution_fitness))
-        print("최종 최적 해의 인덱스: {solution_idx}".format(solution_idx=solution_idx))
+        """GA 실행"""
+        self.ga_instance.run()
+
+        # 최종 결과 출력
+        solution, solution_fitness, solution_idx = self.ga_instance.best_solution(self.ga_instance.last_generation_fitness)
+        print(f"최종 최적 해: {solution}")
+        print(f"최종 적합도 값: {solution_fitness}")
+        print(f"최종 최적 해의 인덱스: {solution_idx}")
 
         indices = np.where(solution == 1)[0]
         result_list = [self.feasible_positions[i] for i in indices]
         result_list = [tuple(arr.tolist()) for arr in result_list]
-        ga_instance.plot_fitness()
+
+        self.ga_instance.plot_fitness()
         print(solution)
-        
+
         return result_list

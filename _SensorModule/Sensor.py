@@ -1,6 +1,8 @@
 import numpy as np
 from scipy.ndimage import distance_transform_edt
 from numba import njit, prange
+import os
+os.environ["NUMBA_THREADING_LAYER"] = "omp"
 import gc
 
 class Sensor:
@@ -37,14 +39,17 @@ class Sensor:
     def result(self):
         return self.map_data
 
-@njit(parallel=True)
+@njit(parallel=False)  # 병렬 연산 해제
 def deploy_circle_parallel(map_data, circle, center_x, center_y, coverage, width, height):
-    for i in prange(-coverage, coverage + 1):
-        for j in prange(-coverage, coverage + 1):
+    new_map_data = map_data.copy()
+    for i in range(-coverage, coverage + 1):  # prange 대신 range 사용
+        for j in range(-coverage, coverage + 1):
             map_x = center_x + j
             map_y = center_y + i
             if 0 <= map_x < width and 0 <= map_y < height:
                 if circle[i + coverage, j + coverage]:
-                    map_data[map_y, map_x] += 10
-    return map_data
+                    new_map_data[map_y, map_x] += 10
+    return new_map_data
+
+
 
