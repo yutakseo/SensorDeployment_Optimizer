@@ -17,7 +17,7 @@ class SensorGA:
         self.last_fitness = None  # 이전 적합도 저장
         self.stagnation_counter = 0  # 정체 탐지 변수
         
-        # ✅ 초기 해에서 센서 개수를 30~50개 사이로 랜덤 설정
+        # ✅ 초기 해에서 센서 개수를 30~50개 사이에서 랜덤 설정
         self.init_chromosome = np.zeros(self.num_genes, dtype=int)
         num_sensors_init = np.random.randint(30, 50)
         sensor_indices = np.random.choice(self.num_genes, size=num_sensors_init, replace=False)
@@ -28,21 +28,30 @@ class SensorGA:
         # GA 인스턴스 생성
         self.ga_instance = pygad.GA(
             num_generations=self.generations,
-            num_parents_mating=40,
-            sol_per_pop=100,
+            num_parents_mating=50,  
+            sol_per_pop=150,  
             num_genes=self.num_genes,
             gene_type=int,
             gene_space=self.range_ben,
-            initial_population=np.tile(self.init_chromosome, (100, 1)),  
+            initial_population=np.tile(self.init_chromosome, (150, 1)),  
             fitness_func=self.fitness_function,
-            parent_selection_type="rws",  # ✅ 부모 선택 방식을 Roulette Wheel Selection으로 변경
-            crossover_type="uniform",
+            parent_selection_type="sus",  
+            crossover_type="two_points",  
             mutation_type="adaptive",
-            mutation_probability=[0.8, 0.5],  
-            on_generation=self.on_generation_callback,  # ✅ 함수 참조 수정
-            stop_criteria=["saturate_250"],
-            parallel_processing=None
+            mutation_probability=self.adaptive_mutation(),  # ✅ 동적 변이율 적용
+            on_generation=self.on_generation_callback,
+            stop_criteria=["saturate_500"],  
+            parallel_processing=None,
+            keep_elitism=2  # ✅ 가장 적합한 2개의 개체 유지
         )
+
+    def adaptive_mutation(self):
+        """적응형 변이율 설정: 탐색이 정체될 경우 변이율 증가"""
+        if self.stagnation_counter >= 10:  # 10세대 연속 변화 없으면 변이율 100%
+            return [1.0, 1.0]
+        elif self.stagnation_counter >= 5:  # 5세대 연속 변화 없으면 변이율 증가
+            return [0.9, 0.7]
+        return [0.7, 0.5]  # 기본 변이율
 
     def deploy_simulation(self, solution):
         """센서 배치 시뮬레이션"""
@@ -53,29 +62,32 @@ class SensorGA:
         return sensor_instance.result()
 
     def fitness_function(self, ga_instance, solution, solution_idx):
-        """적합도 함수: 센서 개수 최소화 + 겹침 방지 + 강제 센서 개수 제한"""
+        """적합도 함수: 센서 개수 최소화 + 중복 커버리지 최소화 + 센서 배치 균형 유지"""
         dst = self.deploy_simulation(solution)
 
         numb_of_sensor = np.sum(solution == 1)  # 배치된 센서 개수
         feasible_grid = np.sum(dst >= 1)  # 커버된 영역 개수
         uncover = 1 if (np.sum(dst == 1)) == 0 else 0
 
-        overlap_grid = np.sum(dst > 1)  # 중복 커버된 영역 개수
-        overlap_penalty = (overlap_grid / feasible_grid) * 200  
+        # ✅ 중복 커버리지 개수별 계산
+        num_overlap_2 = np.sum(dst == 2)  # 2개 센서가 겹친 영역 개수
+        num_overlap_3 = np.sum(dst == 3)  # 3개 센서가 겹친 영역 개수
+        num_overlap_4 = np.sum(dst >= 4)  # 4개 이상 센서가 겹친 영역 개수
 
-        if numb_of_sensor <= 30:
-            sensor_bonus = 50  
-        else:
-            sensor_bonus = 0
+        # ✅ 가중치 적용 (더 많이 겹칠수록 패널티 증가)
+        overlap_penalty = (num_overlap_2 * 1 + num_overlap_3 * 3 + num_overlap_4 * 5) / feasible_grid * 100
 
-        if numb_of_sensor > 150:
-            sensor_penalty = (numb_of_sensor - 150) * 3  
-        else:
-            sensor_penalty = 0
+        # ✅ 센서 개수가 150개 이상이면 패널티 적용 (기존보다 완화)
+        sensor_penalty = max(0, (numb_of_sensor - 150) * 1.5)  
 
-        fitness_score = (100 - numb_of_sensor * 0.4 - overlap_penalty - sensor_penalty + sensor_bonus) * uncover
+        # ✅ 센서 배치 개수가 30~60개 사이면 보너스 적용
+        sensor_bonus = max(0, 50 - abs(numb_of_sensor - 45))  
+
+        # ✅ 새로운 적합도 공식
+        fitness_score = (100 - numb_of_sensor * 0.3 - overlap_penalty - sensor_penalty + sensor_bonus) * uncover
 
         return fitness_score
+
 
     def on_generation_callback(self, ga_instance):
         """세대별 콜백 함수 (50세대마다 체크포인트 기록)"""
