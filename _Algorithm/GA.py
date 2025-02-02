@@ -2,6 +2,9 @@ import pygad
 import os, sys, random, copy, time, csv
 import numpy as np
 from datetime import datetime
+os.environ["NUMBA_THREADING_LAYER"] = "omp"
+
+
 
 __file__ = os.getcwd()
 __root__ = os.path.dirname(__file__)

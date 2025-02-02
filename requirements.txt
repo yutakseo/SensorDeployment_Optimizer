@@ -5,3 +5,4 @@ opencv-python==4.9.0.80
 scipy==1.11.4
 numba==0.58.1
 pygad==3.2.0
+tbb
