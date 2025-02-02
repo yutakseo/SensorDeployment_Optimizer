@@ -54,4 +54,4 @@ class HarrisCorner():
     
     def extract(self, map):
         points = np.where(map == 1)
-        return list(zip(points[0], points[1]))
+        return list(zip(points[1], points[0]))
