@@ -129,5 +129,14 @@ class Main:
 
 # 코드 본체
 if __name__ == "__main__":
-    map_name = "50*50.bot"
-    Main(map_name, 30, 100).run()
+    for i in range(20):
+        map_name = "250*280.bot"
+        Main(map_name, 35, 500).run()
+        
+    for i in range(20):
+        map_name = "250*280.mid"
+        Main(map_name, 35, 500).run()
+        
+    for i in range(20):
+        map_name = "250*280.top"
+        Main(map_name, 35, 500).run()
