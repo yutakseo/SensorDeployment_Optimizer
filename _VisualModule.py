@@ -2,37 +2,38 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Circle
 import os
+from datetime import datetime
 
 class VisualTool:
     def __init__(self, save_dir="__RESULTS__", show=False):
         """
         시각화 도구
-        :param save_dir: 이미지 저장 경로
+        :param save_dir: 기본 이미지 저장 경로 (별도 폴더 지정 가능)
         :param show: True이면 plt.show() 실행, False이면 이미지 저장만 수행
         """
         self.save_dir = save_dir
         self.show = show  # GUI 출력 여부
-        if not os.path.exists(save_dir):
-            os.makedirs(save_dir)
 
-    def showNumpyMap(self, title, data):
-        print(title)
-        matrix = np.array(data)
-        print(matrix)
+        # ✅ 저장 폴더가 없으면 생성
+        os.makedirs(save_dir, exist_ok=True)
 
-    def showBinaryMap(self, title: str, data):
-        self._plot_map(title, data, cmap=['gray', 'white'], filename="binary_map.png")
+        # ✅ 중복 방지를 위해 날짜/시간 추가
+        now = datetime.now()
+        self.time = now.strftime("%m-%d-%H-%M")
 
-    def showJetMap(self, title: str, data):
-        self._plot_map(title, data, cmap='jet', filename="jet_map.png")
+    def showBinaryMap(self, title: str, data, save_path=None):
+        self._plot_map(title, data, cmap=['gray', 'white'], filename="binary_map", save_path=save_path)
 
-    def showJetMap_circle(self, title, map_data, radius, sensor_positions: list):
-        self._plot_map_with_circles(title, map_data, radius, sensor_positions, cmap='jet', filename="jet_map_circle.png")
+    def showJetMap(self, title: str, data, save_path=None):
+        self._plot_map(title, data, cmap='jet', filename="jet_map", save_path=save_path)
 
-    def showBinaryMap_circle(self, title, map_data, radius, sensor_positions: list):
-        self._plot_map_with_circles(title, map_data, radius, sensor_positions, cmap=['black', 'white'], filename="binary_map_circle.png")
+    def showJetMap_circle(self, title, map_data, radius, sensor_positions, save_path=None):
+        self._plot_map_with_circles(title, map_data, radius, sensor_positions, cmap='jet', filename="jet_map_circle", save_path=save_path)
 
-    def _plot_map(self, title, data, cmap, filename):
+    def showBinaryMap_circle(self, title, map_data, radius, sensor_positions, save_path=None):
+        self._plot_map_with_circles(title, map_data, radius, sensor_positions, cmap=['black', 'white'], filename="binary_map_circle", save_path=save_path)
+
+    def _plot_map(self, title, data, cmap, filename, save_path):
         """
         기본적인 맵 시각화 및 저장 기능
         """
@@ -41,9 +42,9 @@ class VisualTool:
         ax.imshow(data, cmap=cmap_custom, interpolation='nearest', origin='upper')
         ax.set_title(title)
 
-        self._save_or_show(fig, filename)
+        self._save_or_show(fig, filename, save_path)
 
-    def _plot_map_with_circles(self, title, map_data, radius, sensor_positions, cmap, filename):
+    def _plot_map_with_circles(self, title, map_data, radius, sensor_positions, cmap, filename, save_path):
         """
         센서 범위 (원) 표시 맵 시각화 및 저장 기능
         """
@@ -61,21 +62,23 @@ class VisualTool:
                 ax.add_patch(border)
                 ax.add_patch(center)
 
-        self._save_or_show(fig, filename)
+        self._save_or_show(fig, filename, save_path)
 
-    def _save_or_show(self, fig, filename):
+    def _save_or_show(self, fig, filename, save_path):
         """
         이미지 저장 또는 GUI 출력
         """
-        save_path = os.path.join(self.save_dir, filename)
+        # ✅ save_path가 파일명이 아닌 **폴더 경로**여야 함.
+        if save_path is None:
+            save_path = os.path.join(self.save_dir, f"{filename}_{self.time}.png")
+        else:
+            os.makedirs(save_path, exist_ok=True)  # ✅ 폴더 없으면 생성
+            save_path = os.path.join(save_path, f"{filename}.png")  # ✅ 올바른 파일 경로 지정
+
         fig.savefig(save_path, bbox_inches='tight')
         print(f"📌 그래프 저장 완료: {save_path}")
 
         if self.show:
             plt.show()
 
-        plt.close(fig)  # 메모리 해제
-
-    def returnCordinate(self, data):
-        grid = [(j+1, i+1) for i in range(len(data)) for j in range(len(data[0])) if data[i][j] == 1]
-        return grid
+        plt.close(fig)  # ✅ 메모리 해제

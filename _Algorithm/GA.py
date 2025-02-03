@@ -2,6 +2,7 @@ import pygad
 import os, csv, time
 import numpy as np
 from _SensorModule.Sensor import Sensor
+from datetime import datetime
 
 RESULTS_DIR = "__RESULTS__"
 
@@ -16,14 +17,20 @@ class SensorGA:
         self.num_genes = len(self.feasible_positions)
         self.last_fitness = None  # 이전 적합도 저장
         self.stagnation_counter = 0  # 정체 탐지 변수
-        
-        # ✅ 초기 해에서 센서 개수를 30~50개 사이에서 랜덤 설정
-        self.init_chromosome = np.zeros(self.num_genes, dtype=int)
-        num_sensors_init = np.random.randint(30, 50)
-        sensor_indices = np.random.choice(self.num_genes, size=num_sensors_init, replace=False)
-        self.init_chromosome[sensor_indices] = 1
 
-        self.range_ben = [{"low": 0, "high": 1.1} for _ in range(self.num_genes)]
+        # ✅ 실행별 폴더 생성
+        now = datetime.now()
+        time_str = now.strftime("%m-%d-%H-%M")  # 중복 방지
+        self.experiment_dir = os.path.join(RESULTS_DIR, time_str)
+        os.makedirs(self.experiment_dir, exist_ok=True)
+
+        # ✅ GA 결과 저장 CSV 파일 경로 설정
+        self.file_path = os.path.join(self.experiment_dir, f"generation_results.csv")
+
+        # ✅ 새 파일을 생성하면서 헤더 추가
+        with open(self.file_path, mode="w", newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow(["Generation", "Fitness", "Num_Sensors"])  # 헤더 추가
 
         # GA 인스턴스 생성
         self.ga_instance = pygad.GA(
@@ -32,8 +39,6 @@ class SensorGA:
             sol_per_pop=150,  
             num_genes=self.num_genes,
             gene_type=int,
-            gene_space=self.range_ben,
-            initial_population=np.tile(self.init_chromosome, (150, 1)),  
             fitness_func=self.fitness_function,
             parent_selection_type="sus",  
             crossover_type="two_points",  
@@ -47,11 +52,11 @@ class SensorGA:
 
     def adaptive_mutation(self):
         """적응형 변이율 설정: 탐색이 정체될 경우 변이율 증가"""
-        if self.stagnation_counter >= 10:  # 10세대 연속 변화 없으면 변이율 100%
+        if self.stagnation_counter >= 10:
             return [1.0, 1.0]
-        elif self.stagnation_counter >= 5:  # 5세대 연속 변화 없으면 변이율 증가
+        elif self.stagnation_counter >= 5:
             return [0.9, 0.7]
-        return [0.7, 0.5]  # 기본 변이율
+        return [0.7, 0.5]  
 
     def deploy_simulation(self, solution):
         """센서 배치 시뮬레이션"""
@@ -64,36 +69,26 @@ class SensorGA:
     def fitness_function(self, ga_instance, solution, solution_idx):
         """적합도 함수: 센서 개수 최소화 + 중복 커버리지 최소화 + 센서 배치 균형 유지"""
         dst = self.deploy_simulation(solution)
-
-        numb_of_sensor = np.sum(solution == 1)  # 배치된 센서 개수
-        feasible_grid = np.sum(dst >= 1)  # 커버된 영역 개수
+        numb_of_sensor = np.sum(solution == 1)
+        feasible_grid = np.sum(dst >= 1)
         uncover = 1 if (np.sum(dst == 1)) == 0 else 0
 
-        # ✅ 중복 커버리지 개수별 계산
-        num_overlap_2 = np.sum(dst == 2)  # 2개 센서가 겹친 영역 개수
-        num_overlap_3 = np.sum(dst == 3)  # 3개 센서가 겹친 영역 개수
-        num_overlap_4 = np.sum(dst >= 4)  # 4개 이상 센서가 겹친 영역 개수
+        num_overlap_2 = np.sum(dst == 2)
+        num_overlap_3 = np.sum(dst == 3)
+        num_overlap_4 = np.sum(dst >= 4)
 
-        # ✅ 가중치 적용 (더 많이 겹칠수록 패널티 증가)
         overlap_penalty = (num_overlap_2 * 1 + num_overlap_3 * 3 + num_overlap_4 * 5) / feasible_grid * 100
+        sensor_penalty = max(0, (numb_of_sensor - 150) * 1.5)
+        sensor_bonus = max(0, 50 - abs(numb_of_sensor - 45))
 
-        # ✅ 센서 개수가 150개 이상이면 패널티 적용 (기존보다 완화)
-        sensor_penalty = max(0, (numb_of_sensor - 150) * 1.5)  
-
-        # ✅ 센서 배치 개수가 30~60개 사이면 보너스 적용
-        sensor_bonus = max(0, 50 - abs(numb_of_sensor - 45))  
-
-        # ✅ 새로운 적합도 공식
         fitness_score = (100 - numb_of_sensor * 0.3 - overlap_penalty - sensor_penalty + sensor_bonus) * uncover
-
         return fitness_score
-
 
     def on_generation_callback(self, ga_instance):
         """세대별 콜백 함수 (50세대마다 체크포인트 기록)"""
         generation = ga_instance.generations_completed
         fitness = ga_instance.best_solution(pop_fitness=ga_instance.last_generation_fitness)[1]
-        
+
         if self.last_fitness is not None and abs(fitness - self.last_fitness) < 1e-5:
             self.stagnation_counter += 1
         else:
@@ -116,13 +111,12 @@ class SensorGA:
             self.save_checkpoint(generation, solution_fitness, num_sensors)
 
     def save_checkpoint(self, generation, solution_fitness, num_sensors):
-        """CSV 파일로 중간 결과 저장"""
-        os.makedirs(RESULTS_DIR, exist_ok=True)
-        file_path = os.path.join(RESULTS_DIR, "generation_results.csv")
-
-        with open(file_path, mode="a", newline='') as file:
+        """CSV 파일에 모든 세대의 결과를 기록"""
+        with open(self.file_path, mode="a", newline='') as file:
             writer = csv.writer(file)
             writer.writerow([generation, solution_fitness, num_sensors])
+
+        print(f"📌 체크포인트 저장 완료: {self.file_path}")
 
     def run(self):
         """GA 실행"""
