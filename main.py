@@ -130,13 +130,13 @@ class Main:
 # 코드 본체
 if __name__ == "__main__":
     for i in range(20):
-        map_name = "250*280.bot"
+        map_name = "250x280.bot"
         Main(map_name, 35, 500).run()
         
     for i in range(20):
-        map_name = "250*280.mid"
+        map_name = "250x280.mid"
         Main(map_name, 35, 500).run()
         
     for i in range(20):
-        map_name = "250*280.top"
+        map_name = "250x280.top"
         Main(map_name, 35, 500).run()
