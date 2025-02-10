@@ -7,7 +7,7 @@ from _SensorModule import Sensor
 from _SensorModule.coverage import *
 
 # 사용할 알고리즘
-from _Algorithm.variable_ga import *
+from _Algorithm.new_GA import *
 
 
 class Main:
@@ -129,4 +129,4 @@ class Main:
 if __name__ == "__main__":
     for i in range(1):
         map_name = "250x280.bot"
-        Main(map_name, 10, 500).run()
+        Main(map_name, 20, 500).run()
