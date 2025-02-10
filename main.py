@@ -70,12 +70,11 @@ class Main:
             layer_corner[pos[1], pos[0]] = 10
         return layer_corner, corner_points
 
-    def inner_sensor_deploy(self, layer_corner):
+    def inner_sensor_deploy(self, layer_corner, experiment_dir):
         """GA 최적화 기반 내부 센서 배치"""
         layer_inner = copy.deepcopy(layer_corner)
-        inner_points = SensorGA(layer_inner, self.coverage, self.GEN).run()
+        inner_layer, inner_points = SensorGA(layer_inner, self.coverage, self.GEN, results_dir=experiment_dir).run()
 
-        #inner_points가 리스트가 아닐 경우 빈 리스트로 변환
         if not isinstance(inner_points, list):
             inner_points = []
 
@@ -88,45 +87,49 @@ class Main:
         """전체 실행 흐름"""
         start_time = time.time()
 
-        #현재 날짜 기반으로 폴더 생성 (월-시-분)
+        # 현재 날짜 기반으로 폴더 생성 (월-시-분)
         now = datetime.now().strftime("%m-%d-%H-%M")
         experiment_dir = os.path.join("__RESULTS__", now)
         os.makedirs(experiment_dir, exist_ok=True)
 
         # 1. 최외곽 센서 배치
         layer_corner, corner_points = self.corner_deploy()
-        #최외곽 센서 배치 결과 저장
+
+        # 최외곽 센서 배치 결과 저장
         self.vis.showJetMap_circle(
             "Corner Sensor Deployment", layer_corner, self.coverage, corner_points,
-            save_path=os.path.join(experiment_dir, "corner_sensor_deployment")  #폴더 내 저장
+            save_path=os.path.join(experiment_dir, "corner_sensor_deployment")  # 폴더 내 저장
         )
 
         # 2. 내부 센서 최적화 배치
-        layer_result, inner_points = self.inner_sensor_deploy(layer_corner)
-        #corner_points와 inner_points가 리스트인지 확인하고, 아니면 빈 리스트로 변환
+        layer_result, inner_points = self.inner_sensor_deploy(layer_corner, experiment_dir)
+
+        # corner_points와 inner_points가 리스트인지 확인하고, 아니면 빈 리스트로 변환
         if not isinstance(corner_points, list):
             corner_points = []
         if not isinstance(inner_points, list):
             inner_points = []
+
         total_sensors = len(corner_points) + len(inner_points)
         runtime = time.time() - start_time
-        
-        #최종 센서 배치 결과를 해당 폴더에 저장
+
+        # 최종 센서 배치 결과를 해당 폴더에 저장
         all_sensor_positions = corner_points + inner_points
         self.vis.showJetMap_circle(
             "Final Sensor Deployment", layer_result, self.coverage, all_sensor_positions,
-            save_path=os.path.join(experiment_dir, "final_sensor_deployment")  #폴더 내 저장
+            save_path=os.path.join(experiment_dir, "final_sensor_deployment")  # 폴더 내 저장
         )
 
-        #GA 진화 과정 결과도 폴더 내 저장
-        self.save_checkpoint_folder = experiment_dir  #GA 결과 저장을 위한 폴더 경로 설정
+        # GA 진화 과정 결과도 폴더 내 저장
+        self.save_checkpoint_folder = experiment_dir  # GA 결과 저장을 위한 폴더 경로 설정
 
-        #메타데이터 저장
+        # 메타데이터 저장
         self.record_metadata(runtime, total_sensors, all_sensor_positions, self.map_name, output_dir=experiment_dir)
+
 
 
 # 코드 본체
 if __name__ == "__main__":
     for i in range(1):
         map_name = "250x280.bot"
-        Main(map_name, 20, 500).run()
+        Main(map_name, 20, 50).run()
