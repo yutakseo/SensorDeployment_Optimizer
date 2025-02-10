@@ -146,3 +146,5 @@ if __name__ == "__main__":
     VisualTool().showJetMap_circle("Final Sensor Placement", map_data, radius=5, sensor_positions=best_sensor_positions)
     print("\n🔍 최종 센서 배치 (좌표 쌍):")
     print(best_sensor_positions)
+
+#test
