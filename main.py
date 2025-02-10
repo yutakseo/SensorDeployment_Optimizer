@@ -87,8 +87,8 @@ class Main:
         """전체 실행 흐름"""
         start_time = time.time()
 
-        # 현재 날짜 기반으로 폴더 생성 (월-시-분)
-        now = datetime.now().strftime("%m-%d-%H-%M")
+        # 현재 날짜 기반으로 폴더 생성 (월-시-분-초)
+        now = datetime.now().strftime("%m-%d-%H-%M-%S")
         experiment_dir = os.path.join("__RESULTS__", now)
         os.makedirs(experiment_dir, exist_ok=True)
 
@@ -128,8 +128,17 @@ class Main:
 
 
 
+
 # 코드 본체
 if __name__ == "__main__":
-    for i in range(1):
+    for i in range(20):
         map_name = "250x280.bot"
-        Main(map_name, 20, 50).run()
+        Main(map_name, 20, 500).run()
+
+    for i in range(20):
+        map_name = "250x280.mid"
+        Main(map_name, 20, 500).run()
+        
+    for i in range(20):
+        map_name = "250x280.top"
+        Main(map_name, 20, 500).run()
