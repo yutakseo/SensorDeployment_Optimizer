@@ -2,8 +2,6 @@ import numpy as np
 import random
 import os
 import csv
-from datetime import datetime
-
 
 class SensorGA:
     def __init__(self, map_data, coverage, generations, results_dir,
@@ -37,7 +35,7 @@ class SensorGA:
         self.file_path = os.path.join(self.results_dir, "generation_results.csv")
         with open(self.file_path, mode="w", newline='') as file:
             writer = csv.writer(file)
-            writer.writerow(["Generation", "Fitness", "Num_Sensors"])
+            writer.writerow(["Generation", "Fitness", "Num_Sensors", "Coverage_Score"])
 
         # 초기 개체군 생성
         self.population = self.initialize_population()
@@ -46,7 +44,7 @@ class SensorGA:
         """초기 개체(염색체) 생성"""
         population = []
         for _ in range(self.initial_population_size):
-            num_sensors = random.randint(5, 20)
+            num_sensors = random.randint(20, 30)
             sensor_positions = random.sample(list(self.feasible_positions), num_sensors)
             chromosome = [coord for pos in sensor_positions for coord in pos]
             population.append(chromosome)
@@ -73,51 +71,94 @@ class SensorGA:
         sensor_counts = (sensor_map - self.map_data) // 10
         overlap_penalty = np.sum(np.maximum(0, sensor_counts - 1)) * 2
         sensor_penalty = num_sensors * 3
-        return coverage_score - (sensor_penalty + overlap_penalty)
+        return coverage_score - (sensor_penalty + overlap_penalty), coverage_score
 
-    def save_generation_results(self, generation, fitness, num_sensors):
+    def add_sensor(self, chromosome, uncovered_positions):
+        """센서 추가: 커버되지 않은 영역을 랜덤으로 선택하여 추가"""
+        new_sensor = random.choice(uncovered_positions)
+        chromosome.insert(0, new_sensor[0])
+        chromosome.insert(1, new_sensor[1])
+        return chromosome
+
+    def remove_sensor(self, chromosome, redundant_sensors):
+        """센서 삭제: 중복된 센서 중 하나를 랜덤으로 제거"""
+        sensor_to_remove = random.choice(redundant_sensors)
+        idx = chromosome.index(sensor_to_remove[0])
+        del chromosome[idx:idx+2]
+        return chromosome
+
+    def mutate(self, chromosome, mutation_rate=0.2):
+        """돌연변이 연산: 적합도 평가 후 센서 추가 또는 삭제"""
+        # ⚠️ 짝수 개수 유지 (좌표 쌍)
+        if len(chromosome) % 2 != 0:
+            chromosome = chromosome[:-1]
+
+        current_fitness, coverage_score = self.fitness_function(chromosome)
+        sensor_map = self.draw_sensor(chromosome)  # 맵 시뮬레이션 실행
+        sensor_counts = (sensor_map - self.map_data) // 10
+
+        # ✅ 커버리지가 부족한 영역 찾기
+        uncovered_positions = [pos for pos in self.feasible_positions if sensor_map[pos] < 11]
+
+        # ✅ 중첩된 센서 찾기 (인덱스 검사 추가)
+        redundant_sensors = []
+        for i in range(0, len(chromosome) - 1, 2):  # ✅ 인덱스 초과 방지
+            x, y = chromosome[i], chromosome[i + 1]
+            if 0 <= x < self.rows and 0 <= y < self.cols:  # ✅ 인덱스 검사 추가
+                if sensor_counts[x, y] > 1:
+                    redundant_sensors.append((x, y))
+
+        if random.random() < mutation_rate:
+            # ✅ 1) 센서 추가 (커버되지 않은 영역이 존재할 경우)
+            if uncovered_positions:
+                chromosome = self.add_sensor(chromosome, uncovered_positions)
+
+            # ✅ 2) 센서 삭제 (중첩된 센서가 많을 경우)
+            elif redundant_sensors:
+                chromosome = self.remove_sensor(chromosome, redundant_sensors)
+
+        return chromosome
+
+
+
+    def save_generation_results(self, generation, fitness, num_sensors, coverage_score):
         """세대별 적합도 및 센서 개수를 CSV에 저장"""
         with open(self.file_path, mode="a", newline='') as file:
             writer = csv.writer(file)
-            writer.writerow([generation, fitness, num_sensors])
+            writer.writerow([generation, fitness, num_sensors, coverage_score])
 
     def run(self):
         """유전 알고리즘 실행"""
         population = self.population
         parents = population[:self.next_population_size]
-        
+
         for gen in range(1, self.generations + 1):
             # 새로운 후보 개체 생성
             candidate_offspring = []
             while len(candidate_offspring) < self.candidate_population_size:
                 parent1, parent2 = random.sample(parents, 2)
-                child = parent1[:len(parent1)//2] + parent2[len(parent2)//2:]  # 간단한 crossover
+                child = parent1[:len(parent1)//2] + parent2[len(parent2)//2:]  # 교배
+                child = self.mutate(child, mutation_rate=0.2)  # 돌연변이 적용
                 candidate_offspring.append(child)
             parents = candidate_offspring[:self.next_population_size]
 
-            best_solution = max(parents, key=self.fitness_function)
-            best_fitness = self.fitness_function(best_solution)
+            best_solution = max(parents, key=lambda c: self.fitness_function(c)[0])
+            best_fitness, coverage_score = self.fitness_function(best_solution)
             num_sensors = len(best_solution) // 2
-            self.save_generation_results(gen, best_fitness, num_sensors)
+            self.save_generation_results(gen, best_fitness, num_sensors, coverage_score)
 
-            # 🔹 **터미널 출력 추가**
-            print(f"Generation {gen} | Best Fitness: {best_fitness:.1f} | Num Sensors: {num_sensors}")
+            # 🖥 터미널 출력 추가
+            print(f"Generation {gen} | Fitness: {best_fitness:.1f} | Num Sensors: {num_sensors} | Coverage Score: {coverage_score}")
 
-        # 최종 결과
-        best_solution = max(parents, key=self.fitness_function)
+        # ✅ 최종 결과 필터링 (feasible_positions 검토)
+        best_solution = max(parents, key=lambda c: self.fitness_function(c)[0])
+        sensor_positions = [(best_solution[i+1], best_solution[i]) for i in range(0, len(best_solution), 2)
+                            if (best_solution[i], best_solution[i+1]) in self.feasible_positions]
 
-        # 🔹 **최종 결과에서 `feasible_positions` 검토**
-        sensor_positions = []
-        for i in range(0, len(best_solution), 2):
-            if i + 1 < len(best_solution):
-                x, y = best_solution[i], best_solution[i + 1]
-                if (x, y) in self.feasible_positions:  # ✅ `feasible_positions` 검토 추가
-                    sensor_positions.append((y, x))  # (y, x) 순서
-
-        # 🔹 **최종 센서 배치 맵 생성**
+        # ✅ 최종 센서 배치 맵 생성
         inner_layer = self.map_data.copy()
         for x, y in sensor_positions:
-            if (x, y) in self.feasible_positions:  # ✅ `feasible_positions` 검토 추가
+            if (x, y) in self.feasible_positions:
                 inner_layer[y, x] = 10  # (y, x) 순서로 인덱싱하여 저장
 
         return inner_layer, sensor_positions
