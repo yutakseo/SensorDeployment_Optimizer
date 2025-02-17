@@ -30,13 +30,15 @@ class HarrisCorner():
         binarized_result[non_max_suppressed > 0] = 1
         return binarized_result
     
+    
+    #비최대 억제 실행없이 Harris 코너 탐지 실행(실험용)
     def onlyHarris(self, map, block_size=7, ksize=3, k=0.03):
-    # Harris 코너 탐지 실행
         filtered_map = cv2.cornerHarris(src=np.array(map,dtype=np.uint8), blockSize=block_size, ksize=ksize, k=k)
         threshold = 0#-100 * filtered_map.max()
         filtered_map[filtered_map != threshold] = 1
         return filtered_map
     
+    #최종결과 출력
     def extract(self, map):
         # y, x --> x, y 변환
         points = np.where(map == 1)
