@@ -86,7 +86,6 @@ class Main:
     def run(self):
         """전체 실행 흐름"""
         start_time = time.time()
-
         # 현재 날짜 기반으로 폴더 생성 (월-시-분-초)
         now = datetime.now().strftime("%m-%d-%H-%M-%S")
         experiment_dir = os.path.join("__RESULTS__", now)
@@ -115,7 +114,10 @@ class Main:
 
         # 최종 센서 배치 결과를 해당 폴더에 저장
         all_sensor_positions = corner_points + inner_points
-        all_sensor_positions = [[3,2]]
+        "수동배치"
+        """all_sensor_positions = [[5,26],[17,32],[17,24],[33,30],[27,35],[41,45],[44,40],[42,33],[49,33],[46,38],
+                                [56,41],[62,33],[62,19],[52,14],[57,8],[18,3]]"""
+                                
         self.vis.showJetMap_circle(
             "Final Sensor Deployment", self.MAP, self.coverage, all_sensor_positions,
             save_path=os.path.join(experiment_dir, "final_sensor_deployment")  # 폴더 내 저장
@@ -132,14 +134,20 @@ class Main:
 
 # 코드 본체
 if __name__ == "__main__":
+    
     for i in range(1):
         map_name = "250x280.bot"
         Main(map_name, 20, 1).run()
-
-    """for i in range(10):
+    
+    
+    """
+    for i in range(1):
         map_name = "250x280.mid"
-        Main(map_name, 20, 500).run()
-        
-    for i in range(10):
+        Main(map_name, 20, 1).run()
+    """
+    
+    """
+    for i in range(1):
         map_name = "250x280.top"
-        Main(map_name, 20, 500).run()"""
+        Main(map_name, 20, 1).run()
+    """
