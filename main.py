@@ -115,6 +115,7 @@ class Main:
 
         # 최종 센서 배치 결과를 해당 폴더에 저장
         all_sensor_positions = corner_points + inner_points
+        all_sensor_positions = [[3,2]]
         self.vis.showJetMap_circle(
             "Final Sensor Deployment", layer_result, self.coverage, all_sensor_positions,
             save_path=os.path.join(experiment_dir, "final_sensor_deployment")  # 폴더 내 저장
