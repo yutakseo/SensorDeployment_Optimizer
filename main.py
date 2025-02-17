@@ -117,7 +117,7 @@ class Main:
         all_sensor_positions = corner_points + inner_points
         all_sensor_positions = [[3,2]]
         self.vis.showJetMap_circle(
-            "Final Sensor Deployment", layer_result, self.coverage, all_sensor_positions,
+            "Final Sensor Deployment", self.MAP, self.coverage, all_sensor_positions,
             save_path=os.path.join(experiment_dir, "final_sensor_deployment")  # 폴더 내 저장
         )
 
