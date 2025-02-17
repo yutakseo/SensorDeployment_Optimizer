@@ -134,20 +134,22 @@ class Main:
 
 # 코드 본체
 if __name__ == "__main__":
-    
+    """
     for i in range(1):
         map_name = "250x280.bot"
         Main(map_name, 20, 1).run()
     
     
     """
+    """
     for i in range(1):
         map_name = "250x280.mid"
         Main(map_name, 20, 1).run()
-    """
+    
     
     """
+    
     for i in range(1):
         map_name = "250x280.top"
         Main(map_name, 20, 1).run()
-    """
+    
