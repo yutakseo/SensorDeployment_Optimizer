@@ -107,36 +107,30 @@ class SensorDeployment:
         
         
         #4. 수동배치 시 사용
-        """all_sensor_positions = [[5,26],[17,32],[17,24],[33,30],[27,35],[41,45],[44,40],[42,33],[49,33],[46,38],
-                                [56,41],[62,33],[62,19],[52,14],[57,8],[18,3]]
+        all_sensor_positions = [[2,11],[21,2],[14,17],[37,12],[34,6],[16,43]]
         self.visual_module.showJetMap_circle(
-            "Final Sensor Deployment", self.MAP, self.coverage, all_sensor_positions,
+            "Manual Sensor Deployment", self.MAP, self.coverage, all_sensor_positions,
             save_path=os.path.join(experiment_dir, "Manual_sensor_result")
-        )         """               
+        )         
+                  
                                 
-                                
-        
-                             
-
-
-
 
 # 코드 본체
 if __name__ == "__main__":
-    """
     for i in range(1):
-        map_name = "250x280.bot"
-        SensorDeployment:(map_name, 20, 1).run()
-    """
-    
-    """
+        map_name = "250x280.top"
+        instance = SensorDeployment(map_name, 20, 500)
+        #instance.visual_module.showJetMap("Original Map", instance.MAP, filename="original_map")
+        instance.run()
+        
     for i in range(1):
         map_name = "250x280.mid"
-        SensorDeployment:(map_name, 20, 1).run()
-    """
-    
+        instance = SensorDeployment(map_name, 20, 500)
+        #instance.visual_module.showJetMap("Original Map", instance.MAP, filename="original_map")
+        instance.run()
+        
     for i in range(1):
         map_name = "250x280.bot"
-        instance = SensorDeployment(map_name, 20, 1)
-        instance.visual_module.showJetMap("Original Map", instance.MAP, filename="original_map")
+        instance = SensorDeployment(map_name, 20, 500)
+        #instance.visual_module.showJetMap("Original Map", instance.MAP, filename="original_map")
         instance.run()
