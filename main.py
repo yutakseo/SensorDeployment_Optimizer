@@ -84,7 +84,7 @@ class SensorDeployment:
         layer_corner, corner_points = self.corner_deploy(self.MAP)
         self.visual_module.showJetMap_circle(
             "Corner Sensor Deployment", layer_corner, self.coverage, corner_points,
-            save_path=os.path.join(experiment_dir, "corner_sensor_deployment")
+            save_path=os.path.join(experiment_dir, "corner_sensor_result")
         )
 
         #2. 내부 센서 최적화 배치
@@ -98,19 +98,25 @@ class SensorDeployment:
         total_sensors = len(corner_points) + len(inner_points)
         runtime = time.time() - start_time
         all_sensor_positions = corner_points + inner_points
+        self.visual_module.showJetMap_circle(
+            "Final Sensor Deployment", layer_result, self.coverage, all_sensor_positions,
+            save_path=os.path.join(experiment_dir, "Final_sensor_result")
+        )
+        self.save_checkpoint_folder = experiment_dir
+        self.record_metadata(runtime, total_sensors, all_sensor_positions, self.map_name, output_dir=experiment_dir)
         
         
         #4. 수동배치 시 사용
         """all_sensor_positions = [[5,26],[17,32],[17,24],[33,30],[27,35],[41,45],[44,40],[42,33],[49,33],[46,38],
-                                [56,41],[62,33],[62,19],[52,14],[57,8],[18,3]]"""
+                                [56,41],[62,33],[62,19],[52,14],[57,8],[18,3]]
+        self.visual_module.showJetMap_circle(
+            "Final Sensor Deployment", self.MAP, self.coverage, all_sensor_positions,
+            save_path=os.path.join(experiment_dir, "Manual_sensor_result")
+        )         """               
+                                
+                                
         
                              
-        self.visual_module.showJetMap_circle(
-            "Final Sensor Deployment", layer_result, self.coverage, all_sensor_positions,
-            save_path=os.path.join(experiment_dir, "Final_sensor_deployment")
-        )
-        self.save_checkpoint_folder = experiment_dir
-        self.record_metadata(runtime, total_sensors, all_sensor_positions, self.map_name, output_dir=experiment_dir)
 
 
 
