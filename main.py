@@ -1,7 +1,7 @@
-import os, sys, time, importlib, json, copy
+import os, sys, time, importlib, json, copy, datetime
 import numpy as np
 from cpuinfo import get_cpu_info
-from _VisualModule_ import *
+from _VisualModule_ import VisualTool
 from _HarrisCorner.cv_detector import *
 from _SensorModule import Sensor
 from _SensorModule.coverage import *
@@ -12,13 +12,13 @@ from _Algorithm.GeneticAlgorithm import *
 
 class SensorDeployment:
     def __init__(self, map_name, coverage, generation):
+        self.visual_module = VisualTool()
         self.map_name = map_name
         self.coverage = coverage
         self.GEN = generation
         map_module_path = f"__MAPS__.{map_name}"
         map_module = importlib.import_module(map_module_path)
         self.MAP = np.array(getattr(map_module, "MAP"))
-        self.vis = VisualTool()
 
     @staticmethod
     def record_metadata(runtime, num_sensor, sensor_positions, map_name="Unknown", output_dir="__RESULTS__"):
@@ -60,6 +60,7 @@ class SensorDeployment:
             layer_corner[pos[1], pos[0]] = 10
         return layer_corner, corner_points
 
+
     #내부 지점 센서 배치 메서드
     def inner_sensor_deploy(self, layer_corner, experiment_dir):
         layer_inner = copy.deepcopy(layer_corner)
@@ -70,7 +71,8 @@ class SensorDeployment:
             layer_inner[pos[1], pos[0]] = 10
         return layer_inner, inner_points
 
-    #인스턴스 동작
+
+    #인스턴스 동작 메서드
     def run(self):
         start_time = time.time()
         now = datetime.now().strftime("%m-%d-%H-%M-%S")
@@ -79,7 +81,7 @@ class SensorDeployment:
 
         #1. 최외곽 센서 배치
         layer_corner, corner_points = self.corner_deploy()
-        self.vis.showJetMap_circle(
+        self.visual_module.showJetMap_circle(
             "Corner Sensor Deployment", layer_corner, self.coverage, corner_points,
             save_path=os.path.join(experiment_dir, "corner_sensor_deployment")
         )
@@ -102,7 +104,7 @@ class SensorDeployment:
                                 [56,41],[62,33],[62,19],[52,14],[57,8],[18,3]]"""
         
                              
-        self.vis.showJetMap_circle(
+        self.visual_module.showJetMap_circle(
             "Final Sensor Deployment", self.MAP, self.coverage, all_sensor_positions,
             save_path=os.path.join(experiment_dir, "Final_sensor_deployment")
         )
@@ -128,6 +130,6 @@ if __name__ == "__main__":
     
     for i in range(1):
         map_name = "250x280.bot"
-        instance = SensorDeployment(map_name, 20, 1)
-        instance.vis.showJetMap("Original Map", instance.MAP, filename="original_map")
+        instance = SensorDeployment(map_name, 20, 10).run()
+        instance.visual_module.showJetMap("Original Map", instance.MAP, filename="original_map")
     
