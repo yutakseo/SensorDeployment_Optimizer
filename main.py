@@ -1,44 +1,39 @@
 import os, sys, time, importlib, json, copy
 import numpy as np
 from cpuinfo import get_cpu_info
-from _VisualModule import *
+from _VisualModule_ import *
 from _HarrisCorner.cv_detector import *
 from _SensorModule import Sensor
 from _SensorModule.coverage import *
 
 # 사용할 알고리즘
-from _Algorithm.new_GA import *
+from _Algorithm.GeneticAlgorithm import *
 
 
-class Main:
+class SensorDeployment:
     def __init__(self, map_name, coverage, generation):
+        self.map_name = map_name
+        self.coverage = coverage
+        self.GEN = generation
         map_module_path = f"__MAPS__.{map_name}"
         map_module = importlib.import_module(map_module_path)
         self.MAP = np.array(getattr(map_module, "MAP"))
         self.vis = VisualTool()
-        
-        self.coverage = coverage
-        self.GEN = generation
-        self.map_name = map_name
 
     @staticmethod
     def record_metadata(runtime, num_sensor, sensor_positions, map_name="Unknown", output_dir="__RESULTS__"):
-        """실험 결과 메타데이터 저장"""
         os.makedirs(output_dir, exist_ok=True)
         now = datetime.now()
-        time_str = now.strftime("%m-%d_%H-%M-%S")  #날짜 형식으로 중복 방지
+        time_str = now.strftime("%m-%d_%H-%M-%S")
+        current_time = now.strftime("%Y-%m-%d %H:%M:%S")
         file_name = f"result_{time_str}.json"
         output_file = os.path.join(output_dir, file_name)
-        current_time = now.strftime("%Y-%m-%d %H:%M:%S")
         cpu_info = get_cpu_info()['brand_raw']
-
-        #리스트가 아닐 경우 빈 리스트로 변환하여 예외 방지
+        
         if not isinstance(sensor_positions, list):
             sensor_positions = []
-
         sensor_positions = [(int(pos[0]), int(pos[1])) for pos in sensor_positions]
-
-        # 메타데이터 생성
+        
         metadata = {
             "Timestamp": current_time,
             "CPU Name": cpu_info,
@@ -47,86 +42,71 @@ class Main:
             "Total Sensors": int(num_sensor),
             "Sensor Positions": sensor_positions
         }
-
-        # JSON 파일 저장
         with open(output_file, mode='w', encoding='utf-8') as file:
             json.dump(metadata, file, ensure_ascii=False, indent=4)
-        print(f"메타데이터 저장 완료: {output_file}")
+        print(f"Result save at : {output_file}")
 
+
+    #최외곽 지점 센서 배치 메서드
     def corner_deploy(self):
-        """최외곽 지점 센서 배치"""
         layer_corner = copy.deepcopy(self.MAP)
         corner_instance = HarrisCorner(layer_corner)
         corner_points = corner_instance.extract(
             corner_instance.harrisCorner(corner_instance.gaussianBlur(layer_corner))
         )
-
-        #corner_points가 리스트가 아닐 경우 빈 리스트로 변환
         if not isinstance(corner_points, list):
             corner_points = []
-
-        # 센서 배치 (각 센서 위치를 10으로 표시)
         for pos in corner_points:
             layer_corner[pos[1], pos[0]] = 10
         return layer_corner, corner_points
 
+    #내부 지점 센서 배치 메서드
     def inner_sensor_deploy(self, layer_corner, experiment_dir):
-        """GA 최적화 기반 내부 센서 배치"""
         layer_inner = copy.deepcopy(layer_corner)
         inner_layer, inner_points = SensorGA(layer_inner, self.coverage, self.GEN, results_dir=experiment_dir).run()
-
         if not isinstance(inner_points, list):
             inner_points = []
-
-        # 내부 센서 배치
         for pos in inner_points:
             layer_inner[pos[1], pos[0]] = 10
         return layer_inner, inner_points
 
+    #인스턴스 동작
     def run(self):
-        """전체 실행 흐름"""
         start_time = time.time()
-        # 현재 날짜 기반으로 폴더 생성 (월-시-분-초)
         now = datetime.now().strftime("%m-%d-%H-%M-%S")
         experiment_dir = os.path.join("__RESULTS__", now)
         os.makedirs(experiment_dir, exist_ok=True)
 
-        # 1. 최외곽 센서 배치
+        #1. 최외곽 센서 배치
         layer_corner, corner_points = self.corner_deploy()
-
-        # 최외곽 센서 배치 결과 저장
         self.vis.showJetMap_circle(
             "Corner Sensor Deployment", layer_corner, self.coverage, corner_points,
-            save_path=os.path.join(experiment_dir, "corner_sensor_deployment")  # 폴더 내 저장
+            save_path=os.path.join(experiment_dir, "corner_sensor_deployment")
         )
 
-        # 2. 내부 센서 최적화 배치
+        #2. 내부 센서 최적화 배치
         layer_result, inner_points = self.inner_sensor_deploy(layer_corner, experiment_dir)
-
-        # corner_points와 inner_points가 리스트인지 확인하고, 아니면 빈 리스트로 변환
         if not isinstance(corner_points, list):
             corner_points = []
         if not isinstance(inner_points, list):
             inner_points = []
 
+        #3. 최종 센서 배치 결과
         total_sensors = len(corner_points) + len(inner_points)
         runtime = time.time() - start_time
-
-        # 최종 센서 배치 결과를 해당 폴더에 저장
         all_sensor_positions = corner_points + inner_points
-        "수동배치"
+        
+        
+        #4. 수동배치 시 사용
         """all_sensor_positions = [[5,26],[17,32],[17,24],[33,30],[27,35],[41,45],[44,40],[42,33],[49,33],[46,38],
                                 [56,41],[62,33],[62,19],[52,14],[57,8],[18,3]]"""
-                                
+        
+                             
         self.vis.showJetMap_circle(
             "Final Sensor Deployment", self.MAP, self.coverage, all_sensor_positions,
-            save_path=os.path.join(experiment_dir, "final_sensor_deployment")  # 폴더 내 저장
+            save_path=os.path.join(experiment_dir, "Final_sensor_deployment")
         )
-
-        # GA 진화 과정 결과도 폴더 내 저장
-        self.save_checkpoint_folder = experiment_dir  # GA 결과 저장을 위한 폴더 경로 설정
-
-        # 메타데이터 저장
+        self.save_checkpoint_folder = experiment_dir
         self.record_metadata(runtime, total_sensors, all_sensor_positions, self.map_name, output_dir=experiment_dir)
 
 
@@ -137,19 +117,17 @@ if __name__ == "__main__":
     """
     for i in range(1):
         map_name = "250x280.bot"
-        Main(map_name, 20, 1).run()
-    
-    
+        SensorDeployment:(map_name, 20, 1).run()
     """
+    
     """
     for i in range(1):
         map_name = "250x280.mid"
-        Main(map_name, 20, 1).run()
-    
-    
+        SensorDeployment:(map_name, 20, 1).run()
     """
     
     for i in range(1):
-        map_name = "250x280.top"
-        Main(map_name, 20, 1).run()
+        map_name = "250x280.bot"
+        instance = SensorDeployment(map_name, 20, 1)
+        instance.vis.showJetMap("Original Map", instance.MAP, filename="original_map")
     

@@ -121,7 +121,7 @@ class SensorGA:
                 inner_layer[y, x] = 10  # (y, x) 순서로 인덱싱하여 저장
 
         return inner_layer, sensor_positions
-from _VisualModule import VisualTool
+from _VisualModule_ import VisualTool
 
 
 if __name__ == "__main__":
