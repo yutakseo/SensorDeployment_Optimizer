@@ -49,8 +49,8 @@ class SensorDeployment:
 
 
     #최외곽 지점 센서 배치 메서드
-    def corner_deploy(self):
-        layer_corner = copy.deepcopy(self.MAP)
+    def corner_deploy(self, map):
+        layer_corner = copy.deepcopy(map)
         corner_instance = HarrisCorner(layer_corner)
         corner_points = corner_instance.extract(
             corner_instance.harrisCorner(corner_instance.gaussianBlur(layer_corner))
@@ -63,8 +63,8 @@ class SensorDeployment:
 
 
     #내부 지점 센서 배치 메서드
-    def inner_sensor_deploy(self, layer_corner, experiment_dir):
-        layer_inner = copy.deepcopy(layer_corner)
+    def inner_sensor_deploy(self, map, experiment_dir):
+        layer_inner = copy.deepcopy(map)
         inner_layer, inner_points = SensorGA(layer_inner, self.coverage, self.GEN, results_dir=experiment_dir).run()
         if not isinstance(inner_points, list):
             inner_points = []
@@ -81,7 +81,7 @@ class SensorDeployment:
         os.makedirs(experiment_dir, exist_ok=True)
 
         #1. 최외곽 센서 배치
-        layer_corner, corner_points = self.corner_deploy()
+        layer_corner, corner_points = self.corner_deploy(self.MAP)
         self.visual_module.showJetMap_circle(
             "Corner Sensor Deployment", layer_corner, self.coverage, corner_points,
             save_path=os.path.join(experiment_dir, "corner_sensor_deployment")
@@ -106,7 +106,7 @@ class SensorDeployment:
         
                              
         self.visual_module.showJetMap_circle(
-            "Final Sensor Deployment", self.MAP, self.coverage, all_sensor_positions,
+            "Final Sensor Deployment", layer_result, self.coverage, all_sensor_positions,
             save_path=os.path.join(experiment_dir, "Final_sensor_deployment")
         )
         self.save_checkpoint_folder = experiment_dir
