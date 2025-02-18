@@ -16,5 +16,4 @@
 - SmartInside AI
 - Glotechsoft
 
-
-## 유전 알고리즘을 활용한 센서 배치 최적화 알고리즘
+## Optimizing sensor deployment algorithm using GA
