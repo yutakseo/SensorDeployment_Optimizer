@@ -137,6 +137,6 @@ if __name__ == "__main__":
     
     for i in range(1):
         map_name = "250x280.bot"
-        instance = SensorDeployment(map_name, 20, 10)
+        instance = SensorDeployment(map_name, 20, 1)
         instance.visual_module.showJetMap("Original Map", instance.MAP, filename="original_map")
         instance.run()

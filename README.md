@@ -16,4 +16,4 @@
 - SmartInside AI
 - Glotechsoft
 
-## Optimizing sensor deployment algorithm using GA
+## _Optimizing sensor deployment algorithm using GA_
