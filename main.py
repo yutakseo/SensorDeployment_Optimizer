@@ -1,4 +1,5 @@
-import os, sys, time, importlib, json, copy, datetime
+import os, sys, time, importlib, json, copy
+from datetime import datetime
 import numpy as np
 from cpuinfo import get_cpu_info
 from _VisualModule_ import VisualTool
@@ -130,6 +131,6 @@ if __name__ == "__main__":
     
     for i in range(1):
         map_name = "250x280.bot"
-        instance = SensorDeployment(map_name, 20, 10).run()
+        instance = SensorDeployment(map_name, 20, 10)
         instance.visual_module.showJetMap("Original Map", instance.MAP, filename="original_map")
-    
+        instance.run()
