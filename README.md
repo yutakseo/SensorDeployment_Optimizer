@@ -51,6 +51,8 @@ The specific implementation of a genetic algorithm can vary from case to case, b
 Tasks typically solved by Genetic Algorithms include:
 
 1. Schedule optimization
-1. Optimal packing
-1. Optimal cutting
-1. Speeding up exhaustive search
+2. Optimal packing
+3. Optimal cutting
+4. Speeding up exhaustive search
+
+source: (https://github.com/microsoft/AI-For-Beginners)
