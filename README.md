@@ -16,7 +16,7 @@
 - SmartInside AI
 - Glotechsoft
 
-## _Optimizing sensor deployment algorithm using GA_
+## _Genetic Algorithm for Sensor Deployment Optimization_
 **Genetic Algorithms** (GA) are based on an **evolutionary approach** to AI, in which methods of the evolution of a population is used to obtain an optimal solution for a given problem. They were proposed in 1975 by [John Henry Holland](https://wikipedia.org/wiki/John_Henry_Holland).
 
 Genetic Algorithms are based on the following ideas:
