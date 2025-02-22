@@ -1,92 +1,136 @@
 import os, sys, time, importlib, json, copy
+from datetime import datetime
 import numpy as np
 from cpuinfo import get_cpu_info
-from _VisualModule import *
+from _VisualModule_ import VisualTool
 from _HarrisCorner.cv_detector import *
 from _SensorModule import Sensor
 from _SensorModule.coverage import *
 
-
-
 # 사용할 알고리즘
-from _Algorithm.GA import *
-from _Algorithm.PSO import *
+from _Algorithm.GeneticAlgorithm import *
 
-class Main:
+
+class SensorDeployment:
     def __init__(self, map_name, coverage, generation):
-        map_module_path = f"__MAPS__.validation_maps.{map_name}"
-        map_module = importlib.import_module(map_module_path)
-        self.MAP = np.array(getattr(map_module, "MAP"))
-        self.vis = VisualTool()
+        self.visual_module = VisualTool()
+        self.map_name = map_name
         self.coverage = coverage
         self.GEN = generation
-        self.map_name = map_name
+        map_module_path = f"__MAPS__.{map_name}"
+        map_module = importlib.import_module(map_module_path)
+        self.MAP = np.array(getattr(map_module, "MAP"))
 
-    def record_metadata(self, runtime, num_sensor, sensor_positions, output_dir="__RESULTS__"):
-        """실험 결과 메타데이터 저장"""
-        if not os.path.exists(output_dir):
-            os.makedirs(output_dir)
-        output_file = os.path.join(output_dir, f"result_{time.strftime('%Y%m%d_%H%M%S')}.json")
-        current_time = time.strftime("%Y-%m-%d %H:%M:%S")
+    @staticmethod
+    def record_metadata(runtime, num_sensor, sensor_positions, map_name="Unknown", output_dir="__RESULTS__"):
+        os.makedirs(output_dir, exist_ok=True)
+        now = datetime.now()
+        time_str = now.strftime("%m-%d_%H-%M-%S")
+        current_time = now.strftime("%Y-%m-%d %H:%M:%S")
+        file_name = f"result_{time_str}.json"
+        output_file = os.path.join(output_dir, file_name)
         cpu_info = get_cpu_info()['brand_raw']
-
-        sensor_positions = [(int(pos[0]), int(pos[1])) for pos in sensor_positions]  # numpy -> 기본 타입 변환
-
+        
+        if not isinstance(sensor_positions, list):
+            sensor_positions = []
+        sensor_positions = [(int(pos[0]), int(pos[1])) for pos in sensor_positions]
+        
         metadata = {
             "Timestamp": current_time,
             "CPU Name": cpu_info,
             "Runtime (s)": float(runtime),
-            "Map Name": self.map_name,
+            "Map Name": map_name,
             "Total Sensors": int(num_sensor),
             "Sensor Positions": sensor_positions
         }
-        with open(output_file, mode='w') as file:
-            json.dump(metadata, file, separators=(',', ':'))
+        with open(output_file, mode='w', encoding='utf-8') as file:
+            json.dump(metadata, file, ensure_ascii=False, indent=4)
+        print(f"Result save at : {output_file}")
 
-    def corner_deploy(self):
-        """최외곽 지점 센서 배치"""
-        layer_corner = copy.deepcopy(self.MAP)
+
+    #최외곽 지점 센서 배치 메서드
+    def corner_deploy(self, map):
+        layer_corner = copy.deepcopy(map)
         corner_instance = HarrisCorner(layer_corner)
         corner_points = corner_instance.extract(
             corner_instance.harrisCorner(corner_instance.gaussianBlur(layer_corner))
         )
-
-        # 센서 배치 (각 센서 위치를 10으로 표시)
+        if not isinstance(corner_points, list):
+            corner_points = []
         for pos in corner_points:
             layer_corner[pos[1], pos[0]] = 10
-
-        # 시각화
-        self.vis.showJetMap_circle("Corner Deployment", layer_corner, self.coverage, corner_points)
-
         return layer_corner, corner_points
 
-    def inner_sensor_deploy(self, layer_corner):
-        """GA 최적화 기반 내부 센서 배치"""
-        layer_inner = copy.deepcopy(layer_corner)
-        inner_points = SensorGA(layer_inner, self.coverage, self.GEN).run()
-        # 내부 센서 배치
+
+    #내부 지점 센서 배치 메서드
+    def inner_sensor_deploy(self, map, experiment_dir):
+        layer_inner = copy.deepcopy(map)
+        inner_layer, inner_points = SensorGA(layer_inner, self.coverage, self.GEN, results_dir=experiment_dir).run()
+        if not isinstance(inner_points, list):
+            inner_points = []
         for pos in inner_points:
-            layer_inner[pos[0], pos[1]] = 10
-        # 시각화
-        self.vis.showJetMap("Final Sensor Deployment", layer_inner)
+            layer_inner[pos[1], pos[0]] = 10
         return layer_inner, inner_points
 
+
+    #인스턴스 동작 메서드
     def run(self):
-        """전체 실행 흐름"""
         start_time = time.time()
+        now = datetime.now().strftime("%m-%d-%H-%M-%S")
+        experiment_dir = os.path.join("__RESULTS__", now)
+        os.makedirs(experiment_dir, exist_ok=True)
 
-        # 1. 최외곽 센서 배치
-        layer_corner, corner_points = self.corner_deploy()
+        #1. 최외곽 센서 배치
+        layer_corner, corner_points = self.corner_deploy(self.MAP)
+        self.visual_module.showJetMap_circle(
+            "Corner Sensor Deployment", layer_corner, self.coverage, corner_points,
+            save_path=os.path.join(experiment_dir, "corner_sensor_result")
+        )
 
-        # 2. 내부 센서 최적화 배치
-        layer_result, inner_points = self.inner_sensor_deploy(layer_corner)
+        #2. 내부 센서 최적화 배치
+        layer_result, inner_points = self.inner_sensor_deploy(layer_corner, experiment_dir)
+        if not isinstance(corner_points, list):
+            corner_points = []
+        if not isinstance(inner_points, list):
+            inner_points = []
 
-        
+        #3. 최종 센서 배치 결과
         total_sensors = len(corner_points) + len(inner_points)
         runtime = time.time() - start_time
-        self.record_metadata(runtime, total_sensors, corner_points + inner_points)
+        all_sensor_positions = corner_points + inner_points
+        self.visual_module.showJetMap_circle(
+            "Final Sensor Deployment", layer_result, self.coverage, all_sensor_positions,
+            save_path=os.path.join(experiment_dir, "Final_sensor_result")
+        )
+        self.save_checkpoint_folder = experiment_dir
+        self.record_metadata(runtime, total_sensors, all_sensor_positions, self.map_name, output_dir=experiment_dir)
+        
+        
+        #4. 수동배치 시 사용
+        all_sensor_positions = [[2,11],[21,2],[14,17],[37,12],[34,6],[16,43]]
+        self.visual_module.showJetMap_circle(
+            "Manual Sensor Deployment", self.MAP, self.coverage, all_sensor_positions,
+            save_path=os.path.join(experiment_dir, "Manual_sensor_result")
+        )         
+                  
+                                
 
 # 코드 본체
 if __name__ == "__main__":
-    map_name = "bot_uav"
-    Main(map_name, 30, 500).run()
+    for i in range(1):
+        map_name = "250x280.top"
+        instance = SensorDeployment(map_name, 20, 500)
+        #instance.visual_module.showJetMap("Original Map", instance.MAP, filename="original_map")
+        instance.run()
+        
+    for i in range(1):
+        map_name = "250x280.mid"
+        instance = SensorDeployment(map_name, 20, 500)
+        #instance.visual_module.showJetMap("Original Map", instance.MAP, filename="original_map")
+        instance.run()
+        
+    for i in range(1):
+        map_name = "250x280.bot"
+        instance = SensorDeployment(map_name, 20, 500)
+        #instance.visual_module.showJetMap("Original Map", instance.MAP, filename="original_map")
+        instance.run()

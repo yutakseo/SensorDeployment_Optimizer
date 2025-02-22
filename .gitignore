@@ -1,0 +1,6 @@
+# __RESULTS__ 디렉터리 내의 모든 파일 무시
+__RESULTS__/
+__pycache__/
+_Algorithm/__pycache__/
+_HarrisCorner/__pycache__/
+_SensorModule/__pycache__/
