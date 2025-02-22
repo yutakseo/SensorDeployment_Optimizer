@@ -55,4 +55,4 @@ Tasks typically solved by Genetic Algorithms include:
 3. Optimal cutting
 4. Speeding up exhaustive search
 
-source: (https://github.com/microsoft/AI-For-Beginners)
+(source: https://github.com/microsoft/AI-For-Beginners)
