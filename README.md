@@ -15,5 +15,3 @@
 - Seoul National University
 - SmartInside AI
 - Glotechsoft
-
-## _Optimizing sensor deployment algorithm using GA_
