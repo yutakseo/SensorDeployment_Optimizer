@@ -107,7 +107,7 @@ class SensorDeployment:
         
         
         #4. 수동배치 시 사용
-        all_sensor_positions = [[2,11],[21,2],[14,17],[37,12],[34,6],[16,43]]
+        #all_sensor_positions = [[2,11],[21,2],[14,17],[37,12],[34,6],[16,43]]
         self.visual_module.showJetMap_circle(
             "Manual Sensor Deployment", self.MAP, self.coverage, all_sensor_positions,
             save_path=os.path.join(experiment_dir, "Manual_sensor_result")
@@ -119,18 +119,18 @@ class SensorDeployment:
 if __name__ == "__main__":
     for i in range(1):
         map_name = "250x280.top"
-        instance = SensorDeployment(map_name, 20, 500)
+        instance = SensorDeployment(map_name, 20, 1)
         #instance.visual_module.showJetMap("Original Map", instance.MAP, filename="original_map")
         instance.run()
         
     for i in range(1):
         map_name = "250x280.mid"
-        instance = SensorDeployment(map_name, 20, 500)
+        instance = SensorDeployment(map_name, 20, 1)
         #instance.visual_module.showJetMap("Original Map", instance.MAP, filename="original_map")
         instance.run()
         
     for i in range(1):
         map_name = "250x280.bot"
-        instance = SensorDeployment(map_name, 20, 500)
+        instance = SensorDeployment(map_name, 20, 1)
         #instance.visual_module.showJetMap("Original Map", instance.MAP, filename="original_map")
         instance.run()
