@@ -119,19 +119,25 @@ class SensorDeployment:
 # 코드 본체
 if __name__ == "__main__":
     for i in range(1):
-        map_name = "250x280.top"
+        map_name = "map_250x280.top"
         instance = SensorDeployment(map_name, 45, 1)
-        #instance.visual_module.showJetMap("Original Map", instance.MAP, filename="original_map")
+        instance.visual_module.showJetMap("Original Map", instance.MAP, filename="original_map")
         instance.run()
         
     for i in range(1):
-        map_name = "250x280.mid"
+        map_name = "map_250x280.mid"
         instance = SensorDeployment(map_name, 45, 1)
-        #instance.visual_module.showJetMap("Original Map", instance.MAP, filename="original_map")
+        instance.visual_module.showJetMap("Original Map", instance.MAP, filename="original_map")
         instance.run()
         
     for i in range(1):
-        map_name = "250x280.bot"
+        map_name = "map_250x280.bot"
         instance = SensorDeployment(map_name, 45, 1)
-        #instance.visual_module.showJetMap("Original Map", instance.MAP, filename="original_map")
+        instance.visual_module.showJetMap("Original Map", instance.MAP, filename="original_map")
+        instance.run()
+        
+    for i in range(1):
+        map_name = "map_570x1100.large"
+        instance = SensorDeployment(map_name, 45, 1)
+        instance.visual_module.showJetMap("Original Map", instance.MAP, filename="original_map")
         instance.run()
