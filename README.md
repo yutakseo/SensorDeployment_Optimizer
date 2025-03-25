@@ -7,11 +7,16 @@
 
 ## _Contributors_
 - Seonghyeon Moon(Project Director)
+- Seokhye Lee
+- Dahee Kim
+- Dongwon Moon
+
+## _Alumni_
 - Yutak Seo
 - Haejun Seong
-- Seokhye Lee
 
 ## _Collaboration_
 - Seoul National University
 - SmartInside AI
 - Glotechsoft
+- POSCO E&C
