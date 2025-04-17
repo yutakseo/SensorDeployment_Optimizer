@@ -65,12 +65,12 @@ class SensorDeployment:
     #내부 지점 센서 배치 메서드
     def inner_sensor_deploy(self, map, experiment_dir):
         layer_inner = copy.deepcopy(map)
-        inner_layer, inner_points = SensorGA(layer_inner, self.coverage, self.GEN, results_dir=experiment_dir).run()
+        inner_layer, inner_point, coverage_score = SensorGA(layer_inner, self.coverage, self.GEN, results_dir=experiment_dir).run()
         if not isinstance(inner_points, list):
             inner_points = []
         for pos in inner_points:
             layer_inner[pos[1], pos[0]] = 10
-        return layer_inner, inner_points
+        return layer_inner, inner_points, coverage_score
 
 
     #인스턴스 동작 메서드
@@ -87,13 +87,16 @@ class SensorDeployment:
             save_path=os.path.join(experiment_dir, "corner_sensor_result")
         )
 
-        #2. 내부 센서 최적화 배치
-        layer_result, inner_points = self.inner_sensor_deploy(layer_corner, experiment_dir)
+        #2.1. 내부 센서 최적화 배치
+        layer_result, inner_points, coverage_score = self.inner_sensor_deploy(layer_corner, experiment_dir)
         if not isinstance(corner_points, list):
             corner_points = []
         if not isinstance(inner_points, list):
             inner_points = []
-
+        #2.2. 커버리지 비율 기록
+        coverage_score = coverage_score/np.sum(np.where(self.MAP==1, 1, 0))
+        print(coverage_score)
+        
         #3. 최종 센서 배치 결과
         total_sensors = len(corner_points) + len(inner_points)
         runtime = time.time() - start_time
@@ -105,7 +108,7 @@ class SensorDeployment:
         self.save_checkpoint_folder = experiment_dir
         self.record_metadata(runtime, total_sensors, all_sensor_positions, self.map_name, output_dir=experiment_dir)
         
-        
+        """
         #4. 수동배치 시 사용
         #all_sensor_positions = [[2,11],[21,2],[14,17],[37,12],[34,6],[16,43]]
         self.visual_module.showJetMap("Site Map", self.MAP, save_path=experiment_dir)
@@ -113,7 +116,7 @@ class SensorDeployment:
             "Manual Sensor Deployment", self.MAP, self.coverage, all_sensor_positions,
             save_path=os.path.join(experiment_dir, "Manual_sensor_result")
         )         
-                  
+              """    
                                 
 
 # 코드 본체

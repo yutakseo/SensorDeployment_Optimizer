@@ -161,4 +161,4 @@ class SensorGA:
             if (x, y) in self.feasible_positions:
                 inner_layer[y, x] = 10  # (y, x) 순서로 인덱싱하여 저장
 
-        return inner_layer, sensor_positions
+        return inner_layer, sensor_positions, coverage_score
