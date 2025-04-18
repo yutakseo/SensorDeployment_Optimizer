@@ -22,7 +22,7 @@ class SensorDeployment:
         self.MAP = np.array(getattr(map_module, "MAP"))
 
     @staticmethod
-    def record_metadata(runtime, num_sensor, sensor_positions, map_name="Unknown", output_dir="__RESULTS__"):
+    def record_metadata(runtime, num_sensor, coverage_score, sensor_positions, map_name="Unknown", output_dir="__RESULTS__"):
         os.makedirs(output_dir, exist_ok=True)
         now = datetime.now()
         time_str = now.strftime("%m-%d_%H-%M-%S")
@@ -41,6 +41,7 @@ class SensorDeployment:
             "Runtime (s)": float(runtime),
             "Map Name": map_name,
             "Total Sensors": int(num_sensor),
+            "Coverage Ratio" : float(coverage_score),
             "Sensor Positions": sensor_positions
         }
         with open(output_file, mode='w', encoding='utf-8') as file:
@@ -65,7 +66,7 @@ class SensorDeployment:
     #내부 지점 센서 배치 메서드
     def inner_sensor_deploy(self, map, experiment_dir):
         layer_inner = copy.deepcopy(map)
-        inner_layer, inner_point, coverage_score = SensorGA(layer_inner, self.coverage, self.GEN, results_dir=experiment_dir).run()
+        inner_layer, inner_points, coverage_score = SensorGA(layer_inner, self.coverage, self.GEN, results_dir=experiment_dir).run()
         if not isinstance(inner_points, list):
             inner_points = []
         for pos in inner_points:
@@ -94,8 +95,12 @@ class SensorDeployment:
         if not isinstance(inner_points, list):
             inner_points = []
         #2.2. 커버리지 비율 기록
-        coverage_score = coverage_score/np.sum(np.where(self.MAP==1, 1, 0))
-        print(coverage_score)
+        print(layer_result)
+        print("덮힌영역",coverage_score)
+        print("전체영역(1)",np.sum(self.MAP==1))
+        print("전체영역",np.sum(self.MAP>=-1))
+        instance.visual_module.showJetMap("Original Map", layer_result, filename="result_map")
+        coverage_score = (coverage_score/np.sum(self.MAP==1))*100
         
         #3. 최종 센서 배치 결과
         total_sensors = len(corner_points) + len(inner_points)
@@ -106,7 +111,7 @@ class SensorDeployment:
             save_path=os.path.join(experiment_dir, "Final_sensor_result")
         )
         self.save_checkpoint_folder = experiment_dir
-        self.record_metadata(runtime, total_sensors, all_sensor_positions, self.map_name, output_dir=experiment_dir)
+        self.record_metadata(runtime, total_sensors, coverage_score, all_sensor_positions, self.map_name, output_dir=experiment_dir)
         
         """
         #4. 수동배치 시 사용
@@ -126,13 +131,13 @@ if __name__ == "__main__":
         instance = SensorDeployment(map_name, 45, 1)
         instance.visual_module.showJetMap("Original Map", instance.MAP, filename="original_map")
         instance.run()
-        
+    """   
     for i in range(1):
         map_name = "map_250x280.mid"
         instance = SensorDeployment(map_name, 45, 1)
         instance.visual_module.showJetMap("Original Map", instance.MAP, filename="original_map")
         instance.run()
-        
+   
     for i in range(1):
         map_name = "map_250x280.bot"
         instance = SensorDeployment(map_name, 45, 1)
@@ -144,3 +149,6 @@ if __name__ == "__main__":
         instance = SensorDeployment(map_name, 45, 1)
         instance.visual_module.showJetMap("Original Map", instance.MAP, filename="original_map")
         instance.run()
+        
+        
+    """
