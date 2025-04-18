@@ -67,7 +67,7 @@ class SensorGA:
         """적합도 평가 함수"""
         sensor_map = self.draw_sensor(chromosome)
         num_sensors = len(chromosome) // 2
-        coverage_score = np.sum(sensor_map >= 11)
+        coverage_score = np.sum(sensor_map >= 12)
         sensor_counts = (sensor_map - self.map_data) // 10
         overlap_penalty = np.sum(np.maximum(0, sensor_counts - 1)) * 2
         sensor_penalty = num_sensors * 3
@@ -114,8 +114,8 @@ class SensorGA:
                 chromosome = self.add_sensor(chromosome, uncovered_positions)
 
             # ✅ 2) 센서 삭제 (중첩된 센서가 많을 경우)
-            elif redundant_sensors:
-                chromosome = self.remove_sensor(chromosome, redundant_sensors)
+            """elif redundant_sensors:
+                chromosome = self.remove_sensor(chromosome, redundant_sensors)"""
 
         return chromosome
 
