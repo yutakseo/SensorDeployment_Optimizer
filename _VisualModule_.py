@@ -30,8 +30,8 @@ class VisualTool:
         
         if sensor_positions:
             for pos in sensor_positions:
-                inner = plt.Circle(pos, radius=radius/5, edgecolor='green', facecolor='white', alpha=0.1, linewidth=0.02)
-                border = plt.Circle(pos, radius=radius/5, edgecolor='green', facecolor='none', linewidth=0.2)
+                inner = plt.Circle(pos, radius=radius, edgecolor='green', facecolor='white', alpha=0.1, linewidth=0.02)
+                border = plt.Circle(pos, radius=radius, edgecolor='green', facecolor='none', linewidth=0.2)
                 center = plt.Circle(pos, radius=0.2, edgecolor='red', facecolor='red', linewidth=0.02)
                 ax.add_patch(inner)
                 ax.add_patch(border)

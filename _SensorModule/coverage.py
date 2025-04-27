@@ -25,12 +25,15 @@ class Sensor:
 
         return uncovered_map  # 2가 미커버 영역
 
-@njit(parallel=True)
+from numba import njit
+
+@njit  
 def apply_coverage(coverage_map, sensor_positions, radius, width, height):
-    for i in prange(sensor_positions.shape[0]):  # 🚀 NumPy 배열 사용 (리스트 X)
+    for i in range(sensor_positions.shape[0]):  # prange -> range
         x, y = sensor_positions[i]
         for dx in range(-radius, radius + 1):
             for dy in range(-radius, radius + 1):
                 nx, ny = x + dx, y + dy
                 if 0 <= nx < width and 0 <= ny < height and abs(dx) + abs(dy) <= radius:
                     coverage_map[ny, nx] = 1
+

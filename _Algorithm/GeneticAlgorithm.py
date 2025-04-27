@@ -114,8 +114,8 @@ class SensorGA:
                 chromosome = self.add_sensor(chromosome, uncovered_positions)
 
             # ✅ 2) 센서 삭제 (중첩된 센서가 많을 경우)
-            """elif redundant_sensors:
-                chromosome = self.remove_sensor(chromosome, redundant_sensors)"""
+            elif redundant_sensors:
+                chromosome = self.remove_sensor(chromosome, redundant_sensors)
 
         return chromosome
 
