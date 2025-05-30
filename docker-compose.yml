@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  python-app:
+    image: sensor_optimizer
+    build:
+      context: .             # Dockerfile이 있는 경로
+      dockerfile: Dockerfile
+    container_name: sensor_container
+    working_dir: /app
+    volumes:
+      - .:/app               # 현재 디렉토리를 컨테이너와 공유
+    stdin_open: true
+    tty: true
+    command: bash            # 컨테이너 실행 시 bash로 진입

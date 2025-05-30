@@ -1,5 +1,6 @@
 # 1. 가벼운 Python 공식 이미지 사용 (Slim 버전)
-FROM python:3.11-alpine
+FROM python:3.11-slim
+# Dockerfile for Python Development Environment with OpenCV
 
 # 2. 작업 디렉토리 설정
 WORKDIR /app
