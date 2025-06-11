@@ -1,4 +1,4 @@
-# STEAM
+# [STEAM]
 
 ## _Project Information_
 - Performed by DXLAB at Gyeongsang National University
