@@ -83,7 +83,7 @@ The _HarrisCorner_ class provides 6 main methods. described below:
 1. **`.gaussianBlur(map, ksize, sigX, sigY)`**
   Applies a Gaussian blur to the input map to reduce noise and improve corner detection robustness.
 
-  - **Parameters:**
+  - ***Parameters:***
     - `ksize`:  
       The kernel size for the Gaussian filter, given as a tuple `(height, width)`.  
       For example, `(9, 9)` means the filter covers a 9×9 window.
