@@ -59,7 +59,7 @@ Tasks typically solved by Genetic Algorithms include:
 source: [Dmitry Soshnikov, PhD](https://soshnikov.com/) (2024) "Genetic Algorithm", _AI For Beginners_, https://github.com/microsoft/AI-For-Beginners
 
 ## _Framework_
-
+<img src="__framework_img.png", alt="Research Framework"/>
 
 ## <strong>Usage</strong>
 ### 1. _Map_
