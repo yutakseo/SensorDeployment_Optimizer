@@ -14,6 +14,7 @@
 
 ## _Collaboration_
 - Seoul National University
+- Posco E&C
 - SmartInside AI
 - Glotechsoft
 
