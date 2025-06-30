@@ -7,7 +7,7 @@
 
 ## _Contributors_
 - Seonghyeon Moon(Project Director)
-- Yutak Seo
+- <strong>Yutak Seo</strong>
 - Haejun Seong
 - Seokhye Lee
 
