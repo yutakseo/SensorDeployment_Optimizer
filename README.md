@@ -91,7 +91,7 @@ The _HarrisCorner_ class provides 6 main methods. described below:
   - **Notes:**  
     Similarly to convolution in image processing, a larger kernel size or larger sigma values result in a smoother (more blurred) image.
 
-
+---
 
 2. **`.non_max_suppression(self, response, nmx_threshold, dilate_size=5)`**  
    Applies Non-Maximum Suppression (NMS) to the Harris corner response map, keeping only the local maxima above a specified threshold. This process removes redundant or closely located corner points, ensuring that only the most prominent corners are detected.
@@ -105,4 +105,4 @@ The _HarrisCorner_ class provides 6 main methods. described below:
      - Increasing `dilate_size` will make NMS more selective, possibly resulting in fewer, more widely spaced corners.
      - Choosing an appropriate `nmx_threshold` helps filter out weak or insignificant corner responses.
 
-
+---
