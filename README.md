@@ -81,13 +81,18 @@ HCD_instance = HarrisCorner(MAP)
 The _HarrisCorner_ class provides 6 main methods. described below:
 
 1. **`.gaussianBlur(map, ksize, sigX, sigY)`**
-.gaussianBlur(map, ksize=(9,9), sigX=0, sigY=0)
-Applies a Gaussian blur to the input map to reduce noise and improve corner detection robustness.
+  Applies a Gaussian blur to the input map to reduce noise and improve corner detection robustness.
 
--ksize: Kernel size for the Gaussian filter, given as a tuple (height, width). For example, (9, 9) means the filter covers a 9×9 window.
+  - **Parameters:**
+    - `ksize`:  
+      The kernel size for the Gaussian filter, given as a tuple `(height, width)`.  
+      For example, `(9, 9)` means the filter covers a 9×9 window.
+    - `sigX`:  
+      Standard deviation in the X direction. Controls the amount of smoothing horizontally.  
+      Default is `0`, which means it is automatically calculated from `ksize`.
+    - `sigY`:  
+      Standard deviation in the Y direction. Controls the amount of smoothing vertically.  
+      Default is `0`.
 
--sigX: Standard deviation in the X direction. Controls the amount of smoothing horizontally. Default is 0, which means it is automatically calculated from ksize.
-
--sigY: Standard deviation in the Y direction. Controls the amount of smoothing vertically. Default is 0.
-
-Similarly to convolution in image processing, a larger kernel size or larger sigma values result in a smoother (more blurred) image.
+  - **Notes:**  
+    Similarly to convolution in image processing, a larger kernel size or larger sigma values result in a smoother (more blurred) image.
