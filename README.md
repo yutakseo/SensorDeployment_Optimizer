@@ -46,7 +46,7 @@ The specific implementation of a genetic algorithm can vary from case to case, b
 4. **Mutation** - select random gene g&in;G and replace it by mutate(g)
 5. Repeat from step 2, until we get a sufficiently small value of fit, or until the limit on the number of steps is reached.
 
-## Typical Tasks
+## _Typical Tasks_
 
 Tasks typically solved by Genetic Algorithms include:
 
@@ -57,3 +57,37 @@ Tasks typically solved by Genetic Algorithms include:
 
 
 source: [Dmitry Soshnikov, PhD](https://soshnikov.com/) (2024) "Genetic Algorithm", _AI For Beginners_, https://github.com/microsoft/AI-For-Beginners
+
+
+
+
+## <strong>Usage</strong>
+### 1. Import and Prepare Your Map
+
+
+### 2. _HarrisCorner_ Class
+The _HarrisCorner_ class provides a simple interface for detecting corner points in a given 2D map using the Harris corner detection algorithm in OpenCV.
+You just need to provide your map(as a NumPy array) to initialize the detector.
+
+```python
+import numpy as np
+from _MAPS_.<your_map_repo>.<your_map_file> import MAP
+from _HarrisCorner.HCD_tools import HarrisCorner  #HCD:Harris Corner Detector
+
+# When you create the HCD instance, simply pass your MAP as the argument:
+HCD_instance = HarrisCorner(MAP)
+```
+
+The _HarrisCorner_ class provides 6 main methods. described below:
+
+1. **`.gaussianBlur(map, ksize, sigX, sigY)`**
+.gaussianBlur(map, ksize=(9,9), sigX=0, sigY=0)
+Applies a Gaussian blur to the input map to reduce noise and improve corner detection robustness.
+
+-ksize: Kernel size for the Gaussian filter, given as a tuple (height, width). For example, (9, 9) means the filter covers a 9×9 window.
+
+-sigX: Standard deviation in the X direction. Controls the amount of smoothing horizontally. Default is 0, which means it is automatically calculated from ksize.
+
+-sigY: Standard deviation in the Y direction. Controls the amount of smoothing vertically. Default is 0.
+
+Similarly to convolution in image processing, a larger kernel size or larger sigma values result in a smoother (more blurred) image.
