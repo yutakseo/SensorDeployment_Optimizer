@@ -2,8 +2,8 @@ import os, sys, time, importlib, json, copy
 from datetime import datetime
 import numpy as np
 from cpuinfo import get_cpu_info
-from _VisualModule_ import VisualTool
-from _HarrisCorner.cv_detector import *
+from _PlotTools import VisualTool
+from _HarrisCorner.HCD_tools import *
 from _SensorModule import Sensor
 from _SensorModule.coverage import *
 
@@ -53,14 +53,21 @@ class SensorDeployment:
     def corner_deploy(self, map):
         layer_corner = copy.deepcopy(map)
         corner_instance = HarrisCorner(layer_corner)
-        corner_points = corner_instance.extract(
-            corner_instance.harrisCorner(corner_instance.gaussianBlur(layer_corner))
-        )
-        if not isinstance(corner_points, list):
-            corner_points = []
-        for pos in corner_points:
-            layer_corner[pos[1], pos[0]] = 10
-        return layer_corner, corner_points
+        points_corner = corner_instance.run(
+                                    map=layer_corner,
+                                    block_size=3,
+                                    ksize=3,
+                                    k=0.05,
+                                    dilate_size=5
+                                )
+        
+        if not isinstance(points_corner, list):
+            points_corner = []
+        else:
+            for pos in points_corner:
+                layer_corner[pos[1], pos[0]] = 10
+                
+        return layer_corner, points_corner
 
 
     #내부 지점 센서 배치 메서드
@@ -82,25 +89,25 @@ class SensorDeployment:
         os.makedirs(experiment_dir, exist_ok=True)
 
         #1. 최외곽 센서 배치
-        layer_corner, corner_points = self.corner_deploy(self.MAP)
+        layer_corner, points_corner = self.corner_deploy(self.MAP)
         self.visual_module.showJetMap_circle(
-            "Corner Sensor Deployment", layer_corner, self.coverage, corner_points,
+            "Corner Sensor Deployment", layer_corner, self.coverage, points_corner,
             save_path=os.path.join(experiment_dir, "corner_sensor_result")
         )
 
         #2.1. 내부 센서 최적화 배치
         layer_result, inner_points, coverage_score = self.inner_sensor_deploy(layer_corner, experiment_dir)
-        if not isinstance(corner_points, list):
-            corner_points = []
+        if not isinstance(points_corner, list):
+            points_corner = []
         if not isinstance(inner_points, list):
             inner_points = []
 
         
         
         #3. 최종 센서 배치 결과
-        total_sensors = len(corner_points) + len(inner_points)
+        total_sensors = len(points_corner) + len(inner_points)
         runtime = time.time() - start_time
-        all_sensor_positions = corner_points + inner_points
+        all_sensor_positions = points_corner + inner_points
         
         #3.2. 커버리지 비율 계산
         uncover_area = Sensor(self.MAP)
@@ -119,22 +126,33 @@ class SensorDeployment:
         self.save_checkpoint_folder = experiment_dir
         self.record_metadata(runtime, total_sensors, coverage_score, all_sensor_positions, self.map_name, output_dir=experiment_dir)
         
-        """
-        #4. 수동배치 시 사용
-        #all_sensor_positions = [[2,11],[21,2],[14,17],[37,12],[34,6],[16,43]]
+    #4. 수동배치 시 사용
+    #all_sensor_positions = [[2,11],[21,2],[14,17],[37,12],[34,6],[16,43]]
+    def manual_deploy(self, sensor_positions, experiment_dir=   "__RESULTS__"):
+        all_sensor_positions = sensor_positions
         self.visual_module.showJetMap("Site Map", self.MAP, save_path=experiment_dir)
         self.visual_module.showJetMap_circle(
             "Manual Sensor Deployment", self.MAP, self.coverage, all_sensor_positions,
             save_path=os.path.join(experiment_dir, "Manual_sensor_result")
         )         
-              """    
                                 
 
 # 코드 본체
 if __name__ == "__main__":
     for i in range(1):
+        map_name = "map_250x280.bot"
+        instance = SensorDeployment(map_name, 45, 10)
+        instance.visual_module.showJetMap("Original Map", instance.MAP, filename="original_map")
+        instance.run()
+        
+    
+    
+    
+
+"""
+    for i in range(1):
         map_name = "map_100x100.top"
-        instance = SensorDeployment(map_name, 45, 100)
+        instance = SensorDeployment(map_name, 45, 10)
         instance.visual_module.showJetMap("Original Map", instance.MAP, filename="original_map")
         instance.run()
     for i in range(1):
@@ -166,8 +184,6 @@ if __name__ == "__main__":
         instance.run()
     
     
-    
-    
     for i in range(1):
         map_name = "map_250x280.top"
         instance = SensorDeployment(map_name, 45, 100)
@@ -185,11 +201,10 @@ if __name__ == "__main__":
         instance.run()
         
         
-        
     for i in range(1):
         map_name = "map_570x1100.large"
         instance = SensorDeployment(map_name, 45, 500)
         instance.visual_module.showJetMap("Original Map", instance.MAP, filename="original_map")
-        instance.run()
+        instance.run()"""
         
     
