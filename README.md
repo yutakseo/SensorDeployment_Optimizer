@@ -10,6 +10,7 @@
 - <strong>Yutak Seo</strong>
 - Haejun Seong
 - Seokhye Lee
+- Seungwon Shin
 
 ## _Collaboration_
 - Seoul National University
