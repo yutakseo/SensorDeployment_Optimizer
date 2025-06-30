@@ -47,7 +47,7 @@ The _HarrisCorner_ class provides 6 main methods. described below:
    Computes the Harris corner response map using OpenCV's Harris corner detector.  
    Pixels with a response below the threshold (a ratio of the maximum response) are set to zero.
 
-   - **Parameters:**
+   - ***Parameters:***
      - `map`: (NP.uint8) A 2D NumPy array where detected corner points are marked with the value `1` (all other pixels are `0`).
 
      - `block_size`: (Int) The size of the neighborhood considered for corner detection. Larger values result in more regional analysis, smaller values are more local. Default is `3`.
@@ -68,7 +68,7 @@ The _HarrisCorner_ class provides 6 main methods. described below:
    Filters out corner points that are too close to each other based on Euclidean distance.  
    This helps to remove redundant detections and ensures spatial diversity among detected corners.
 
-   - **Parameters:**
+   - ***Parameters:***
      - `points`: (Tuple) A list of corner point coordinates, typically as (x, y) tuples.
 
      - `min_distance`: (Int) The minimum allowed distance between any two corner points. If two points are closer than this value, only one is retained. Default is `5`.
@@ -83,7 +83,7 @@ The _HarrisCorner_ class provides 6 main methods. described below:
    Extracts the final corner coordinates from a processed map (typically the output of non-maximum suppression).  
    Converts detected pixel positions from (row, column) tuple format to (x, y) coordinate pairs.
 
-   - **Parameters:**
+   - ***Parameters:***
      - `map`: (NP.uint8) A 2D NumPy array where detected corner points are marked with the value `1` (all other pixels are `0`).
 
    - **Returns:**  
@@ -111,7 +111,7 @@ The _HarrisCorner_ class provides 6 main methods. described below:
      5. **Filter Close Corners:**  
         Further removes corner points that are too close to each other for better spatial distribution.
 
-   - **Parameters:**
+   - ***Parameters:***
      - `map`: (NP.uint8) The input map or grayscale image (2D NumPy array) to process. 
 
      - `block_size`: (Int) Neighborhood size for corner detection. Default is `3`.
