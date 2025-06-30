@@ -106,3 +106,98 @@ The _HarrisCorner_ class provides 6 main methods. described below:
      - Choosing an appropriate `nmx_threshold` helps filter out weak or insignificant corner responses.
 
 ---
+
+3. **`.harrisCorner(self, map, block_size=3, ksize=3, k=0.05, threshold=0.01)`**  
+   Computes the Harris corner response map using OpenCV's Harris corner detector.  
+   Pixels with a response below the threshold (a ratio of the maximum response) are set to zero.
+
+   - **Parameters:**
+     - `map`:  
+       Input map (2D NumPy array) to process. Should be a grayscale image (values 0~255).
+     - `block_size`:  
+       The size of the neighborhood considered for corner detection.  
+       Larger values result in more regional analysis, smaller values are more local.
+     - `ksize`:  
+       Aperture parameter of the Sobel derivative used internally.  
+       Typical values are 3, 5, or 7.
+     - `k`:  
+       Harris detector free parameter, usually in the range [0.04, 0.06].
+     - `threshold`:  
+       The threshold ratio used to filter out weak corner responses.  
+       For example, `threshold=0.01` means only pixels with a response at least 1% of the max will be kept.
+
+   - **Notes:**  
+     - The output is a response map of the same size as the input map, with strong corners having higher values.
+     - Thresholding helps remove weak or noisy detections, retaining only the most prominent corners.
+
+---
+
+4. **`.filter_close_corners(self, points, min_distance=5)`**  
+   Filters out corner points that are too close to each other based on Euclidean distance.  
+   This helps to remove redundant detections and ensures spatial diversity among detected corners.
+
+   - **Parameters:**
+     - `points`:  
+       A list of corner point coordinates, typically as (x, y) tuples.
+     - `min_distance`:  
+       The minimum allowed distance between any two corner points.  
+       If two points are closer than this value, only one is retained.
+
+   - **Notes:**  
+     - This function processes the list of detected corners and keeps only those that are sufficiently spaced apart.
+     - Helps to prevent clusters of corner points in dense regions, improving the quality of the final detection results.
+
+---
+
+5. **`.extract(self, map)`**  
+   Extracts the final corner coordinates from a processed map (typically the output of non-maximum suppression).  
+   Converts detected pixel positions from (row, column) tuple format to (x, y) coordinate pairs.
+
+   - **Parameters:**
+     - `map`:  
+       A 2D NumPy array where detected corner points are marked with the value `1` (all other pixels are `0`).
+
+   - **Returns:**  
+     - A list of `(x, y)` tuples representing the coordinates of detected corner points,  
+       filtered to ensure they are not too close (via `filter_close_corners`).
+
+   - **Notes:**  
+     - This function converts indices from NumPy's default (row, column) to (x, y) for consistency with typical plotting and image processing conventions.
+     - It is usually used after non-maximum suppression to retrieve the positions of valid corner points.
+
+---
+
+6. **`.run(self, map, block_size=3, ksize=3, k=0.05, dilate_size=5)`**  
+   Runs the full Harris corner detection pipeline on the given map, including blurring, corner response, non-maximum suppression, and filtering.
+
+   - **Processing Steps:**
+     1. **Apply Gaussian Blur:**  
+        Reduces noise in the input map to improve the reliability of corner detection.
+     2. **Harris Corner Detection:**  
+        Computes the corner response map using specified parameters.
+     3. **Non-Maximum Suppression:**  
+        Retains only local maxima in the response map that are above a threshold, eliminating redundant or weak corners.
+     4. **Extract Corner Coordinates:**  
+        Retrieves (x, y) locations of detected corners from the suppressed map.
+     5. **Filter Close Corners:**  
+        Further removes corner points that are too close to each other for better spatial distribution.
+
+   - **Parameters:**
+     - `map`:  
+       The input map or grayscale image (2D NumPy array) to process.
+     - `block_size`:  
+       Neighborhood size for corner detection.
+     - `ksize`:  
+       Aperture size for the Sobel operator.
+     - `k`:  
+       Harris detector free parameter.
+     - `dilate_size`:  
+       Size of the dilation window for non-maximum suppression.
+
+   - **Returns:**  
+     - A list of `(x, y)` tuples representing the final detected corner coordinates.
+
+   - **Notes:**  
+     - This method provides an easy, single-call interface for full corner detection workflow.
+     - All default parameters are chosen for general robustness, but can be tuned as needed.
+
