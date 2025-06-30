@@ -3,12 +3,12 @@ from datetime import datetime
 import numpy as np
 from cpuinfo import get_cpu_info
 from _PlotTools import VisualTool
-from _HarrisCorner.HCD_tools import *
-from _SensorModule import Sensor
-from _SensorModule.coverage import *
+from HarrisCorner.HCD_tools import *
+from SensorModule import Sensor
+from SensorModule.coverage import *
 
 # 사용할 알고리즘
-from _Algorithm.GeneticAlgorithm import *
+from Algorithm.GeneticAlgorithm import *
 
 
 class SensorDeployment:
