@@ -65,9 +65,10 @@ class HarrisCorner():
         
         #2)Harris corner detection
         harris_response = self.harrisCorner(blurred, block_size, ksize, k, 0.1)
-
+        temp=(0.1*harris_response.max())
+        
         #3)Non-Maximum Suppression
-        dilated = self.non_max_suppression(harris_response, threshold=(0.1*harris_response.max()), dilate_size=dilate_size)
+        dilated = self.non_max_suppression(harris_response, temp, dilate_size=dilate_size)
  
         #4-1)Extract corners
         corners = self.extract(dilated)
