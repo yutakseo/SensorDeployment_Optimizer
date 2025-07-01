@@ -1,4 +1,4 @@
-# __RESULTS__ 디렉터리 내의 모든 파일 무시
+
 __RESULTS__/
 __pycache__/
 _Algorithm/__pycache__/
@@ -10,3 +10,33 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
+
+# Python
+__pycache__/
+*.pyc
+
+# PyPI
+dist/
+build/
+*.egg-info/
+*.manifest
+
+# Experiments
+tmp/
+# 
+# Jupyter notebook
+# *.ipynb
+.ipynb_checkpoints/
+
+# Data
+# *.xlsx
+# *.pdf
+# *.sql
+# *.json
+# *.dill
+# *.pk
+# *.bin
+# *.html
+# *.png
+# *.csv
+# *.h5
