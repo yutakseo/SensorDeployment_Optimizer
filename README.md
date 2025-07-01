@@ -10,9 +10,11 @@
 - <strong>Yutak Seo</strong>
 - Haejun Seong
 - Seokhye Lee
+- Seungwon Shin
 
 ## _Collaboration_
 - Seoul National University
+- Posco E&C
 - SmartInside AI
 - Glotechsoft
 
@@ -58,8 +60,8 @@ Tasks typically solved by Genetic Algorithms include:
 
 source: [Dmitry Soshnikov, PhD](https://soshnikov.com/) (2024) "Genetic Algorithm", _AI For Beginners_, https://github.com/microsoft/AI-For-Beginners
 
-## _Framework_
-<img src="__framework_img.png", alt="Research Framework"/>
+## _Research Framework_
+![Research Framework](__framework_img.png)
 
 ## <strong>Usage</strong>
 ### 1. _Map_
