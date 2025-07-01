@@ -19,5 +19,5 @@ RUN pip install --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
 # 6. 개발 환경 유지 (bash로 대기)
-CMD ["sh", "-c", "cd /app && bash"]
+CMD ["sh", "-c", "cd /workspace && bash"]
 
