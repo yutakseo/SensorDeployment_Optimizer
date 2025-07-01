@@ -14,9 +14,9 @@
 
 ## _Collaboration_
 - Seoul National University
-- Posco E&C
 - SmartInside AI
 - Glotechsoft
+- POSCO E&C
 
 ## _Genetic Algorithm for Sensor Deployment Optimization_
 **Genetic Algorithms** (GA) are based on an **evolutionary approach** to AI, in which methods of the evolution of a population is used to obtain an optimal solution for a given problem. They were proposed in 1975 by [John Henry Holland](https://wikipedia.org/wiki/John_Henry_Holland).
