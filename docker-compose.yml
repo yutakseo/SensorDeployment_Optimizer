@@ -7,7 +7,15 @@ services:
     container_name: sensor_optimizer_container
     working_dir: /workspace
     volumes:
-      - .:/workspace               # 현재 디렉토리를 컨테이너와 공유
+      - .:/workspace
     stdin_open: true
     tty: true
-    command: sh -c "cd /app && bash" 
+    command: sh -c "cd /app && bash"
+    
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+
+    shm_size: "64g"  # 공유 메모리 설정
