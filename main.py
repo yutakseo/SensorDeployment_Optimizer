@@ -124,6 +124,8 @@ class SensorDeployment:
         )
         self.save_checkpoint_folder = experiment_dir
         self.record_metadata(runtime, total_sensors, coverage_score, all_sensor_positions, self.map_name, output_dir=experiment_dir)
+        
+        
         """
         #4. 수동배치 시 사용
         #all_sensor_positions = [[2,11],[21,2],[14,17],[37,12],[34,6],[16,43]]
@@ -131,7 +133,8 @@ class SensorDeployment:
         self.visual_module.showJetMap_circle(
             "Manual Sensor Deployment", self.MAP, self.coverage, all_sensor_positions,
             save_path=os.path.join(experiment_dir, "Manual_sensor_result")
-        )         
+        )
+        """       
                                 
 
 # 코드 본체
