@@ -1,8 +1,10 @@
+version: '3.8'
+
 services:
   python-app:
     image: sensor_optimizer_image
     build:
-      context: .             # Dockerfile이 있는 경로
+      context: .
       dockerfile: Dockerfile
     container_name: sensor_optimizer_container
     working_dir: /workspace
@@ -10,12 +12,12 @@ services:
       - .:/workspace
     stdin_open: true
     tty: true
-    command: sh -c "cd /app && bash"
-    
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - capabilities: [gpu]
-
     shm_size: "64g"  # 공유 메모리 설정
+
+    # GPU 사용 (Docker Compose on Linux 호환)
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+
+    # 시작 커맨드 (디렉토리 실수 수정)
+    command: bash
