@@ -13,7 +13,7 @@ from InnerDeployment.GeneticAlgorithm import SensorGA
 
 
 class SensorDeployment:
-    def __init__(self, map_name, coverage, generation):
+    def __init__(self, map_name, coverage:int=45, generation:int=100):
         self.visual_module = VisualTool()
         self.map_name = map_name
         self.coverage = coverage/5
