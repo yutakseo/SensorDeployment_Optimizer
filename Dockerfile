@@ -12,6 +12,6 @@ RUN apt-get update && apt-get install -y \
 COPY . /workspace
 
 RUN python3 -m pip install --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+    pip install --no-cache-dir -r docs/requirements.txt
 
 CMD ["bash"]
