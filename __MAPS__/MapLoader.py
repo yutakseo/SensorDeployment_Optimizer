@@ -2,18 +2,14 @@ import os
 import importlib.util
 
 class MapLoader:
-    maps_root = os.path.abspath("__MAPS__")
-
+    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # /workspace
+    maps_root = os.path.join(project_root, "__MAPS__")  # /workspace/__MAPS__
     def __init__(self, map_name: str):
-        """
-        :param map_name: e.g., "map_200x200.mid" or "map_200x200/mid"
-        """
         self.map_name = map_name
         self.map_path = self._resolve_path(map_name)
         self.MAP = self.load()
 
     def _resolve_path(self, map_name):
-        # Robust parsing: dots (.) are treated like slashes (/)
         normalized_path = map_name.replace(".", os.sep).replace("/", os.sep)
         full_path = os.path.join(self.maps_root, normalized_path + ".py")
 
