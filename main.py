@@ -137,62 +137,53 @@ class SensorDeployment:
         """       
                                 
 
-# 코드 본체
+
 if __name__ == "__main__":
     for i in range(1):
-        instance = SensorDeployment("map_100x100.top", 45, 10)
+        instance = SensorDeployment(map_name="map_100x100.top", coverage=45, generation=100)
         instance.visual_module.showJetMap("Original Map", instance.MAP, filename="original_map")
         instance.run()
     for i in range(10):
-        instance = SensorDeployment("map_100x100.mid", 45, 100)
+        instance = SensorDeployment(map_name="map_100x100.mid", coverage=45, generation=100)
         instance.visual_module.showJetMap("Original Map", instance.MAP, filename="original_map")
         instance.run()
     for i in range(10):
-        instance = SensorDeployment("map_100x100.bot", 45, 100)
+        instance = SensorDeployment(map_name="map_100x100.bot", coverage=45, generation=100)
         instance.visual_module.showJetMap("Original Map", instance.MAP, filename="original_map")
         instance.run()
         
         
     for i in range(1):
-        map_name = "map_200x200.top"
-        instance = SensorDeployment(map_name, 45, 100)
+        instance = SensorDeployment(map_name="map_200x200.top", coverage=45, generation=100)
         instance.visual_module.showJetMap("Original Map", instance.MAP, filename="original_map")
         instance.run()
     for i in range(10):
-        map_name = "map_200x200.mid"
-        instance = SensorDeployment(map_name, 45, 100)
+        instance = SensorDeployment(map_name="map_200x200.mid", coverage=45, generation=100)
         instance.visual_module.showJetMap("Original Map", instance.MAP, filename="original_map")
         instance.run()
     for i in range(10):
-        map_name = "map_200x200.bot"
-        instance = SensorDeployment(map_name, 45, 100)
+        instance = SensorDeployment(map_name="map_200x200.bot", coverage=45, generation=100)
         instance.visual_module.showJetMap("Original Map", instance.MAP, filename="original_map")
         instance.run()
-    
-    
     
     
     for i in range(1):
-        map_name = "map_250x280.top"
-        instance = SensorDeployment(map_name, 45, 100)
+        instance = SensorDeployment(map_name="map_250x280.top", coverage=45, generation=100)
         instance.visual_module.showJetMap("Original Map", instance.MAP, filename="original_map")
         instance.run()
     for i in range(10):
-        map_name = "map_250x280.mid"
-        instance = SensorDeployment(map_name, 45, 100)
+        instance = SensorDeployment(map_name="map_250x280.mid", coverage=45, generation=100)
         instance.visual_module.showJetMap("Original Map", instance.MAP, filename="original_map")
         instance.run()
     for i in range(10):
-        map_name = "map_250x280.bot"
-        instance = SensorDeployment(map_name, 45, 100)
+        instance = SensorDeployment(map_name="map_250x280.bot", coverage=45, generation=100)
         instance.visual_module.showJetMap("Original Map", instance.MAP, filename="original_map")
         instance.run()
         
         
         
     for i in range(1):
-        map_name = "map_570x1100.large"
-        instance = SensorDeployment(map_name, 45, 500)
+        instance = SensorDeployment(map_name="map_570x1100.large", coverage=45, generation=500)
         instance.visual_module.showJetMap("Original Map", instance.MAP, filename="original_map")
         instance.run()
         
