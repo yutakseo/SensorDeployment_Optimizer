@@ -6,9 +6,10 @@ from _PlotTools import VisualTool
 from HarrisCorner.HCD_tools import *
 from SensorModule import Sensor
 from SensorModule.coverage import *
+from __MAPS__.MapLoader import MapLoader
 
 # 사용할 알고리즘
-from Algorithm.GeneticAlgorithm import *
+from Algorithm.GeneticAlgorithm import SensorGA
 
 
 class SensorDeployment:
@@ -17,9 +18,8 @@ class SensorDeployment:
         self.map_name = map_name
         self.coverage = coverage/5
         self.GEN = generation
-        map_module_path = f"__MAPS__.{map_name}"
-        map_module = importlib.import_module(map_module_path)
-        self.MAP = np.array(getattr(map_module, "MAP"))
+        self.MAP = np.array(MapLoader(map_name).MAP)
+
 
     @staticmethod
     def record_metadata(runtime, num_sensor, coverage_score, sensor_positions, map_name="Unknown", output_dir="__RESULTS__"):
@@ -140,18 +140,15 @@ class SensorDeployment:
 # 코드 본체
 if __name__ == "__main__":
     for i in range(1):
-        map_name = "map_100x100.top"
-        instance = SensorDeployment(map_name, 45, 10)
+        instance = SensorDeployment("map_100x100.top", 45, 10)
         instance.visual_module.showJetMap("Original Map", instance.MAP, filename="original_map")
         instance.run()
     for i in range(10):
-        map_name = "map_100x100.mid"
-        instance = SensorDeployment(map_name, 45, 100)
+        instance = SensorDeployment("map_100x100.mid", 45, 100)
         instance.visual_module.showJetMap("Original Map", instance.MAP, filename="original_map")
         instance.run()
     for i in range(10):
-        map_name = "map_100x100.bot"
-        instance = SensorDeployment(map_name, 45, 100)
+        instance = SensorDeployment("map_100x100.bot", 45, 100)
         instance.visual_module.showJetMap("Original Map", instance.MAP, filename="original_map")
         instance.run()
         
