@@ -7,11 +7,17 @@ from FitnessFunction.FitnessFunction import fitnessFunc, rankSensors, extractUnc
 from SensorModule.Sensor_cuda import Sensor
 
 
-
-
 class SensorGA:
-    def __init__(self, input_map, coverage, generations, results_dir,
-                 initial_population_size=100, next_population_size=50, candidate_population_size=100):
+    def __init__(
+                 self, 
+                 input_map,
+                 coverage:int, 
+                 generations:int, 
+                 results_dir:str,
+                 initial_population_size:int=100, 
+                 next_population_size:int=50, 
+                 candidate_population_size:int=100
+                 ):
         """
         SensorGA 클래스: 유전 알고리즘을 기반으로 최적의 센서 배치를 찾는 클래스.
 
