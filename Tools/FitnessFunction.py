@@ -3,9 +3,9 @@ import torch.nn as nn
 import numpy as np
 from .Sensor_cuda import Sensor
 
-class CNNFitness(nn.Module):
+class Convolution(nn.Module):
     def __init__(self, MAP):
-        super(CNNFitness, self).__init__()
+        super(Convolution, self).__init__()
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.Base_map = torch.tensor(np.array(MAP)).float().to(self.device)
 
@@ -34,6 +34,8 @@ class CNNFitness(nn.Module):
         out = (self.conv3(x) + self.conv5(x) + self.conv7(x) + self.conv9(x)) / 4.0
         return out * self.Base_map
 
+class F
+
 
 def rankSensors(MAP, sensor_points, coverage=10):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -57,6 +59,7 @@ def rankSensors(MAP, sensor_points, coverage=10):
 
 def fitnessFunc(MAP, sensor_list: list, coverage: int):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model = CNNFitness(MAP)
     tensor_map = torch.tensor(np.array(MAP), dtype=torch.float32, device=device)
     map_sum = tensor_map.sum().item()
 

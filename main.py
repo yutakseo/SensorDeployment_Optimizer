@@ -2,8 +2,8 @@ import os, sys, time, importlib, json, copy
 from datetime import datetime
 import numpy as np
 from cpuinfo import get_cpu_info
-from _PlotTools import VisualTool 
-from CornerDeployment.HCD_tools import *
+from Tools._PlotTools import VisualTool 
+from CornerDeployment.HarrisCorner import *
 from SensorModule import Sensor
 from SensorModule.coverage import *
 from __MAPS__.MapLoader import MapLoader
