@@ -42,6 +42,9 @@ class SensorGA:
             writer.writerow(["Generation", "Fitness", "Num_Sensors", "Coverage_Score"])
         # 초기 개체군 생성
         self.population = {}
+        self.best_solution = None
+        self.min_sensor_count = float('inf')
+
 
 
     def _fitness_func(self, chromosome) -> float:
@@ -173,6 +176,10 @@ class SensorGA:
             best_idx, (best_chromosome, best_score) = max(self.population.items(), key=lambda x: x[1][1])
             num_sensors = len(best_chromosome) // 2
             coverage_score = best_score  # 너의 fitness 자체가 coverage 기준이니까
+            
+            if best_score == 100.0 and num_sensors < self.min_sensor_count:
+                self.best_solution = (best_chromosome.copy(), best_score)
+                self.min_sensor_count = num_sensors
 
             # 5. CSV 저장
             with open(self.file_path, mode="a", newline='') as file:

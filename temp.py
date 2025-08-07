@@ -18,7 +18,7 @@ ga = SensorGA(
     results_dir=results_dir,
     initial_population_size=1000,
     next_population_size=50,
-    candidate_population_size=1000
+    candidate_population_size=100
 )
 
 # 4. 실행!

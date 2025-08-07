@@ -2,7 +2,7 @@ import numpy as np
 import random
 import os
 import csv
-from FitneesFuction.FitnessFuction import FitnessFunction
+
 
 class SensorGA:
     def __init__(self, map_data, coverage, generations, results_dir,
