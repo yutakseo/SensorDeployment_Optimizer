@@ -6,7 +6,7 @@ from Tools._PlotTools import VisualTool
 from CornerDeployment.HarrisCorner import *
 from SensorModule import Sensor
 from SensorModule.coverage import *
-from __MAPS__.MapLoader import MapLoader
+from Tools.MapLoader import MapLoader
 
 # 사용할 알고리즘
 from InnerDeployment.GeneticAlgorithm import SensorGA
