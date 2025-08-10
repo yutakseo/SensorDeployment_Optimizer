@@ -3,7 +3,6 @@ import random
 import os
 import csv
 
-
 class SensorGA:
     def __init__(self, map_data, coverage, generations, results_dir,
                  initial_population_size=100, next_population_size=50, candidate_population_size=100):
@@ -64,18 +63,15 @@ class SensorGA:
             updated_map[mask] += 10
         return updated_map
 
-
     def fitness_function(self, chromosome):
-        #적합도 평가 함수
+        """적합도 평가 함수"""
         sensor_map = self.draw_sensor(chromosome)
         num_sensors = len(chromosome) // 2
-        coverage_score = np.sum(sensor_map >= 12)
+        coverage_score = np.sum(sensor_map >= 11)
         sensor_counts = (sensor_map - self.map_data) // 10
         overlap_penalty = np.sum(np.maximum(0, sensor_counts - 1)) * 2
         sensor_penalty = num_sensors * 3
         return coverage_score - (sensor_penalty + overlap_penalty), coverage_score
-        
-    
 
     def add_sensor(self, chromosome, uncovered_positions):
         """센서 추가: 커버되지 않은 영역을 랜덤으로 선택하여 추가"""
@@ -165,4 +161,4 @@ class SensorGA:
             if (x, y) in self.feasible_positions:
                 inner_layer[y, x] = 10  # (y, x) 순서로 인덱싱하여 저장
 
-        return inner_layer, sensor_positions, coverage_score
+        return inner_layer, sensor_positions
