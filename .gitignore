@@ -3,6 +3,9 @@ __pycache__/
 _Algorithm/__pycache__/
 _HarrisCorner/__pycache__/
 _SensorModule/__pycache__/
+InnerDeployment/
+OuterDeployment/
+Tools/
 .DS_Store
 sensor_venv/
 __pycache__/

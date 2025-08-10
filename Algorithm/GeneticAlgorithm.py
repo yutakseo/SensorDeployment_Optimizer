@@ -44,7 +44,7 @@ class SensorGA:
         """초기 개체(염색체) 생성"""
         population = []
         for _ in range(self.initial_population_size):
-            num_sensors = random.randint(20, 30)
+            num_sensors = random.randint(100, 150)
             sensor_positions = random.sample(list(self.feasible_positions), num_sensors)
             chromosome = [coord for pos in sensor_positions for coord in pos]
             population.append(chromosome)

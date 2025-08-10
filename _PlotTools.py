@@ -23,10 +23,13 @@ class VisualTool:
         
         
     def showJetMap_circle(self, title, map_data, radius, sensor_positions, cmap='jet', filename="jet_map_circle", save_path=None):
-        fig, ax = plt.subplots(figsize=(12, 8), dpi=150)
+        fig, ax = plt.subplots(figsize=(24, 16), dpi=300)
         cmap_custom = plt.cm.colors.ListedColormap(cmap) if isinstance(cmap, list) else cmap
         ax.imshow(map_data, cmap=cmap_custom, interpolation='nearest', origin='upper')
         ax.set_title(title)
+        # 타이틀, 축, 프레임 제거
+        ax.set_title("")
+        ax.axis('off')
         
         if sensor_positions:
             for pos in sensor_positions:
@@ -36,6 +39,7 @@ class VisualTool:
                 ax.add_patch(inner)
                 ax.add_patch(border)
                 ax.add_patch(center)
+        fig.subplots_adjust(left=0, right=1, top=1, bottom=0)
         self.save_or_show(fig, filename, save_path)
         
         
