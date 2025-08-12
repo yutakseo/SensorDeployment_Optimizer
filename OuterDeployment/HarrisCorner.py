@@ -56,6 +56,8 @@ class HarrisCorner():
         raw_corners = list(zip(points[1], points[0]))
         
         return self.filter_close_corners(raw_corners)
+    
+    # HarrisCorner 클래스 안에 추가
 
 
 
