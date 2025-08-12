@@ -1,10 +1,10 @@
 import torch
 import torch.nn as nn
 import numpy as np
-from .Sensor_cuda import Sensor
+from .SensorModule import Sensor
 
 class Convolution(nn.Module):
-    def __init__(self, MAP):
+    def __init__(self, MAP:np.ndarray=None):
         super(Convolution, self).__init__()
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.Base_map = torch.tensor(np.array(MAP)).float().to(self.device)
@@ -23,7 +23,6 @@ class Convolution(nn.Module):
     def forward(self, x):
         if isinstance(x, np.ndarray):
             x = torch.tensor(x, dtype=torch.float32)
-
         if isinstance(x, torch.Tensor):
             if x.ndim == 2:
                 x = x.unsqueeze(0).unsqueeze(0)
@@ -35,12 +34,15 @@ class Convolution(nn.Module):
         return out * self.Base_map
 
 
+MODEL = Convolution()
+class SensorEvaluator:
+    
 
-def rankSensors(MAP, sensor_points, coverage=10):
+def rankSensors(MAP:np.ndarray, sensor_points:list, coverage=10):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = CNNFitness(MAP)
+    model(MAP)
     with torch.no_grad():
-        fitness_map = model(np.array(MAP))
+        fitness_map = model(MAP)
 
     ranking = []
     for pos in sensor_points:
@@ -50,7 +52,6 @@ def rankSensors(MAP, sensor_points, coverage=10):
         sensor_tensor = torch.tensor(sensor_map, dtype=torch.float32, device=device).unsqueeze(0).unsqueeze(0)
         score = (fitness_map * sensor_tensor).sum().item()
         ranking.append((pos, score))
-
     ranking.sort(key=lambda x: x[1], reverse=True)
     return ranking
 
@@ -58,7 +59,6 @@ def rankSensors(MAP, sensor_points, coverage=10):
 
 def fitnessFunc(MAP, sensor_list: list, coverage: int):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = CNNFitness(MAP)
     tensor_map = torch.tensor(np.array(MAP), dtype=torch.float32, device=device)
     map_sum = tensor_map.sum().item()
 
