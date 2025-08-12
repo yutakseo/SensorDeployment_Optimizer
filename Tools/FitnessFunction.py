@@ -34,7 +34,6 @@ class Convolution(nn.Module):
         out = (self.conv3(x) + self.conv5(x) + self.conv7(x) + self.conv9(x)) / 4.0
         return out * self.Base_map
 
-class F
 
 
 def rankSensors(MAP, sensor_points, coverage=10):
