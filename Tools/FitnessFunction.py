@@ -96,3 +96,6 @@ def extractUncovered(MAP, sensor_list: list, coverage: int):
     uncovered_positions = list(map(tuple, np.argwhere(uncovered == 1)))
     
     return uncovered_positions
+
+
+#main/branch
