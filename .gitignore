@@ -1,8 +1,8 @@
 __RESULTS__/*
-__pycache__/
-_Algorithm/__pycache__/
-_HarrisCorner/__pycache__/
-_SensorModule/__pycache__/
+__pycache__/*
+_Algorithm/__pycache__/*
+_HarrisCorner/__pycache__/*
+_SensorModule/__pycache__/*
 .DS_Store
 sensor_venv/
 __pycache__/
