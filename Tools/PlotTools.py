@@ -7,50 +7,47 @@ from typing import List, Tuple, Optional, Union
 RESULTS_DIR = "__RESULTS__"
 
 class VisualTool:
-    def __init__(self, save_dir: str=RESULTS_DIR, show: bool = False,
-                 size: Tuple[int, int] = (6, 4), stamp_filename: bool = False):
+    def __init__(self, 
+                 save_dir: str = RESULTS_DIR, 
+                 show: bool = False,
+                 save: bool = True,
+                 size: Tuple[int, int] = (6, 4), 
+                 stamp_filename: bool = False):
         """
         - save_dir: 결과 루트 디렉터리(기본: __RESULTS__)
-        - show: True면 plt.show(), False면 저장
+        - show: True면 plt.show()
+        - save: True면 파일 저장 (폴더 생성도 이때만)
         - stamp_filename: 파일명 뒤에 타임스탬프 붙일지 여부
         """
         self.root_dir = save_dir
         self.show = show
+        self.save = save
         self.figsize = size
         self.stamp_filename = stamp_filename
 
-        os.makedirs(self.root_dir, exist_ok=True)
-        now = datetime.now()
-        self.time = now.strftime("%m-%d-%H-%M")
+        self.time = datetime.now().strftime("%m-%d-%H-%M")
 
-        # 기본 세션 디렉터리: __RESULTS__/<timestamp>/
-        self.output_dir = os.path.join(self.root_dir, self.time)
-        os.makedirs(self.output_dir, exist_ok=True)
+        # save=True일 때만 기본 출력 디렉터리 경로를 설정
+        self.output_dir: Optional[str] = (
+            os.path.join(self.root_dir, self.time) if self.save else None
+        )
+        # 디렉터리는 실제 저장 시점(save_or_show)에서 생성
 
-    def set_output(self, subdir: Optional[str] = None, timestamped: bool = True) -> None:
-        """
-        기본 저장 위치를 변경.
-        - subdir가 None이면 __RESULTS__/<timestamp> 유지
-        - subdir가 주어지면 __RESULTS__/<subdir> (상대경로)로 설정
-        - timestamped=True이면 __RESULTS__/<subdir>/<timestamp> 로 한 단계 더 만듦
-        """
-        if subdir is None:
-            base = os.path.join(self.root_dir, self.time)
-        else:
-            base = os.path.join(self.root_dir, subdir)
-
-        self.output_dir = os.path.join(base, self.time) if timestamped else base
-        os.makedirs(self.output_dir, exist_ok=True)
-
+    # ----------------- 내부 유틸 -----------------
     def _resolve_dir(self, path: Optional[str]) -> str:
         """
         save_path 해석:
-        - None: self.output_dir
+        - None: self.output_dir (없으면 __RESULTS__/<timestamp>)
         - 절대경로: 그대로 사용
         - 상대경로: __RESULTS__/path 로 사용
+        실제 디렉터리 생성은 save_or_show에서 수행
         """
         if path is None:
-            return self.output_dir
+            if self.output_dir is not None:
+                return self.output_dir
+            # save=False로 만들어졌지만, 저장을 시도하면 기본 위치를 만듦
+            return os.path.join(self.root_dir, self.time)
+
         if os.path.isabs(path):
             return path
         return os.path.join(self.root_dir, path)
@@ -91,6 +88,22 @@ class VisualTool:
             except Exception as e:
                 raise ValueError(f"Invalid cmap list: {e}")
         return cmap  # string or Colormap 객체
+
+    # ----------------- 공개 API -----------------
+    def set_output(self, subdir: Optional[str] = None, timestamped: bool = True) -> None:
+        """
+        기본 저장 위치를 변경(논리적 경로만 갱신).
+        - subdir가 None이면 __RESULTS__/<timestamp>
+        - subdir가 주어지면 __RESULTS__/<subdir> (상대경로)
+        - timestamped=True이면 뒤에 /<timestamp> 추가
+        실제 디렉터리 생성은 save_or_show에서 수행.
+        """
+        if subdir is None:
+            base = os.path.join(self.root_dir, self.time)
+        else:
+            base = os.path.join(self.root_dir, subdir)
+
+        self.output_dir = os.path.join(base, self.time) if timestamped else base
 
     def showJetMap_circle(self,
                           map_data: Union[np.ndarray, List],
@@ -138,14 +151,19 @@ class VisualTool:
         # 파일명 타임스탬프 옵션
         fname = f"{filename}_{self.time}.png" if self.stamp_filename else f"{filename}.png"
 
-        # 디렉터리 해석 및 생성
-        dirpath = self._resolve_dir(save_path)
-        os.makedirs(dirpath, exist_ok=True)
-        outpath = os.path.join(dirpath, fname)
-
+        # 화면 표시
         if self.show:
             plt.show()
-        else:
+
+        # 저장
+        if self.save:
+            dirpath = self._resolve_dir(save_path)
+            os.makedirs(dirpath, exist_ok=True)  # save=True일 때만 실제 생성
+            outpath = os.path.join(dirpath, fname)
             fig.savefig(outpath, bbox_inches='tight', pad_inches=0)
             print(f"Saved figure: {outpath}")
+
+        if not self.show and not self.save:
+            print("Warning: Both show=False and save=False → Nothing will happen.")
+
         plt.close(fig)
