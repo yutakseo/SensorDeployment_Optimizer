@@ -143,7 +143,7 @@ class VisualTool:
         ax.set_title(title)
         self.save_or_show(fig, filename, save_path)
 
-    def save_or_show(self, fig: plt.Figure, filename: str, save_path: Optional[str] = None) -> None:
+    def save_or_show(self, fig:plt.Figure, filename:str, save_path:Optional[str] = None) -> None:
         # 축/레이블/틱 제거 → 그림만 저장
         for ax in fig.axes:
             ax.set_axis_off()
