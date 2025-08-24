@@ -3,99 +3,143 @@ import torch.nn as nn
 import numpy as np
 from .SensorModule import Sensor
 
+
 class Convolution(nn.Module):
-    def __init__(self, MAP:np.ndarray=None):
+    def __init__(self, MAP: np.ndarray):
         super(Convolution, self).__init__()
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.Base_map = torch.tensor(np.array(MAP)).float().to(self.device)
+        self.Base_map = torch.as_tensor(MAP, dtype=torch.float32, device=self.device)
 
-        self.conv3 = nn.Conv2d(1, 1, 3, padding=1).to(self.device)
-        self.conv5 = nn.Conv2d(1, 1, 5, padding=2).to(self.device)
-        self.conv7 = nn.Conv2d(1, 1, 7, padding=3).to(self.device)
-        self.conv9 = nn.Conv2d(1, 1, 9, padding=4).to(self.device)
+        # 사용할 커널 크기 리스트
+        kernel_sizes = [3, 5, 7, 9, 11, 13, 15]
 
+        # 평균 필터 Conv2d 레이어들을 ModuleList로 관리
+        self.convs = nn.ModuleList([
+            nn.Conv2d(
+                in_channels=1,
+                out_channels=1,
+                kernel_size=k,
+                padding=k // 2,
+                bias=False,
+                padding_mode="replicate"  # 경계 처리 개선
+            ).to(self.device) for k in kernel_sizes
+        ])
+
+        # 평균 필터로 초기화
         with torch.no_grad():
-            for conv, k in zip([self.conv3, self.conv5, self.conv7, self.conv9], [3, 5, 7, 9]):
-                conv.weight.fill_(1 / (k * k))
-                if conv.bias is not None:
-                    conv.bias.zero_()
+            for conv, k in zip(self.convs, kernel_sizes):
+                conv.weight.fill_(1.0 / (k * k))
+                conv.weight.requires_grad_(False)
 
     def forward(self, x):
+        if isinstance(x, list):
+            x = np.array(x, dtype=np.float32)
         if isinstance(x, np.ndarray):
-            x = torch.tensor(x, dtype=torch.float32)
-        if isinstance(x, torch.Tensor):
-            if x.ndim == 2:
-                x = x.unsqueeze(0).unsqueeze(0)
-            elif x.ndim == 3:
-                x = x.unsqueeze(0)
+            x = torch.as_tensor(x, dtype=torch.float32)
+
+        if x.ndim == 2:   # [H,W]
+            x = x.unsqueeze(0).unsqueeze(0)   # → [1,1,H,W]
+        elif x.ndim == 3: # [C,H,W]
+            x = x.unsqueeze(0)                # → [1,C,H,W]
 
         x = x.to(self.device)
-        out = (self.conv3(x) + self.conv5(x) + self.conv7(x) + self.conv9(x)) / 4.0
-        return out * self.Base_map
+
+        # 모든 필터의 출력을 평균
+        outs = [conv(x) for conv in self.convs]
+        out = sum(outs) / len(outs)
+
+        # 설치 가능 영역만 반영
+        return out * self.Base_map.unsqueeze(0).unsqueeze(0)
 
 
-MODEL = Convolution()
 class SensorEvaluator:
-    
+    def __init__(self, map: np.ndarray, corner_points: list, sensor_points: list, coverage: int = 45) -> None:
+        self.map = np.array(map, dtype=np.float32)
+        self.coverage = coverage
+        self.corners = corner_points
+        self.sensors = sensor_points
 
-def rankSensors(MAP:np.ndarray, sensor_points:list, coverage=10):
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model(MAP)
-    with torch.no_grad():
-        fitness_map = model(MAP)
+        self.model = Convolution(self.map)
 
-    ranking = []
-    for pos in sensor_points:
+        # 실행 후 값이 채워질 변수들
+        self.base_map: np.ndarray = None
+        self.sorted_sensors: list = []
+        self.fitness_score: float = 0.0
+        self.uncovered_area: np.ndarray = None
+
+    def _activation_map_(self, as_numpy: bool = True):
+        with torch.no_grad():
+            act = self.model.forward(self.map)
+        if as_numpy:
+            arr = act.squeeze().detach().cpu().numpy()
+            self.base_map = arr                # ✅ base_map 저장
+            return arr
+        self.base_map = act.detach()
+        return self.base_map
+
+    def rankSensors(self, MAP: np.ndarray, sensor_points: list, coverage: int = 45) -> list:
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        with torch.no_grad():
+            fitness_map = self.model(MAP).detach()
+
+        ranking = []
+        shifted_sensor_points = np.array(sensor_points)
+        for pos in shifted_sensor_points:
+            sensor = Sensor(MAP)
+            sensor.deploy(sensor_position=(int(pos[0]), int(pos[1])), coverage=coverage)
+            sensor_map = sensor.extract_only_sensor()
+            sensor_tensor = torch.as_tensor(sensor_map, dtype=torch.float32, device=device).unsqueeze(0).unsqueeze(0)
+            score = (fitness_map * (sensor_tensor > 0)).sum().item()
+            ranking.append((pos, score))
+
+        ranking.sort(key=lambda x: x[1], reverse=True)
+        self.sorted_sensors = ranking         # ✅ sorted_sensors 저장
+        return ranking
+
+    def fitnessFunc(self, MAP, sensor_list: list, coverage: int) -> float:
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        tensor_map = torch.as_tensor(MAP, dtype=torch.float32, device=device)
+        map_sum = tensor_map.sum().item()
+
         sensor = Sensor(MAP)
-        sensor.deploy(sensor_position=(int(pos[0]), int(pos[1])), coverage=coverage)
+        for pos in sensor_list:
+            sensor.deploy(sensor_position=(int(pos[0]), int(pos[1])), coverage=coverage)
         sensor_map = sensor.extract_only_sensor()
-        sensor_tensor = torch.tensor(sensor_map, dtype=torch.float32, device=device).unsqueeze(0).unsqueeze(0)
-        score = (fitness_map * sensor_tensor).sum().item()
-        ranking.append((pos, score))
-    ranking.sort(key=lambda x: x[1], reverse=True)
-    return ranking
+        sensor_tensor = torch.as_tensor(sensor_map, dtype=torch.float32, device=device)
 
+        # 바이너리화
+        sensor_tensor = (sensor_tensor > 0).float()
 
+        uncovered = (tensor_map * (1 - sensor_tensor)).sum().item()
+        covered = map_sum - uncovered
 
-def fitnessFunc(MAP, sensor_list: list, coverage: int):
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    tensor_map = torch.tensor(np.array(MAP), dtype=torch.float32, device=device)
-    map_sum = tensor_map.sum().item()
+        fitness_score = covered / map_sum if map_sum > 0 else 0.0
+        self.fitness_score = fitness_score    # ✅ fitness_score 저장
+        return fitness_score * 100
 
-    sensor = Sensor(MAP)
-    for pos in sensor_list:
-        sensor.deploy(sensor_position=(int(pos[0]), int(pos[1])), coverage=coverage)
-    sensor_map = sensor.extract_only_sensor()
-    sensor_tensor = torch.tensor(sensor_map, dtype=torch.float32, device=device)
+    def extractUncovered(self, MAP, sensor_list: list, coverage: int) -> list:
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        tensor_map = torch.as_tensor(MAP, dtype=torch.float32, device=device)
+        sensor = Sensor(MAP)
+        for pos in sensor_list:
+            sensor.deploy(sensor_position=(int(pos[0]), int(pos[1])), coverage=coverage)
+        sensor_map = sensor.extract_only_sensor()
+        sensor_tensor = torch.as_tensor(sensor_map, dtype=torch.float32, device=device)
 
-    # 바이너리화
-    sensor_tensor = (sensor_tensor > 0).float()
+        uncovered = (tensor_map * (1 - (sensor_tensor > 0).float())).cpu().numpy()
+        uncovered_positions = list(map(tuple, np.argwhere(uncovered == 1)))
 
-    # 커버 안 된 위치 계산 (1 - 센서 커버) * 설치가능
-    uncovered = (tensor_map * (1 - sensor_tensor)).sum().item()
-    covered = map_sum - uncovered
+        self.uncovered_area = uncovered_positions   # ✅ uncovered_area 저장
+        return uncovered_positions
 
-    fitness_score = covered / map_sum if map_sum > 0 else 0.0
-    return fitness_score * 100
-
-
-
-def extractUncovered(MAP, sensor_list: list, coverage: int):
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    tensor_map = torch.tensor(np.array(MAP), dtype=torch.float32, device=device)
-    sensor = Sensor(MAP)
-    # 모든 센서 배치
-    for pos in sensor_list:
-        sensor.deploy(sensor_position=(int(pos[0]), int(pos[1])), coverage=coverage)
-    sensor_map = sensor.extract_only_sensor()
-    sensor_tensor = torch.tensor(sensor_map, dtype=torch.float32, device=device)
-    # 아직 커버되지 않은 위치: tensor_map은 배치 가능 영역이 1, 아니면 0
-    # sensor_tensor는 센서가 커버한 곳은 1, 아니면 0
-    uncovered = (tensor_map * (1 - sensor_tensor)).cpu().numpy()
-    # 좌표 추출 (값이 1인 곳 = 설치 가능하지만 아직 커버 안 된 곳)
-    uncovered_positions = list(map(tuple, np.argwhere(uncovered == 1)))
-    
-    return uncovered_positions
-
-
-#main/branch
+    def uncoveredMAP(self, MAP: np.ndarray, sensor_list: list, coverage: int) -> np.ndarray:
+        """
+        설치 가능한 영역 중 센서로 커버되지 않은 셀을 2D numpy array로 반환
+        - 1: uncovered (설치 가능하지만 커버 안 된 셀)
+        - 0: covered 또는 설치 불가 셀
+        """
+        uncovered_positions = self.extractUncovered(MAP=MAP, sensor_list=sensor_list, coverage=coverage)
+        grid = np.zeros_like(MAP, dtype=np.uint8)
+        for (y, x) in uncovered_positions:
+            grid[y, x] = 1
+        return grid
