@@ -3,8 +3,8 @@ import random
 import os, sys, csv
 import torch
 
-from FitnessFunction.FitnessFunction import fitnessFunc, rankSensors, extractUncovered
 from SensorModule.Sensor_cuda import Sensor
+from Tools.FitnessFunction import SensorEvaluator
 
 
 class SensorGA:
@@ -14,9 +14,10 @@ class SensorGA:
                  coverage:int, 
                  generations:int, 
                  results_dir:str,
+                 corner_positions:list,
                  initial_population_size:int=100, 
                  next_population_size:int=50, 
-                 candidate_population_size:int=100
+                 candidate_population_size:int=100,
                  ):
         """
         SensorGA 클래스: 유전 알고리즘을 기반으로 최적의 센서 배치를 찾는 클래스.
@@ -33,6 +34,7 @@ class SensorGA:
         self.base_map = np.array(input_map)
         self.coverage = int(coverage/5)
         self.generations = generations
+        self.corner_positions = corner_positions
         self.initial_population_size = initial_population_size
         self.next_population_size = next_population_size
         self.candidate_population_size = candidate_population_size
@@ -50,15 +52,18 @@ class SensorGA:
         self.population = {}
         self.best_solution = None
         self.min_sensor_count = float('inf')
+        
+        #적합도평가함수 인스턴스 생성
+        self.fitnessFunc = SensorEvaluator(map=self.base_map, corner_points=self.corner_positions, coverage=self.coverage)
 
 
-
+    #개별 염색체의 적합도를 출력
     def _fitness_func(self, chromosome) -> float:
         # [x1, y1, x2, y2, ...] → [(x1, y1), (x2, y2), ...]
         sensor_list = [(chromosome[i], chromosome[i+1]) for i in range(0, len(chromosome), 2)]
-        result = fitnessFunc(MAP=self.base_map, sensor_list=sensor_list, coverage=self.coverage)
-        return result
-    def fitness_func(self, population):
+        return self.fitnessFunc(inner_positions=sensor_list)
+    #한 세대의 염색체 집합에 대한 적합도 채점
+    def fitness_func(self, population) -> list:
         idx = 0
         for chromosome in population:
             fitness_score = self._fitness_func(chromosome=chromosome)
@@ -66,6 +71,7 @@ class SensorGA:
             idx += 1
     
     
+    #초기 염색체 생성(랜덤하게 생성 가능한 그리드에서 유전자 생성)
     def init_population(self, min_numb, max_numb):
         feasible_positions = list(self.feasible_positions)
         for idx in range(self.initial_population_size):
@@ -74,7 +80,7 @@ class SensorGA:
             for _ in range(num_genes):
                 x, y = random.choice(feasible_positions)
                 chromosome.extend([x, y])
-            fitness_score = self._fitness_func(chromosome)
+            fitness_score = self._fitness_func(chromosome=chromosome)
             self.population[idx] = (chromosome, fitness_score)
             
             
@@ -108,7 +114,7 @@ class SensorGA:
         # 중복 좌표 제거
         child_genes = list(set(child_genes))
         # CNN 기반 적합도 맵으로 센서 우선순위 정렬
-        ranked = rankSensors(MAP=self.base_map, sensor_points=child_genes, coverage=self.coverage)
+        ranked = self.fitnessFunc.rankSensors(sensor_points=child_genes)
         # 정렬된 센서를 평탄화하여 최종 자식 염색체 구성
         sorted_child = []
         for (x, y), _ in ranked:
@@ -153,7 +159,7 @@ class SensorGA:
         else:
             # 성능 낮으면 미커버 영역에서 센서 추가
             sensor_pos_list = [(genes[i], genes[i+1]) for i in range(0, len(genes), 2)]
-            positions = extractUncovered(self.base_map, sensor_pos_list, self.coverage)
+            positions = self.fitnessFunc.extractUncovered(corner_positions=self.corner_positions, inner_positions=sensor_pos_list)
             if positions:
                 x, y = random.choice(positions)
                 genes.extend([int(x), int(y)])
