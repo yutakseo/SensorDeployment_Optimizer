@@ -53,40 +53,27 @@ class Convolution(nn.Module):
 
 
 class SensorEvaluator:
-    def __init__(self, map: np.ndarray, corner_points: list, sensor_points: list, coverage: int = 45) -> None:
+    def __init__(self, map: np.ndarray, corner_points:list, coverage: int = 45) -> None:
         self.map = np.array(map, dtype=np.float32)
         self.coverage = coverage
         self.corners = corner_points
-        self.sensors = sensor_points
 
-        self.model = Convolution(self.map)
-
-        # 실행 후 값이 채워질 변수들
-        self.base_map: np.ndarray = None
-        self.sorted_sensors: list = []
-        self.fitness_score: float = 0.0
-        self.uncovered_area: np.ndarray = None
-
-    def _activation_map_(self, as_numpy: bool = True):
+        model = Convolution(self.map)
         with torch.no_grad():
-            act = self.model.forward(self.map)
-        if as_numpy:
-            arr = act.squeeze().detach().cpu().numpy()
-            self.base_map = arr                # ✅ base_map 저장
-            return arr
-        self.base_map = act.detach()
-        return self.base_map
+            act = model.forward(self.map)
+        self.activation_map:np.ndarray = act.detach()
 
-    def rankSensors(self, MAP: np.ndarray, sensor_points: list, coverage: int = 45) -> list:
+    #지금 코너랑 내부 센서랑 동시에 순위를 고려하지 못함... 코너를 미리 설치 후 작성되는 맵에 대해 평가가 필요
+    def rankSensors(self, sensor_points: list) -> list:
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         with torch.no_grad():
-            fitness_map = self.model(MAP).detach()
+            fitness_map = self.model(self.map).detach()
 
         ranking = []
         shifted_sensor_points = np.array(sensor_points)
         for pos in shifted_sensor_points:
-            sensor = Sensor(MAP)
-            sensor.deploy(sensor_position=(int(pos[0]), int(pos[1])), coverage=coverage)
+            sensor = Sensor(self.map)
+            sensor.deploy(sensor_position=(int(pos[0]), int(pos[1])), coverage=self.coverage)
             sensor_map = sensor.extract_only_sensor()
             sensor_tensor = torch.as_tensor(sensor_map, dtype=torch.float32, device=device).unsqueeze(0).unsqueeze(0)
             score = (fitness_map * (sensor_tensor > 0)).sum().item()
@@ -96,14 +83,15 @@ class SensorEvaluator:
         self.sorted_sensors = ranking         # ✅ sorted_sensors 저장
         return ranking
 
-    def fitnessFunc(self, MAP, sensor_list: list, coverage: int) -> float:
+    def fitnessFunc(self, inner_positions:list) -> float:
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        tensor_map = torch.as_tensor(MAP, dtype=torch.float32, device=device)
+        tensor_map = torch.as_tensor(self.map, dtype=torch.float32, device=device)
         map_sum = tensor_map.sum().item()
-
-        sensor = Sensor(MAP)
-        for pos in sensor_list:
-            sensor.deploy(sensor_position=(int(pos[0]), int(pos[1])), coverage=coverage)
+        sensors_list = self.corner_positions + inner_positions
+        
+        sensor = Sensor(self.map)
+        for pos in sensors_list:
+            sensor.deploy(sensor_position=(int(pos[0]), int(pos[1])), coverage=self.coverage)
         sensor_map = sensor.extract_only_sensor()
         sensor_tensor = torch.as_tensor(sensor_map, dtype=torch.float32, device=device)
 
@@ -117,12 +105,14 @@ class SensorEvaluator:
         self.fitness_score = fitness_score    # ✅ fitness_score 저장
         return fitness_score * 100
 
-    def extractUncovered(self, MAP, sensor_list: list, coverage: int) -> list:
+    def extractUncovered(self, corner_positions:list, inner_positions:list) -> list:
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        tensor_map = torch.as_tensor(MAP, dtype=torch.float32, device=device)
-        sensor = Sensor(MAP)
+        tensor_map = torch.as_tensor(self.map, dtype=torch.float32, device=device)
+        sensor = Sensor(self.map)
+        sensor_list = corner_positions + inner_positions
+        
         for pos in sensor_list:
-            sensor.deploy(sensor_position=(int(pos[0]), int(pos[1])), coverage=coverage)
+            sensor.deploy(sensor_position=(int(pos[0]), int(pos[1])), coverage=self.coverage)
         sensor_map = sensor.extract_only_sensor()
         sensor_tensor = torch.as_tensor(sensor_map, dtype=torch.float32, device=device)
 

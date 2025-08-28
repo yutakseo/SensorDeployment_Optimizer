@@ -1,99 +1,147 @@
 import numpy as np
-import random
-import os, sys, csv
+import os, sys, csv, random
 import torch
-
-from SensorModule.Sensor_cuda import Sensor
 from Tools.FitnessFunction import SensorEvaluator
+from Tools.SensorModule import Sensor
 
 
 class SensorGA:
     def __init__(
                  self, 
-                 input_map,
+                 map_data:np.ndarray,
                  coverage:int, 
                  generations:int, 
                  results_dir:str,
                  corner_positions:list,
                  initial_population_size:int=100, 
                  next_population_size:int=50, 
-                 candidate_population_size:int=100,
+                 candidate_population_size:int=100
                  ):
-        """
-        SensorGA 클래스: 유전 알고리즘을 기반으로 최적의 센서 배치를 찾는 클래스.
-
-        Parameters:
-          - map_data: 2D numpy 배열 (맵 데이터)
-          - coverage: 센서 커버리지 (반지름으로 사용)
-          - generations: 유전 알고리즘 세대 수
-          - results_dir: 결과를 저장할 폴더 경로
-          - initial_population_size: 초기 개체군 크기
-          - next_population_size: 이후 각 세대에서 선택될 부모 개체 수
-          - candidate_population_size: 교배 및 돌연변이를 통해 생성할 후보 개체 수
-        """
-        self.base_map = np.array(input_map)
+        
+        self.base_map = np.array(map_data)
         self.coverage = int(coverage/5)
-        self.generations = generations
         self.corner_positions = corner_positions
+        self.generations = generations
         self.initial_population_size = initial_population_size
         self.next_population_size = next_population_size
         self.candidate_population_size = candidate_population_size
         self.feasible_positions = set(map(tuple, np.argwhere(self.base_map == 1)))
         self.rows, self.cols = self.base_map.shape
-        # 결과 저장 폴더 설정
+        
+        #log data setting
         self.results_dir = results_dir
         os.makedirs(self.results_dir, exist_ok=True)
-        # CSV 파일 저장 경로 설정
         self.file_path = os.path.join(self.results_dir, "generation_results.csv")
         with open(self.file_path, mode="w", newline='') as file:
             writer = csv.writer(file)
             writer.writerow(["Generation", "Fitness", "Num_Sensors", "Coverage_Score"])
-        # 초기 개체군 생성
-        self.population = {}
-        self.best_solution = None
+        
+        #init fitness function instance
+        self.fitnessFunc = SensorEvaluator(map=self.base_map, corner_points=self.corner_positions, coverage=self.coverage)
+        
+        #init first generation population(chromosomes)
+        self.population = []
+        self.init_population()
+        
+        #init best score and chromosome
+        self.best_score = 0
+        self.best_chromosome = []
+        for chromosome in self.population:
+            if chromosome[1] >= 0:
+                self.best_score = chromosome[1]
+                self.best_chromosome = chromosome[0]
+        
         self.min_sensor_count = float('inf')
         
-        #적합도평가함수 인스턴스 생성
-        self.fitnessFunc = SensorEvaluator(map=self.base_map, corner_points=self.corner_positions, coverage=self.coverage)
+    # ============================= initialize population ======================================
+    #초기 염색체 생성(생성 가능한 그리드에서 랜덤한 염색체 생성)
+    def init_population(self):
+        feasible_positions = list(self.feasible_positions)
+        for idx in range(self.initial_population_size):
+            chromosome = []
+            for _ in range(random.randrange(10, 100)):
+                x, y = random.choice(feasible_positions)
+                chromosome.extend([x, y])
+            fitness_score = self.evaluate_genes(chromosome=chromosome)
+            self.population.append([chromosome, fitness_score])
+    # ==========================================================================================
 
 
+    # ==================================== FitnessFuction ======================================
     #개별 염색체의 적합도를 출력
-    def _fitness_func(self, chromosome) -> float:
+    def evaluate_genes(self, chromosome:list) -> float:
         # [x1, y1, x2, y2, ...] → [(x1, y1), (x2, y2), ...]
         sensor_list = [(chromosome[i], chromosome[i+1]) for i in range(0, len(chromosome), 2)]
         return self.fitnessFunc(inner_positions=sensor_list)
+    
     #한 세대의 염색체 집합에 대한 적합도 채점
-    def fitness_func(self, population) -> list:
-        idx = 0
+    def fitness_func(self, population:list):
         for chromosome in population:
-            fitness_score = self._fitness_func(chromosome=chromosome)
-            self.population[idx] = (chromosome, fitness_score)
-            idx += 1
-    
-    
-    #초기 염색체 생성(랜덤하게 생성 가능한 그리드에서 유전자 생성)
-    def init_population(self, min_numb, max_numb):
-        feasible_positions = list(self.feasible_positions)
-        for idx in range(self.initial_population_size):
-            num_genes = random.randint(min_numb, max_numb)
-            chromosome = []
-            for _ in range(num_genes):
-                x, y = random.choice(feasible_positions)
-                chromosome.extend([x, y])
-            fitness_score = self._fitness_func(chromosome=chromosome)
-            self.population[idx] = (chromosome, fitness_score)
+            fitness_score = self.evaluate_genes(chromosome=chromosome)
+            chromosome[1] = fitness_score
+    # ==========================================================================================
             
             
-    def elite_selection(self, next_generation) -> list:
-        top_k = next_generation if next_generation is not None else self.initial_population_size
+            
+    # ================================ Chromosome Selection ====================================    
 
-        # 적합도 기준 내림차순 정렬 → (idx, (chromosome, fitness)) 형태 유지
-        sorted_population = sorted(self.population.items(), key=lambda item: item[1][1], reverse=True)
-        # 상위 top_k 개체 인덱스만 추출
-        selected_chromosome = [idx for idx, _ in sorted_population[:top_k]]
-        return selected_chromosome
+
+    from typing import List, Tuple
+    def elite_selection_list(population: List[Chromosome],
+        Coord = Tuple[int, int]
+        Chromosome = List[Coord]
+                            fitness: List[float],
+                            top_k: int,
+                            unique: bool = True,
+                            prefer_fewer_sensors: bool = True) -> List[int]:
+        """
+        반환: 상위 top_k의 '인덱스' 리스트 (내림차순)
+        - population[i]    : i번째 염색체 ([(x,y), ...])
+        - fitness[i]       : i번째 염색체 적합도
+        - unique=True      : 좌표 집합이 동일한 염색체 중복 제거
+        - prefer_fewer_sensors=True : 동점일 때 센서 수가 적은 해 우선
+        """
+        n = len(population)
+        if n == 0 or top_k <= 0:
+            return []
+        top_k = min(top_k, n)
+
+        def norm_key(ch: Chromosome) -> Tuple[Coord, ...]:
+            # 순서/중복 무의미 처리: 집합화 후 정렬 → 해시 가능한 키
+            genes = set(map(tuple, ch))
+            return tuple(sorted(genes))
+
+        def num_genes(ch: Chromosome) -> int:
+            return len(set(map(tuple, ch)))
+
+        order = sorted(
+            range(n),
+            key=lambda i: (
+                -fitness[i],                                # 1) 적합도 내림차순
+                num_genes(population[i]) if prefer_fewer_sensors else 0,  # 2) 센서 수 적게
+                i                                           # 3) 인덱스(안정성)
+            )
+        )
+
+        selected = []
+        seen = set()
+        for i in order:
+            if unique:
+                k = norm_key(population[i])
+                if k in seen:
+                    continue
+                seen.add(k)
+            selected.append(i)
+            if len(selected) == top_k:
+                break
+        return selected
+        
+    # ==========================================================================================
     
-       
+    
+    
+    
+    # =================================== Crossover Method =====================================  
     def _crossover(self, p1: list, p2: list) -> list:
         p1 = p1.copy()
         p2 = p2.copy()
@@ -145,9 +193,12 @@ class SensorGA:
 
         # 새로운 세대로 population 교체
         self.population = new_population
-
+    # ==========================================================================================
         
     
+    
+
+    # =================================== Mutation Method =====================================
     def mutation(self, chromosome) -> list:
         genes, score = chromosome  # chromosome: (genes, fitness_score)
         genes = genes.copy()  # 원본 보호
@@ -164,33 +215,28 @@ class SensorGA:
                 x, y = random.choice(positions)
                 genes.extend([int(x), int(y)])
         return genes
+    # ==========================================================================================
     
     
     def loop(self, min_genes=20, max_genes=30) -> None:
         self.init_population(min_genes, max_genes)  # 초기 해 생성
-
         for gen in range(self.generations):
             print(f"[Generation : {gen}]")
-
             # 1. 엘리트 선택
             selected_idx = self.elite_selection(next_generation=self.next_population_size)
-
             # 2. 교배
             self.crossover(selected_idx)
-
             # 3. 돌연변이 적용
             for idx in self.population:
                 mutated_genes = self.mutation(self.population[idx])
                 mutated_fitness = self._fitness_func(mutated_genes)
                 self.population[idx] = (mutated_genes, mutated_fitness)
-
             # 4. 베스트 결과 저장
             best_idx, (best_chromosome, best_score) = max(self.population.items(), key=lambda x: x[1][1])
             num_sensors = len(best_chromosome) // 2
-            coverage_score = best_score  # 너의 fitness 자체가 coverage 기준이니까
-            
+            coverage_score = best_score  # 너의 fitness 자체가 coverage 기준이니까...>_*찡긋
             if best_score == 100.0 and num_sensors < self.min_sensor_count:
-                self.best_solution = (best_chromosome.copy(), best_score)
+                self.best_chromosome = (best_chromosome.copy(), best_score)
                 self.min_sensor_count = num_sensors
 
             # 5. CSV 저장
@@ -205,7 +251,6 @@ class SensorGA:
     
     def run(self):
         self.loop()
-        
         # 최종 세대의 최고 해를 리턴
         best_idx, (best_chromosome, best_score) = max(self.population.items(), key=lambda x: x[1][1])
         return {
