@@ -3,6 +3,7 @@ import random
 import os
 import csv
 
+
 class SensorGA:
     def __init__(self, map_data, coverage, generations, results_dir,
                  initial_population_size=100, next_population_size=50, candidate_population_size=100):
