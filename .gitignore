@@ -43,3 +43,6 @@ tmp/
 # *.h5
 # Large point-cloud artifacts
 __MAPS__/**/*.ply
+
+# Large point-cloud artifacts
+__MAPS__/**/*.ply
