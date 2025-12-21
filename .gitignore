@@ -10,6 +10,7 @@ __pycache__/
 *.pyo
 *.pyd
 *.pcd
+*.ply
 
 # Python
 __pycache__/
@@ -40,3 +41,5 @@ tmp/
 # *.png
 # *.csv
 # *.h5
+# Large point-cloud artifacts
+__MAPS__/**/*.ply
