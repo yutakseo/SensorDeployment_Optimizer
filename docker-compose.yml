@@ -5,7 +5,7 @@ services:
     image: sensor_optimizer_image
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: sensor.Dockerfile
     container_name: sensor_optimizer_container
     working_dir: /workspace
     volumes:
