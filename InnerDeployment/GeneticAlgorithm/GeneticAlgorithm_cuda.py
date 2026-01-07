@@ -4,7 +4,7 @@ import os, sys, csv
 import torch
 
 from SensorModule.Sensor_v2 import Sensor
-from Tools.FitnessFunction import SensorEvaluator
+from FitnessFunction import SensorEvaluator
 
 
 class SensorGA:
