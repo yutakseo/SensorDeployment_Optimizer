@@ -21,7 +21,7 @@ class SensorDeployment:
         self.radius_for_plot  = coverage / 5        # 시각화 원 크기
         self.GEN = generation
         # MAP을 숫자형으로 강제 변환하여 imshow 타입 에러 방지
-        self.MAP = np.asarray(MapLoader(map_name).MAP)
+        self.MAP = np.asarray(MapLoader().MAP)
         if self.MAP.dtype.kind in ("U", "S", "O"):
             self.MAP = self.MAP.astype(np.float32)
 
