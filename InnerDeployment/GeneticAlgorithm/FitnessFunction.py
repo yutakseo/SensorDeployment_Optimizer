@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import numpy as np
-from ...SensorModule.Sensors import Sensor
+from SensorModule.Sensor import Sensor
 
 
 class Convolution(nn.Module):

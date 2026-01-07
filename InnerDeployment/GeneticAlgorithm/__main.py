@@ -3,7 +3,7 @@ import random
 import os, sys, csv
 import torch
 
-from SensorModule.Sensor_v2 import Sensor
+from SensorModule.Sensor import Sensor
 from FitnessFunction import SensorEvaluator
 
 
