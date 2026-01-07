@@ -1,11 +1,10 @@
-version: '3.8'
 
 services:
   python-app:
     image: sensor_optimizer_image
     build:
       context: .
-      dockerfile: sensor.Dockerfile
+      dockerfile: Dockerfile
     container_name: sensor_optimizer_container
     working_dir: /workspace
     volumes:
