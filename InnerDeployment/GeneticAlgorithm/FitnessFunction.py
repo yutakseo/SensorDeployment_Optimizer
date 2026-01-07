@@ -52,6 +52,27 @@ class Convolution(nn.Module):
         return out * self.Base_map.unsqueeze(0).unsqueeze(0)
 
 
+def fitnessFunc(map, corner_positions, inner_positions:list) -> float:
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    tensor_map = torch.as_tensor(map, dtype=torch.float32, device=device)
+    map_sum = tensor_map.sum().item()
+    sensors_list = corner_positions + inner_positions
+    
+    sensor = Sensor(map)
+    for pos in sensors_list:
+        sensor.deploy(sensor_position=(int(pos[0]), int(pos[1])), coverage=self.coverage)
+    sensor_map = sensor.extract_only_sensor()
+    sensor_tensor = torch.as_tensor(sensor_map, dtype=torch.float32, device=device)
+
+    # 바이너리화
+    sensor_tensor = (sensor_tensor > 0).float()
+    uncovered = (tensor_map * (1 - sensor_tensor)).sum().item()
+    covered = map_sum - uncovered
+    fitness_score = covered / map_sum if map_sum > 0 else 0.0
+    return fitness_score * 100
+
+
+
 class SensorEvaluator:
     def __init__(self, map: np.ndarray, corner_points:list, coverage: int = 45) -> None:
         self.map = np.array(map, dtype=np.float32)
