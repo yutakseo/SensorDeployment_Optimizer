@@ -1,59 +1,76 @@
 # InnerDeployment/GeneticAlgorithm/initializer.py
-import random
-from typing import List, Tuple, Optional
+from __future__ import annotations
 
-from SensorModule.Sensor import Sensor
+import random
+from typing import List, Tuple, Sequence, Optional, Union
+
+import numpy as np
+
+from SensorModule.Sensor import Sensor  # 프로젝트 경로 기준
 
 XY = Tuple[int, int]
+Chromosome = List[XY]
+Population = List[Chromosome]
+
+MapLike = Union[np.ndarray, List[List[int]], List[List[float]]]
 
 
 def initialize_population(
-    input_map,
-    population_size: int,
-    corner_positions: List[XY],
+    *,
+    input_map: MapLike,
+    corner_positions: Sequence[XY],
     coverage: int,
-    min_sensors: int = 1,
-    max_sensors: Optional[int] = None,
-) -> List[List[XY]]:
+    population_size: int,
+    min_sensors: int,
+    max_sensors: int,
+    seed: Optional[int] = None,
+) -> Population:
     """
-    1) corner_positions에 센서를 먼저 배치
-    2) uncovered(points=True)로 미커버 지점 후보를 추출
-    3) 후보 중 랜덤하게 뽑아 population 생성
+    초기 population 생성 (initializer 내부에서 uncovered 영역 추출까지 수행)
 
-    염색체 구조:
-      - chromosome = [(x1,y1), (x2,y2), ...]  (추가 센서 위치들)
-      - corner 센서들은 '고정'이므로 chromosome에는 포함하지 않음
+    Args:
+        input_map        : installable_layer(0/1) 또는 ROI 마스크 (2D)
+        corner_positions : 최외곽 센서 설치 좌표 리스트 [(x,y), ...]
+        coverage         : 센서 커버리지(프로젝트 기준 meters; Sensor.deploy 내부에서 /5 처리)
+        population_size  : 한 세대 염색체 개수
+        min_sensors      : 염색체 당 유전자 최소 개수
+        max_sensors      : 염색체 당 유전자 최대 개수
+        seed             : 랜덤 시드
+
+    Returns:
+        population: List[chromosome]
+            chromosome: List[(x,y)]
     """
-    # 1) corner 센서 배치
+    if seed is not None:
+        random.seed(seed)
+
+    # 1) Sensor 준비 + corner deploy
     sensor = Sensor(input_map)
     sensor.deploy(corner_positions, coverage=coverage)
 
-    # 2) 미커버 후보점(=추가 센서 설치 후보)
-    uncovered_points: List[XY] = sensor.uncovered(points=True)
+    # 2) corner로 커버되지 않은 좌표 풀 추출
+    #    - ROI는 input_map(installable_layer)을 그대로 넣는게 가장 직관적
+    uncovered_points: List[XY] = sensor.uncovered(
+        roi_mask=input_map,
+        points=True,
+    )
 
-    if not uncovered_points:
-        # 이미 corner로 모두 커버된 경우
-        return [[] for _ in range(population_size)]
+    if len(uncovered_points) == 0:
+        raise ValueError("No uncovered points after deploying corner sensors.")
 
-    # 3) max_sensors 기본값
-    if max_sensors is None:
-        # 이론상 후보점 개수까지 가능하지만, 너무 커지면 GA가 비효율적
-        # 우선 후보점 개수로 상한
-        max_sensors = len(uncovered_points)
+    # 3) 유전자 개수 범위 보정
+    min_k = max(1, int(min_sensors))
+    max_k = max(min_k, int(max_sensors))
+    max_k = min(max_k, len(uncovered_points))
 
-    max_sensors = max(min_sensors, max_sensors)
-
-    population: List[List[XY]] = []
-
-    for _ in range(population_size):
-        gene_len = random.randint(min_sensors, max_sensors)
-
-        # 후보점이 적을 수 있으니 replace 허용(중복 방지 원하면 random.sample로 바꾸면 됨)
-        if gene_len <= len(uncovered_points):
-            chrom = random.sample(uncovered_points, gene_len)
-        else:
-            chrom = [random.choice(uncovered_points) for _ in range(gene_len)]
-
-        population.append(chrom)
+    # 4) population 구성
+    population: Population = []
+    for _ in range(int(population_size)):
+        k = random.randint(min_k, max_k)
+        chromo = random.sample(uncovered_points, k=k)  # 중복 없는 샘플
+        population.append(chromo)
 
     return population
+
+
+

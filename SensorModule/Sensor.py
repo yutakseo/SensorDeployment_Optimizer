@@ -1,13 +1,18 @@
 # SensorModule/Sensor.py
 from __future__ import annotations
 
-from typing import Optional, Sequence, Tuple, Union
+from typing import Optional, Sequence, Tuple, Union, List, overload, Literal
 
 import numpy as np
 import torch
 
-MaskLike = Union[torch.Tensor, Sequence[Sequence[Union[int, float]]]]
+MaskLike = Union[
+    torch.Tensor,
+    np.ndarray,  # ✅ 추가
+    Sequence[Sequence[Union[int, float]]],
+]
 PosLike = Union[Tuple[int, int], Sequence[Tuple[int, int]], torch.Tensor]
+XY = Tuple[int, int]
 
 
 class Sensor:
@@ -145,6 +150,7 @@ class Sensor:
 
     @torch.no_grad()
     def remove(self, sensor_position: PosLike) -> torch.Tensor:
+        # many sensors
         if not (
             isinstance(sensor_position, tuple)
             and len(sensor_position) == 2
@@ -154,6 +160,7 @@ class Sensor:
                 out = self.remove(tuple(p))
             return out
 
+        # single sensor
         if isinstance(sensor_position, torch.Tensor):
             sensor_position = tuple(sensor_position.tolist())
 
@@ -202,21 +209,57 @@ class Sensor:
         self.MAP.clamp_(min=0.0)
         return self.MAP
 
+    # -------------------------
+    # covered / uncovered (with overloads for Pylance)
+    # -------------------------
+    @overload
+    def covered(
+        self,
+        roi_mask: Optional[MaskLike] = ...,
+        *,
+        eps: float = ...,
+        as_tensor: Literal[False] = ...,
+        points: Literal[True],
+    ) -> List[XY]: ...
+
+    @overload
+    def covered(
+        self,
+        roi_mask: Optional[MaskLike] = ...,
+        *,
+        eps: float = ...,
+        as_tensor: Literal[False] = ...,
+        points: Literal[False] = ...,
+    ) -> np.ndarray: ...
+
+    @overload
+    def covered(
+        self,
+        roi_mask: Optional[MaskLike] = ...,
+        *,
+        eps: float = ...,
+        as_tensor: Literal[True],
+        points: Literal[False] = ...,
+    ) -> torch.Tensor: ...
+
     def covered(
         self,
         roi_mask: Optional[MaskLike] = None,
         *,
         eps: float = 1e-6,
         as_tensor: bool = False,
-        points: bool = False,   # NEW
+        points: bool = False,
     ):
         """
         현재 self.MAP 기준 '커버된' ROI 반환.
 
         반환:
-        - points=True            : List[Tuple[int,int]]  (x,y)
-        - points=False, as_tensor=False (default): numpy.ndarray (bool)
-        - points=False, as_tensor=True            : torch.BoolTensor
+        - points=True                    : List[(x,y)]
+        - points=False, as_tensor=False  : numpy.ndarray(bool)
+        - points=False, as_tensor=True   : torch.BoolTensor
+
+        NOTE:
+        - points=True일 때는 as_tensor와 무관하게 List[(x,y)]로 반환한다.
         """
         roi = self._to_bool_mask(
             roi_mask,
@@ -234,6 +277,35 @@ class Sensor:
             return covered_bool
         return self._to_numpy_bool(covered_bool)
 
+    @overload
+    def uncovered(
+        self,
+        roi_mask: Optional[MaskLike] = ...,
+        *,
+        eps: float = ...,
+        as_tensor: Literal[False] = ...,
+        points: Literal[True],
+    ) -> List[XY]: ...
+
+    @overload
+    def uncovered(
+        self,
+        roi_mask: Optional[MaskLike] = ...,
+        *,
+        eps: float = ...,
+        as_tensor: Literal[False] = ...,
+        points: Literal[False] = ...,
+    ) -> np.ndarray: ...
+
+    @overload
+    def uncovered(
+        self,
+        roi_mask: Optional[MaskLike] = ...,
+        *,
+        eps: float = ...,
+        as_tensor: Literal[True],
+        points: Literal[False] = ...,
+    ) -> torch.Tensor: ...
 
     def uncovered(
         self,
@@ -241,15 +313,18 @@ class Sensor:
         *,
         eps: float = 1e-6,
         as_tensor: bool = False,
-        points: bool = False,   # NEW
+        points: bool = False,
     ):
         """
         현재 self.MAP 기준 '미커버' ROI 반환.
 
         반환:
-        - points=True            : List[Tuple[int,int]]  (x,y)
-        - points=False, as_tensor=False (default): numpy.ndarray (bool)
-        - points=False, as_tensor=True            : torch.BoolTensor
+        - points=True                    : List[(x,y)]
+        - points=False, as_tensor=False  : numpy.ndarray(bool)
+        - points=False, as_tensor=True   : torch.BoolTensor
+
+        NOTE:
+        - points=True일 때는 as_tensor와 무관하게 List[(x,y)]로 반환한다.
         """
         roi = self._to_bool_mask(
             roi_mask,
