@@ -110,11 +110,3 @@ def sus(gen: Generation, scores: List[float], count: int) -> Generation:
         out.append(gen[j][:])
     return out
 
-
-# -------------------------
-# backward compatible aliases
-# -------------------------
-elite_selection = elite
-tournament_selection = tournament
-roulette_wheel_selection = roulette
-stochastic_universal_sampling = sus
