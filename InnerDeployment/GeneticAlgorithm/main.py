@@ -1,10 +1,11 @@
 import random
 import time
+import inspect
 from contextlib import contextmanager
 from typing import List, Tuple, Dict, Optional, Union
-
+import numpy as np
 from .initializer import initialize_population
-from .fitnessfunction import FitnessFunc
+from .fitnessfunction import FitnessFunc  # 원래 파일명
 from .crossover import crossover as crossover_op
 from .mutation import mutation as mutation_op
 from .selection import (
@@ -28,16 +29,18 @@ def _timer(name: str, acc: Dict[str, float]):
         acc[name] = acc.get(name, 0.0) + (time.perf_counter() - t0)
 
 
+def _as_int_pairs(points) -> List[Gene]:
+    """(x,y) 좌표를 int tuple 리스트로 강제 변환"""
+    return [tuple(map(int, p)) for p in points]
+
+
 class SensorGA:
     """
-    Sensor Deployment GA (복구본)
+    Sensor Deployment GA (복구/안정화 버전)
 
-    설계 의도:
-    - GA는 오직 "fitness maximize"만 수행
-    - FitnessFunc가 coverage + (선택적으로) 비용항을 반영
-    - rule-based 강제 삭제 대신, fitness 평가 시
-      ordering된 센서들의 "best prefix"를 선택하여
-      coverage를 유지하면서 센서 수가 자연스럽게 줄어들게 함
+    - GA는 fitness maximize만 수행
+    - FitnessFunc가 coverage(+optional cost)를 반영
+    - best prefix 전략으로 센서 수 최소화 압력을 주입
     """
 
     def __init__(
@@ -52,17 +55,18 @@ class SensorGA:
         child_chromo_size: int = 100,
         min_sensors: int = 10,
         max_sensors: int = 100,
-        # FitnessFunc knobs
         fitness_kwargs: Optional[dict] = None,
-        # Mutation knobs (add/del/move 등 mutation_op에 넘길 기본값)
+        # ✅ 원하면 유지, 싫으면 None으로 둬도 됨 (run에서 override 가능)
         mutation_kwargs: Optional[dict] = None,
     ):
-        self.installable_map = installable_map
-        self.jobsite_map = jobsite_map
+        # numpy/list 모두 허용하되, shape 이슈 방지
+        self.installable_map = np.asarray(installable_map)
+        self.jobsite_map = np.asarray(jobsite_map)
+
         self.coverage = int(coverage)
         self.generations = int(generations)
 
-        self.corner_positions = [tuple(map(int, p)) for p in corner_positions]
+        self.corner_positions = _as_int_pairs(corner_positions)
 
         self.generation_size = int(initial_size)
         self.selection_size = int(selection_size)
@@ -74,7 +78,6 @@ class SensorGA:
         self.fitness_kwargs = fitness_kwargs or {}
         self.mutation_kwargs = mutation_kwargs or {}
 
-        # 초기 population 생성
         self.init_population: Generation = initialize_population(
             input_map=self.installable_map,
             population_size=self.generation_size,
@@ -104,7 +107,7 @@ class SensorGA:
     ) -> None:
         print(
             f"[Gen:{gen_idx:03d}/{self.generations:03d}] "
-            f"Fitness : (best={best_fitness:.2f}, avg={avg_fitness:.2f}, worst={worst_fitness:.2f}) | "
+            f"Fitness : (best={best_fitness:.4f}, avg={avg_fitness:.4f}, worst={worst_fitness:.4f}) | "
             f"Coverage(best)={best_coverage:.2f}% | "
             f"Numb of sensors : (min={sensors_min}, avg={sensors_avg:.1f}, max={sensors_max}) | "
             f"BestSensors={best_total_sensors} (corner={corner_sensor_count})"
@@ -137,20 +140,15 @@ class SensorGA:
             )
 
     # -------------------------
-    # best prefix selection
+    # best prefix
     # -------------------------
     def _best_prefix_by_fitness(self, evaluator: FitnessFunc, ordered: Chromosome) -> Chromosome:
-        """
-        ordering된 센서 리스트에서 fitness가 최대가 되는 prefix만 반환.
-        - best prefix 전략으로 센서 수 최소화 압력을 GA에 주입
-        """
         best_fit = float("-inf")
         best_k = 0
 
-        # 빈 prefix(k=0)도 후보 (corners만으로 fitness 평가)
         for k in range(len(ordered) + 1):
             cand = ordered[:k]
-            fit = evaluator.fitness_score(cand)
+            fit = float(evaluator.fitness_score(cand))
             if fit > best_fit:
                 best_fit = fit
                 best_k = k
@@ -158,7 +156,7 @@ class SensorGA:
         return ordered[:best_k]
 
     # -------------------------
-    # Fitness
+    # Fitness (population)
     # -------------------------
     def fitness(
         self,
@@ -179,22 +177,23 @@ class SensorGA:
         t_score = 0.0
 
         for chromosome in generation:
+            chrom = _as_int_pairs(chromosome)
+
             if profile_breakdown:
                 t0 = time.perf_counter()
-                ordered = evaluator.ordering_sensors(chromosome, return_score=False)
+                ordered = evaluator.ordering_sensors(chrom, return_score=False)
                 t_order += time.perf_counter() - t0
 
                 t0 = time.perf_counter()
                 best_chrom = self._best_prefix_by_fitness(evaluator, ordered)
-                score = evaluator.fitness_score(best_chrom)
+                score = float(evaluator.fitness_score(best_chrom))
                 t_score += time.perf_counter() - t0
             else:
-                ordered = evaluator.ordering_sensors(chromosome, return_score=False)
+                ordered = evaluator.ordering_sensors(chrom, return_score=False)
                 best_chrom = self._best_prefix_by_fitness(evaluator, ordered)
-                score = evaluator.fitness_score(best_chrom)
+                score = float(evaluator.fitness_score(best_chrom))
 
-            # ⭐ 중요: best prefix로 정리된 chromosome을 population에 반영
-            scored.append((float(score), best_chrom))
+            scored.append((score, best_chrom))
 
         scored.sort(key=lambda x: x[0], reverse=True)
 
@@ -238,16 +237,26 @@ class SensorGA:
         if mutation_kwargs:
             kw.update(mutation_kwargs)
 
-        # mutation_op는 add/del/move 확장 버전도 받을 수 있게 kwargs 전달
-        return mutation_op(
-            chromosome,
+        # ✅ mutation_op가 어떤 인자를 받는지 검사해서 "받는 것만" 전달 (하위호환 핵심)
+        sig = inspect.signature(mutation_op)
+        allowed = set(sig.parameters.keys())
+
+        payload = dict(
+            chromosome=chromosome,
             installable_map=self.installable_map,
             jobsite_map=self.jobsite_map,
             corner_positions=self.corner_positions,
             coverage=self.coverage,
-            max_total_sensors=self.max_sensors,
-            **kw,
         )
+        if "max_total_sensors" in allowed:
+            payload["max_total_sensors"] = self.max_sensors
+
+        # mutation knobs도 allowed에 포함되는 것만
+        for k, v in kw.items():
+            if k in allowed:
+                payload[k] = v
+
+        return mutation_op(**payload)
 
     # -------------------------
     # Run
@@ -261,20 +270,14 @@ class SensorGA:
         profile: bool = True,
         profile_every: int = 1,
         profile_fitness_breakdown: bool = True,
-        # Early stopping knobs
         early_stop: bool = True,
         early_stop_coverage: float = 90.0,
         early_stop_patience: int = 10,
-        early_stop_use_fitness: bool = False,
-        early_stop_min_delta_fitness: float = 0.0,
-        # Output
         return_best_only: bool = True,
-        # Mutation kwargs override (per run)
         mutation_kwargs: Optional[dict] = None,
     ) -> Union[Generation, Chromosome]:
         population = self.population
 
-        # logging/eval 용 evaluator
         log_eval = FitnessFunc(
             jobsite_map=self.jobsite_map,
             corner_positions=self.corner_positions,
@@ -282,19 +285,15 @@ class SensorGA:
             **self.fitness_kwargs,
         )
 
-        # early stop state
         stable_count = 0
         last_best_total: Optional[int] = None
-        last_best_fitness: Optional[float] = None
 
-        # best tracking (run 전체에서 best 하나 뽑아 반환할 때 사용)
         best_so_far_inner: Optional[Chromosome] = None
         best_so_far_fit = float("-inf")
 
         for gen_idx in range(1, self.generations + 1):
             prof: Dict[str, float] = {}
 
-            # 1) Fitness
             with _timer("fitness_total", prof):
                 sorted_generation, fitness_scores = self.fitness(
                     population,
@@ -310,17 +309,15 @@ class SensorGA:
             worst_fitness = float(fitness_scores[-1])
             avg_fitness = float(sum(fitness_scores) / len(fitness_scores))
 
-            # best coverage/total sensors
-            corner_cnt = len(self.corner_positions)
-            total_counts = [corner_cnt + len(ch) for ch in sorted_generation]
             _, best_cov, best_total = log_eval.evaluate(best_inner)
 
-            # global best update
             if best_fitness > best_so_far_fit:
                 best_so_far_fit = best_fitness
                 best_so_far_inner = best_inner
 
-            # 2) Log
+            corner_cnt = len(self.corner_positions)
+            total_counts = [corner_cnt + len(ch) for ch in sorted_generation]
+
             if verbose:
                 self._log_generation(
                     gen_idx,
@@ -332,33 +329,19 @@ class SensorGA:
                     sensors_min=min(total_counts),
                     sensors_avg=sum(total_counts) / len(total_counts),
                     sensors_max=max(total_counts),
-                    best_total_sensors=best_total,
+                    best_total_sensors=int(best_total),
                 )
 
-            # 3) Early stop
-            if early_stop and (best_cov >= float(early_stop_coverage)):
+            # Early stop: coverage 만족 + best_total 안정
+            if early_stop and (float(best_cov) >= float(early_stop_coverage)):
                 if last_best_total is None:
                     last_best_total = int(best_total)
                     stable_count = 1
-                    last_best_fitness = best_fitness
                 else:
-                    same_total = (int(best_total) == int(last_best_total))
-                    if same_total:
-                        if early_stop_use_fitness:
-                            if last_best_fitness is None:
-                                last_best_fitness = best_fitness
-                                stable_count = 1
-                            else:
-                                if abs(best_fitness - float(last_best_fitness)) <= float(early_stop_min_delta_fitness):
-                                    stable_count += 1
-                                else:
-                                    last_best_fitness = best_fitness
-                                    stable_count = 1
-                        else:
-                            stable_count += 1
+                    if int(best_total) == int(last_best_total):
+                        stable_count += 1
                     else:
                         last_best_total = int(best_total)
-                        last_best_fitness = best_fitness
                         stable_count = 1
 
                 if stable_count >= int(early_stop_patience):
@@ -372,9 +355,7 @@ class SensorGA:
             else:
                 stable_count = 0
                 last_best_total = None
-                last_best_fitness = None
 
-            # 4) Selection
             with _timer("selection_total", prof):
                 parents = self.selection(
                     sorted_generation,
@@ -386,7 +367,6 @@ class SensorGA:
             if len(parents) < 2:
                 break
 
-            # 5) Reproduction
             children: Generation = []
             with _timer("reproduction_total", prof):
                 while len(children) < self.child_size:
@@ -403,15 +383,11 @@ class SensorGA:
 
             population = children
 
-            # 6) Profile log
             if profile and (gen_idx % int(profile_every) == 0):
                 self._log_profile(gen_idx, prof, child_size=self.child_size, mutation_rate=float(mutation_rate))
 
         self.population = population
 
-        # return
         if return_best_only:
-            if best_so_far_inner is not None:
-                return best_so_far_inner
-            return population[0] if population else []
+            return best_so_far_inner if best_so_far_inner is not None else (population[0] if population else [])
         return self.population
