@@ -98,8 +98,14 @@ class SensorGA:
         # mutation signature cache (매 호출 inspect 비용 감소)
         self._mutation_allowed = set(inspect.signature(mutation_op).parameters.keys())
 
+        # ✅ run 후 외부에서 접근 가능한 최종 결과 저장용(초기화)
+        self.best_solution: Optional[Chromosome] = None
+        self.best_fitness: float = float("-inf")
+        self.best_coverage: float = float("nan")
+        self.corner_points: List[Gene] = list(self.corner_positions)
+
     # -------------------------
-    # Logging
+    # Logging (console)
     # -------------------------
     def _log_generation(
         self,
@@ -282,6 +288,7 @@ class SensorGA:
         early_stop_patience: int = 10,
         return_best_only: bool = True,
         mutation_kwargs: Optional[dict] = None,
+        logger=None,  # ✅ 추가: Tools.Logger.GAJsonLogger
     ) -> Union[Generation, Chromosome]:
         population = self.population
 
@@ -339,6 +346,21 @@ class SensorGA:
                     best_total_sensors=int(best_total),
                 )
 
+            # ✅ 세대별 로거 기록 (JSON용)
+            if logger is not None:
+                logger.log_generation(
+                    gen=gen_idx,
+                    sensors_min=float(min(total_counts)),
+                    sensors_max=float(max(total_counts)),
+                    sensors_avg=float(sum(total_counts) / len(total_counts)),
+                    fitness_min=float(worst_fitness),   # min
+                    fitness_max=float(best_fitness),    # max
+                    fitness_avg=float(avg_fitness),
+                    best_solution=best_inner,
+                    best_fitness=float(best_fitness),
+                    best_coverage=float(best_cov),
+                )
+
             if early_stop and (float(best_cov) >= float(early_stop_coverage)):
                 if last_best_total is None:
                     last_best_total = int(best_total)
@@ -394,6 +416,17 @@ class SensorGA:
 
         self.population = population
 
+        # ✅ 최종 best 결과를 객체에 저장 (Experiment에서 logger.finalize에 사용)
+        self.best_solution = best_so_far_inner if best_so_far_inner is not None else (population[0] if population else [])
+        self.best_fitness = float(best_so_far_fit) if best_so_far_inner is not None else float("nan")
+        try:
+            _, final_cov, _ = log_eval.evaluate(self.best_solution)
+            self.best_coverage = float(final_cov)
+        except Exception:
+            self.best_coverage = float("nan")
+
+        self.corner_points = list(self.corner_positions)
+
         if return_best_only:
-            return best_so_far_inner if best_so_far_inner is not None else (population[0] if population else [])
+            return self.best_solution
         return self.population
