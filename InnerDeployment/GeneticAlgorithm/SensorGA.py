@@ -1,10 +1,10 @@
 import random
 from typing import List, Tuple, Dict
 
-from initializer import initialize_population
-from FitnessFunction import fitnessFunc
-from crossover import crossover as crossover_op
-from selection import tournament, elitism, stochastic
+from .initializer import initialize_population
+from .FitnessFunction import fitnessFunc
+from .crossover import crossover as crossover_op
+#from .selection import tournament, elitism, stochastic
 
 Gene = Tuple[int, int]
 Chromosome = List[Gene]
@@ -15,6 +15,7 @@ class SensorGA:
     def __init__(
         self,
         installable_map,
+        jobsite_map,
         coverage: int,
         generations: int,
         corner_positions: List[Gene],
@@ -24,7 +25,8 @@ class SensorGA:
         min_sensors: int = 70,
         max_sensors: int = 100,
     ):
-        self.map = installable_map
+        self.installable_map = installable_map
+        self.jobsite_map = jobsite_map
         self.coverage = int(coverage)
         self.generations = int(generations)
         self.corner_positions = [tuple(p) for p in corner_positions]
@@ -37,15 +39,13 @@ class SensorGA:
         self._fitness_cache: Dict[Tuple[Gene, ...], float] = {}
 
         self.init_population: Generation = initialize_population(
-            input_map=self.map,
+            input_map=self.installable_map,
             population_size=self.generation_size,
             corner_positions=self.corner_positions,
             coverage=self.coverage,
             min_sensors=self.min_sensors,
             max_sensors=self.max_sensors,
         )
-
-        # ✅ 필수: run()에서 사용
         self.population: Generation = self.init_population
 
     # -------------------------
