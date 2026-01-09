@@ -39,3 +39,6 @@ tmp/
 # *.png
 # *.csv
 # *.h5
+
+__MAPS__/v2
+__MAPS__/v1
