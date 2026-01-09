@@ -40,5 +40,5 @@ tmp/
 # *.csv
 # *.h5
 
-__MAPS__/v2
-__MAPS__/v1
+
+__MAPS__/*
