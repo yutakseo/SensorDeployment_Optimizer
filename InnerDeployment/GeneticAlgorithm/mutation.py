@@ -3,7 +3,7 @@ from typing import List, Tuple, Optional
 
 import numpy as np
 
-from .FitnessFunction import FitnessFunc
+from .fitnessfunction import FitnessFunc
 
 Gene = Tuple[int, int]
 Chromosome = List[Gene]
