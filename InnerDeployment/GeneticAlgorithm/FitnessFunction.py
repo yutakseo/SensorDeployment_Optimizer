@@ -8,35 +8,47 @@ class Convolution(nn.Module):
     def __init__(self, MAP: np.ndarray):
         super().__init__()
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+        # 입력/맵을 FP16으로 통일
         self.base_map = torch.as_tensor(MAP, dtype=torch.float16, device=self.device)
 
         kernel_sizes = [3, 5, 7, 9, 11, 13, 15]
         self.convs = nn.ModuleList([
-            nn.Conv2d(1, 1, k, padding=k // 2, bias=False, padding_mode="replicate").to(self.device)
+            # Conv weight도 FP16으로 통일 (중요!)
+            nn.Conv2d(1, 1, k, padding=k // 2, bias=False, padding_mode="replicate")
+              .to(self.device)
+              .half()
             for k in kernel_sizes
         ])
 
+        # 평균 필터로 초기화 (FP16 weight에 채움)
         with torch.no_grad():
             for conv, k in zip(self.convs, kernel_sizes):
                 conv.weight.fill_(1.0 / (k * k))
                 conv.weight.requires_grad_(False)
 
     def forward(self, x):
+        # numpy 입력
         if isinstance(x, np.ndarray):
             x = torch.as_tensor(x, dtype=torch.float16)
+        else:
+            # torch Tensor 입력 방어: dtype을 FP16으로 통일
+            x = x.to(dtype=torch.float16)
+
         if x.ndim == 2:
             x = x.unsqueeze(0).unsqueeze(0)
 
         x = x.to(self.device)
         out = sum(conv(x) for conv in self.convs) / len(self.convs)
+
         return out * self.base_map.unsqueeze(0).unsqueeze(0)
 
 
 class FitnessFunc:
-    def __init__(self, jobsite_map: np.ndarray, corner_points: list[tuple[int, int]], coverage):
+    def __init__(self, jobsite_map: np.ndarray, corner_positions: list[tuple[int, int]], coverage):
         self.map = np.array(jobsite_map, dtype=np.float16)
         self.coverage = int(coverage)
-        self.corners = [tuple(map(int, p)) for p in corner_points]
+        self.corners = [tuple(map(int, p)) for p in corner_positions]
 
         # device / map tensor를 미리 캐시 (속도 + 일관성)
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -99,7 +111,7 @@ class FitnessFunc:
         ranking.sort(key=lambda x: x[1], reverse=True)
         return ranking
 
-    def ordering_sensors(self, chromosome: list[tuple[int, int]], return_all: bool = True):
+    def ordering_sensors(self, chromosome: list[tuple[int, int]], return_score: bool = True):
         """
         corner 선설치 후, 염색체 내부 센서들을 greedy marginal-gain 방식으로 정렬
         - 개선: base mask를 누적하여 반복 재배치 비용 감소
@@ -132,7 +144,7 @@ class FitnessFunc:
             base_mask = best_mask
             base_fit = best_fit
 
-        return ordered if return_all else [p for p, _, _ in ordered]
+        return ordered if return_score else [p for p, _, _ in ordered]
 
     def uncovered_map(self, inner_positions: list[tuple[int, int]]) -> np.ndarray:
         uncovered = self._extract_uncovered(self.corners + [tuple(map(int, p)) for p in inner_positions])
