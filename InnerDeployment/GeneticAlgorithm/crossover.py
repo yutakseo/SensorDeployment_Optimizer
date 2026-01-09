@@ -1,3 +1,4 @@
+# InnerDeployment/GeneticAlgorithm/crossover.py
 import random
 from typing import List, Tuple
 
@@ -5,54 +6,62 @@ Gene = Tuple[int, int]
 Chromosome = List[Gene]
 
 
-def _is_installable(installable_map, x: int, y: int) -> bool:
-    """
-    installable_map[y, x] 기준으로 설치 가능 여부 판단.
-    - numpy array면 installable_map[y, x]
-    - list of list면 installable_map[y][x]
-    값이 1(True)이면 설치 가능으로 간주.
-    """
+def _getShape(m):
     try:
-        v = installable_map[y, x]
+        h, w = int(m.shape[0]), int(m.shape[1])  # (H, W)
+        return h, w
     except Exception:
-        v = installable_map[y][x]
-    return bool(v == 1 or v is True)
+        h = len(m) if m is not None else 0
+        w = len(m[0]) if (h > 0 and m[0] is not None) else 0
+        return h, w
 
 
-def _crossover_gene(g1: Gene, g2: Gene, installable_map) -> Gene:
-    """
-    두 부모 유전자(g1, g2)가 만드는 사각형 범위 내의 installable 후보 중
-    랜덤 1개를 뽑아 자식 유전자를 생성.
-    """
+def _isInstallable(m, x: int, y: int, h: int, w: int) -> bool:
+    if x < 0 or y < 0 or x >= w or y >= h:
+        return False
+    try:
+        v = m[y, x]
+    except Exception:
+        v = m[y][x]
+    try:
+        return bool(v > 0)  # 0/1, 0/255, bool 모두 안전
+    except Exception:
+        return bool(int(v) > 0)
+
+
+def _pickGene(g1: Gene, g2: Gene, m, h: int, w: int) -> Gene:
     x1, y1 = map(int, g1)
     x2, y2 = map(int, g2)
 
-    xmin, xmax = sorted([x1, x2])
-    ymin, ymax = sorted([y1, y2])
+    xmin, xmax = sorted((x1, x2))
+    ymin, ymax = sorted((y1, y2))
 
-    candidates: List[Gene] = []
+    xmin = max(0, min(xmin, w - 1))
+    xmax = max(0, min(xmax, w - 1))
+    ymin = max(0, min(ymin, h - 1))
+    ymax = max(0, min(ymax, h - 1))
+
+    cand: List[Gene] = []
     for y in range(ymin, ymax + 1):
         for x in range(xmin, xmax + 1):
-            if _is_installable(installable_map, x, y):
-                candidates.append((x, y))
+            if _isInstallable(m, x, y, h, w):
+                cand.append((x, y))
 
-    if candidates:
-        return random.choice(candidates)
+    if cand:
+        return random.choice(cand)
 
-    # fallback: 후보가 없으면 g1(또는 g2)로
-    # (원하면 random.choice([g1, g2])로 바꿔도 됨)
-    return (x1, y1)
+    return random.choice([(x1, y1), (x2, y2)])
 
 
 def crossover(parent1: Chromosome, parent2: Chromosome, installable_map) -> Chromosome:
-    """
-    1:1 유전자 대응 교차.
-    - child 길이 = min(len(parent1), len(parent2))
-    - 각 i번째 유전자는 parent1[i]~parent2[i] 사각형 범위 내 installable 후보 중 랜덤 선택
-    - parent2의 tail(len(parent2)>len(parent1))은 버림 (요구사항 반영)
-    """
+    h, w = _getShape(installable_map)
     m = min(len(parent1), len(parent2))
-    child: Chromosome = []
+
+    # ✅ 빈 맵 방어: 이 경우 crossover 의미가 없으니 부모 중 하나를 복사해서 반환
+    if h <= 0 or w <= 0 or m <= 0:
+        return [tuple(map(int, p)) for p in parent1[:m]]
+
+    out: Chromosome = []
     for i in range(m):
-        child.append(_crossover_gene(parent1[i], parent2[i], installable_map))
-    return child
+        out.append(_pickGene(parent1[i], parent2[i], installable_map, h, w))
+    return out

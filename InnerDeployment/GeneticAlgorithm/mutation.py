@@ -1,3 +1,6 @@
+# InnerDeployment/GeneticAlgorithm/mutation.py
+from __future__ import annotations
+
 import random
 from typing import List, Tuple, Optional
 
@@ -17,200 +20,156 @@ def mutation(
     corner_positions: List[Gene],
     coverage: int,
     max_total_sensors: Optional[int] = None,
-    # --- operation probabilities (sum doesn't need to be 1.0) ---
     p_add: float = 0.40,
     p_del: float = 0.30,
     p_move: float = 0.30,
-    # --- safety knobs ---
-    min_coverage_keep: Optional[float] = None,  # 예: 90.0 (%). None이면 삭제 시 커버리지 체크 안함
+    min_coverage_keep: Optional[float] = None,
 ) -> Chromosome:
-    """
-    Mutation operator (ADD / DELETE / MOVE).
-
-    - corners는 고정이므로 chromosome(내부 센서)만 변형
-    - ADD  : uncovered ∩ installable 중 랜덤 1개를 append
-    - DEL  : 내부 센서 1개를 제거 (옵션으로 coverage 하락이 크면 롤백)
-    - MOVE : 내부 센서 1개를 제거하고, uncovered ∩ installable에서 1개를 추가 (DEL+ADD)
-
-    Args:
-        chromosome: inner sensor positions [(x,y), ...]
-        installable_map: (H,W) 설치 가능 마스크 (0/1 or 0/255 모두 허용)
-        jobsite_map: (H,W) 커버 대상 마스크/레이어 (0/1 or 0/255 or 값>0)
-        corner_positions: corner sensors (fixed)
-        coverage: coverage radius
-        max_total_sensors: (corner+inner) 최대 센서 수 제한
-        p_add/p_del/p_move: 연산 확률
-        min_coverage_keep: 삭제/이동 후 coverage%가 이 값 미만이면 롤백 (None이면 검사 생략)
-
-    Returns:
-        mutated chromosome (new list)
-    """
     # -------------------------
-    # normalize inputs
+    # _internal
     # -------------------------
-    mutated: Chromosome = [tuple(map(int, g)) for g in chromosome]
-    corners = [tuple(map(int, c)) for c in corner_positions]
+    def _toInt(points) -> Chromosome:
+        return [tuple(map(int, p)) for p in points]
 
-    evaluator = FitnessFunc(
-        jobsite_map=jobsite_map,
-        corner_positions=corners,
-        coverage=coverage,
-    )
+    def _toBool(m) -> np.ndarray:
+        return (np.asarray(m) > 0)
 
-    installable = np.asarray(installable_map)
-    installable01 = (installable > 0)  # ✅ 0/1, 0/255 모두 안전
+    def _pickOp() -> str:
+        ops, w = [], []
+        if p_add > 0:
+            ops.append("add"); w.append(float(p_add))
+        if p_del > 0:
+            ops.append("del"); w.append(float(p_del))
+        if p_move > 0:
+            ops.append("move"); w.append(float(p_move))
+        if not ops:
+            return "none"
+        return random.choices(ops, weights=w, k=1)[0]
 
-    # 기존 좌표 중복 방지 셋
-    existing = set(mutated)
-    existing.update(corners)
+    def _makeEval() -> FitnessFunc:
+        return FitnessFunc(jobsite_map=jobsite_map, corner_positions=corners, coverage=int(coverage))
 
-    # -------------------------
-    # helper: get add candidates
-    # -------------------------
-    def _sample_add_gene(exist: set[Gene]) -> Optional[Gene]:
-        uncovered = evaluator.uncovered_map(mutated)  # (H,W), uncovered=1
-        uncovered = np.asarray(uncovered)
+    def _getCov(inner: Chromosome) -> float:
+        nonlocal evalr
+        if evalr is None:
+            evalr = _makeEval()
+        return float(evalr.evaluate(inner)[1])
 
-        cand_yx = np.argwhere((uncovered == 1) & installable01)  # (N,2) as (y,x)
-        if cand_yx.size == 0:
+    def _pickAdd(exist, inner: Chromosome) -> Optional[Gene]:
+        nonlocal evalr
+        if evalr is None:
+            evalr = _makeEval()
+
+        grid = np.asarray(evalr.uncovered_map(inner))
+        if grid.shape != installable.shape:
             return None
 
-        # 후보 필터링 (중복 제거)
-        filtered: List[Gene] = []
-        for (y, x) in cand_yx:
+        yx = np.argwhere((grid > 0) & installable)
+        if yx.size == 0:
+            return None
+
+        for _ in range(min(32, len(yx))):
+            y, x = yx[random.randrange(len(yx))]
             g = (int(x), int(y))
             if g not in exist:
-                filtered.append(g)
+                return g
 
-        if not filtered:
-            return None
-        return random.choice(filtered)
-
-    # -------------------------
-    # helper: coverage evaluate (%)
-    # -------------------------
-    def _coverage_percent(inner: Chromosome) -> float:
-        _, cov, _ = evaluator.evaluate(inner)
-        return float(cov)
+        cand: List[Gene] = []
+        for y, x in yx:
+            g = (int(x), int(y))
+            if g not in exist:
+                cand.append(g)
+        return random.choice(cand) if cand else None
 
     # -------------------------
-    # operation choice
+    # normalize
     # -------------------------
-    ops = []
-    if p_add > 0:
-        ops.append(("add", float(p_add)))
-    if p_del > 0:
-        ops.append(("del", float(p_del)))
-    if p_move > 0:
-        ops.append(("move", float(p_move)))
+    inner = _toInt(chromosome)
+    corners = _toInt(corner_positions)
+    installable = _toBool(installable_map)
 
-    if not ops:
-        return mutated  # no-op
-
-    r = random.random() * sum(w for _, w in ops)
-    acc = 0.0
-    op = ops[-1][0]
-    for name, w in ops:
-        acc += w
-        if r <= acc:
-            op = name
-            break
-
-    # max_total_sensors 체크용
-    corner_cnt = len(corners)
+    limit = None
     if max_total_sensors is not None:
-        max_inner_allowed = max(0, int(max_total_sensors) - corner_cnt)
-    else:
-        max_inner_allowed = None
+        limit = max(0, int(max_total_sensors) - len(corners))
+
+    op = _pickOp()
+    if op == "none":
+        return inner
+
+    evalr: Optional[FitnessFunc] = None  # lazy
+
+    exist = set(inner)
+    exist.update(corners)
 
     # -------------------------
     # ADD
     # -------------------------
     if op == "add":
-        if max_inner_allowed is not None and len(mutated) >= max_inner_allowed:
-            return mutated  # 더 못 늘림
+        if limit is not None and len(inner) >= limit:
+            return inner
 
-        g = _sample_add_gene(existing)
+        g = _pickAdd(exist, inner)
         if g is None:
-            return mutated
+            return inner
 
-        mutated.append(g)
-        return mutated
+        inner.append(g)
+        return inner
 
     # -------------------------
     # DEL
     # -------------------------
     if op == "del":
-        if not mutated:
-            return mutated
+        if not inner:
+            return inner
 
-        # 삭제 전 coverage 저장(옵션)
-        cov_before = _coverage_percent(mutated) if (min_coverage_keep is not None) else None
-
-        idx = random.randrange(len(mutated))
-        removed = mutated.pop(idx)
+        idx = random.randrange(len(inner))
+        g0 = inner.pop(idx)
 
         if min_coverage_keep is not None:
-            cov_after = _coverage_percent(mutated)
-            # 기준 미달이면 롤백
-            if cov_after < float(min_coverage_keep):
-                mutated.insert(idx, removed)  # rollback
-                return mutated
+            cov = _getCov(inner)
+            if cov < float(min_coverage_keep):
+                inner.insert(idx, g0)
+                return inner
 
-            # 또는 "삭제로 손해가 너무 크면" 기준을 추가하고 싶으면 여기서 비교 가능
-            # ex) if cov_before - cov_after > 2.0: rollback ...
-
-        return mutated
+        return inner
 
     # -------------------------
-    # MOVE (DEL + ADD)
+    # MOVE
     # -------------------------
     if op == "move":
-        if not mutated:
-            # 이동할 게 없으면 add로 대체
-            if max_inner_allowed is not None and len(mutated) >= max_inner_allowed:
-                return mutated
-            g = _sample_add_gene(existing)
+        if not inner:
+            if limit is not None and len(inner) >= limit:
+                return inner
+            g = _pickAdd(exist, inner)
             if g is None:
-                return mutated
-            mutated.append(g)
-            return mutated
+                return inner
+            inner.append(g)
+            return inner
 
-        # coverage 저장(옵션)
-        cov_before = _coverage_percent(mutated) if (min_coverage_keep is not None) else None
+        idx = random.randrange(len(inner))
+        g0 = inner.pop(idx)
 
-        # 1) delete one
-        idx = random.randrange(len(mutated))
-        removed = mutated.pop(idx)
+        if limit is not None and len(inner) >= limit:
+            inner.insert(idx, g0)
+            return inner
 
-        # exist 업데이트(removed는 제거했으니 다시 추가 가능)
-        exist2 = set(mutated)
+        exist2 = set(inner)
         exist2.update(corners)
 
-        # 2) add one
-        if max_inner_allowed is not None and len(mutated) >= max_inner_allowed:
-            # add 불가 -> 삭제 취소
-            mutated.insert(idx, removed)
-            return mutated
+        g1 = _pickAdd(exist2, inner)
+        if g1 is None:
+            inner.insert(idx, g0)
+            return inner
 
-        g = _sample_add_gene(exist2)
-        if g is None:
-            # add 실패 -> 삭제 취소
-            mutated.insert(idx, removed)
-            return mutated
+        inner.append(g1)
 
-        mutated.append(g)
-
-        # coverage 조건 검사
         if min_coverage_keep is not None:
-            cov_after = _coverage_percent(mutated)
-            if cov_after < float(min_coverage_keep):
-                # rollback: 원상복구 (added 제거 + removed 복원)
-                mutated.pop()              # remove g
-                mutated.insert(idx, removed)
-                return mutated
+            cov = _getCov(inner)
+            if cov < float(min_coverage_keep):
+                inner.pop()
+                inner.insert(idx, g0)
+                return inner
 
-        return mutated
+        return inner
 
-    # fallback
-    return mutated
+    return inner

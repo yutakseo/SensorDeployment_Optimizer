@@ -1,19 +1,17 @@
+# InnerDeployment/GeneticAlgorithm/main.py
 import random
 import time
 import inspect
 from contextlib import contextmanager
 from typing import List, Tuple, Dict, Optional, Union
+
 import numpy as np
+
 from .initializer import initialize_population
-from .fitnessfunction import FitnessFunc  # 원래 파일명
+from .fitnessfunction import FitnessFunc
 from .crossover import crossover as crossover_op
 from .mutation import mutation as mutation_op
-from .selection import (
-    elite_selection,
-    tournament_selection,
-    roulette_wheel_selection,
-    stochastic_universal_sampling,
-)
+from .selection import elite, tournament, roulette, sus  # ✅ 새 이름으로 import
 
 Gene = Tuple[int, int]
 Chromosome = List[Gene]
@@ -30,17 +28,21 @@ def _timer(name: str, acc: Dict[str, float]):
 
 
 def _as_int_pairs(points) -> List[Gene]:
-    """(x,y) 좌표를 int tuple 리스트로 강제 변환"""
     return [tuple(map(int, p)) for p in points]
+
+
+def _filter_kwargs(fn, kw: dict) -> dict:
+    sig = inspect.signature(fn)
+    allowed = set(sig.parameters.keys())
+    return {k: v for k, v in (kw or {}).items() if k in allowed}
 
 
 class SensorGA:
     """
-    Sensor Deployment GA (복구/안정화 버전)
+    Sensor Deployment GA
 
-    - GA는 fitness maximize만 수행
-    - FitnessFunc가 coverage(+optional cost)를 반영
-    - best prefix 전략으로 센서 수 최소화 압력을 주입
+    - FitnessFunc 기반 fitness maximize
+    - ordering + best-prefix로 센서 수 최소화 압력
     """
 
     def __init__(
@@ -56,11 +58,10 @@ class SensorGA:
         min_sensors: int = 10,
         max_sensors: int = 100,
         fitness_kwargs: Optional[dict] = None,
-        # ✅ 원하면 유지, 싫으면 None으로 둬도 됨 (run에서 override 가능)
         mutation_kwargs: Optional[dict] = None,
     ):
-        # numpy/list 모두 허용하되, shape 이슈 방지
-        self.installable_map = np.asarray(installable_map)
+        # map normalize (0/255, bool 등 들어와도 0/1로 통일)
+        self.installable_map = (np.asarray(installable_map) > 0).astype(np.uint8)
         self.jobsite_map = np.asarray(jobsite_map)
 
         self.coverage = int(coverage)
@@ -72,10 +73,16 @@ class SensorGA:
         self.selection_size = int(selection_size)
         self.child_size = int(child_chromo_size)
 
+        # ✅ 이 값들은 "inner gene 개수" 기준으로 사용 중(initializer가 그렇게 동작)
         self.min_sensors = int(min_sensors)
         self.max_sensors = int(max_sensors)
 
-        self.fitness_kwargs = fitness_kwargs or {}
+        # FitnessFunc가 실제로 받는 키만 통과 (예전 키 남아도 안전)
+        # FitnessFunc.__init__(self, jobsite_map, corner_positions, coverage, *, useCache, sampleCount, gainLimit)
+        self.fitness_kwargs = _filter_kwargs(FitnessFunc.__init__, fitness_kwargs or {})
+
+        # mutation kwargs는 mutation() 시그니처에 맞춰서 run 때 필터링하되,
+        # 여기서는 그대로 보관
         self.mutation_kwargs = mutation_kwargs or {}
 
         self.init_population: Generation = initialize_population(
@@ -87,6 +94,9 @@ class SensorGA:
             max_sensors=self.max_sensors,
         )
         self.population: Generation = self.init_population
+
+        # mutation signature cache (매 호출 inspect 비용 감소)
+        self._mutation_allowed = set(inspect.signature(mutation_op).parameters.keys())
 
     # -------------------------
     # Logging
@@ -145,14 +155,12 @@ class SensorGA:
     def _best_prefix_by_fitness(self, evaluator: FitnessFunc, ordered: Chromosome) -> Chromosome:
         best_fit = float("-inf")
         best_k = 0
-
         for k in range(len(ordered) + 1):
             cand = ordered[:k]
             fit = float(evaluator.fitness_score(cand))
             if fit > best_fit:
                 best_fit = fit
                 best_k = k
-
         return ordered[:best_k]
 
     # -------------------------
@@ -217,13 +225,13 @@ class SensorGA:
         tournament_size: int = 3,
     ) -> Generation:
         if method == "elite":
-            return elite_selection(sorted_generation, self.selection_size)
+            return elite(sorted_generation, self.selection_size)
         if method == "tournament":
-            return tournament_selection(sorted_generation, fitness_scores, tournament_size, self.selection_size)
+            return tournament(sorted_generation, fitness_scores, tournament_size, self.selection_size)
         if method == "roulette":
-            return roulette_wheel_selection(sorted_generation, fitness_scores, self.selection_size)
+            return roulette(sorted_generation, fitness_scores, self.selection_size)
         if method == "sus":
-            return stochastic_universal_sampling(sorted_generation, fitness_scores, self.selection_size)
+            return sus(sorted_generation, fitness_scores, self.selection_size)
         raise ValueError(method)
 
     # -------------------------
@@ -237,9 +245,8 @@ class SensorGA:
         if mutation_kwargs:
             kw.update(mutation_kwargs)
 
-        # ✅ mutation_op가 어떤 인자를 받는지 검사해서 "받는 것만" 전달 (하위호환 핵심)
-        sig = inspect.signature(mutation_op)
-        allowed = set(sig.parameters.keys())
+        # ✅ max_sensors는 inner 한도이므로 total 한도로 변환해서 넘김
+        max_total = len(self.corner_positions) + int(self.max_sensors)
 
         payload = dict(
             chromosome=chromosome,
@@ -248,12 +255,12 @@ class SensorGA:
             corner_positions=self.corner_positions,
             coverage=self.coverage,
         )
-        if "max_total_sensors" in allowed:
-            payload["max_total_sensors"] = self.max_sensors
+        if "max_total_sensors" in self._mutation_allowed:
+            payload["max_total_sensors"] = max_total
 
-        # mutation knobs도 allowed에 포함되는 것만
+        # knob도 allowed에 있는 것만
         for k, v in kw.items():
-            if k in allowed:
+            if k in self._mutation_allowed:
                 payload[k] = v
 
         return mutation_op(**payload)
@@ -332,7 +339,6 @@ class SensorGA:
                     best_total_sensors=int(best_total),
                 )
 
-            # Early stop: coverage 만족 + best_total 안정
             if early_stop and (float(best_cov) >= float(early_stop_coverage)):
                 if last_best_total is None:
                     last_best_total = int(best_total)

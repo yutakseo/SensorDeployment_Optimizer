@@ -1,228 +1,227 @@
+# InnerDeployment/GeneticAlgorithm/fitnessfunction.py
+from __future__ import annotations
+
+import inspect
 import random
+from typing import Dict, List, Optional, Tuple
+
+import numpy as np
 import torch
 import torch.nn as nn
-import numpy as np
+
 from SensorModule.Sensor import Sensor
 
+Gene = Tuple[int, int]
 
-class Convolution(nn.Module):
-    def __init__(self, MAP: np.ndarray):
+
+def toInt(points) -> List[Gene]:
+    return [tuple(map(int, p)) for p in points]
+
+
+# ==================================================
+# Mean Convolution (coverage potential map)
+# ==================================================
+class MeanConv(nn.Module):
+    def __init__(self, mapU8: np.ndarray, kernels=(3, 5, 7, 9, 11, 13, 15)):
         super().__init__()
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-        # 입력/맵을 FP16으로 통일
-        self.base_map = torch.as_tensor(MAP, dtype=torch.float16, device=self.device)
+        self.map = torch.as_tensor(mapU8, device=self.device)
+        self.mapHalf = self.map.to(torch.float16)
 
-        kernel_sizes = [3, 5, 7, 9, 11, 13, 15]
-        self.convs = nn.ModuleList([
-            nn.Conv2d(1, 1, k, padding=k // 2, bias=False, padding_mode="replicate")
-              .to(self.device)
-              .half()
-            for k in kernel_sizes
-        ])
+        self.convs = nn.ModuleList(
+            [nn.Conv2d(1, 1, k, padding=k // 2, bias=False, padding_mode="replicate") for k in kernels]
+        ).to(self.device)
 
         with torch.no_grad():
-            for conv, k in zip(self.convs, kernel_sizes):
+            for conv, k in zip(self.convs, kernels):
                 conv.weight.fill_(1.0 / (k * k))
                 conv.weight.requires_grad_(False)
 
+        self.half()
+
     def forward(self, x):
-        if isinstance(x, np.ndarray):
-            x = torch.as_tensor(x, dtype=torch.float16)
-        else:
-            x = x.to(dtype=torch.float16)
+        t = torch.as_tensor(x, device=self.device) if isinstance(x, np.ndarray) else x.to(self.device)
+        if t.ndim == 2:
+            t = t.unsqueeze(0).unsqueeze(0)
 
-        if x.ndim == 2:
-            x = x.unsqueeze(0).unsqueeze(0)
-
-        x = x.to(self.device)
-        out = sum(conv(x) for conv in self.convs) / len(self.convs)
-        return out * self.base_map.unsqueeze(0).unsqueeze(0)
+        t = t.to(torch.float16)
+        out = sum(conv(t) for conv in self.convs) / len(self.convs)
+        return out * self.mapHalf.unsqueeze(0).unsqueeze(0)
 
 
+# ==================================================
+# Fitness Function
+# ==================================================
 class FitnessFunc:
     """
-    (복구된 원리 유지) Sensor 기반 커버리지 평가 + Greedy ordering
-
-    - fitness_score: coverage% (0~100) 반환 (비용항 없음)  ✅원래 구현 유지
-    - ordering_sensors: corners 선배치 후 greedy marginal-gain 정렬 ✅원래 구현 유지
-
-    최적화/안전성 추가:
-    - jobsite_map을 0/1 마스크로 정규화 (0/255, 2/3 등 들어와도 안전)
-    - corners mask 캐시
-    - 단일 센서 mask 캐시
-    - (선택) ordering 후보 샘플링
-    - (선택) gain 미미 시 조기 종료
+    coverage% fitness + corner-first greedy ordering
     """
 
     def __init__(
         self,
         jobsite_map,
-        corner_positions: list[tuple[int, int]],
-        coverage,
+        corner_positions: List[Gene],
+        coverage: int,
         *,
-        # ---- perf knobs (optional) ----
-        cache_single_masks: bool = True,
-        candidate_sample_k: int | None = None,  # 예: 20. None이면 전수조사(원래 방식)
-        min_gain_stop: float | None = None,     # 예: 0.02 (coverage% 단위). None이면 중단 안함
+        useCache: bool = True,
+        sampleCount: Optional[int] = None,
+        gainLimit: Optional[float] = None,
     ):
-        # 1) jobsite_map 정규화: "작업영역이면 1" 마스크로 통일
-        #    - 0/1, 0/255, 2/3 등 어떤 입력이 와도 >0이면 1로 처리
-        js = np.asarray(jobsite_map)
-        self.map = (js > 0).astype(np.float16)  # ✅중요: 면적 기반 coverage가 되도록 고정
+        arr = np.asarray(jobsite_map)
+        self.map: np.ndarray = (arr > 0).astype(np.uint8)
 
         self.coverage = int(coverage)
-        self.corners = [tuple(map(int, p)) for p in corner_positions]
+        self.corners: List[Gene] = toInt(corner_positions)
+        self.cornerKey = tuple(self.corners)
 
-        # perf knobs
-        self.cache_single_masks = bool(cache_single_masks)
-        self.candidate_sample_k = candidate_sample_k
-        self.min_gain_stop = None if min_gain_stop is None else float(min_gain_stop)
+        self.useCache = bool(useCache)
+        self.sampleCount = sampleCount
+        self.gainLimit = None if gainLimit is None else float(gainLimit)
 
-        # device / map tensor 캐시
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.tensor_map = torch.as_tensor(self.map, dtype=torch.float16, device=self.device)
-        self.map_sum = float(self.tensor_map.sum().item())
+        self.mapTensor = torch.as_tensor(self.map, dtype=torch.float16, device=self.device)
+        self.mapArea = float(self.mapTensor.sum().item())
 
-        # ---- caches ----
-        self._single_mask_cache: dict[tuple[int, int, int], torch.Tensor] = {}
-        self._corners_mask_cache: torch.Tensor | None = None
+        self.cornerMask: Optional[torch.Tensor] = None
+        self.singleMask: Dict[Tuple[int, int, int], torch.Tensor] = {}
 
-        # (기존 유지: activation_map 계산)
-        self.model = Convolution(self.map)
-        with torch.no_grad():
-            self.activation_map = self.model(self.map).detach().cpu().numpy()
+        self.deployKeys = set(inspect.signature(Sensor.deploy).parameters.keys())
+        self.model = MeanConv(self.map)
 
     # -------------------------
-    # internal (optimized)
+    # internal
     # -------------------------
-    def _deploy_and_get_mask(self, sensor_positions: list[tuple[int, int]]) -> torch.Tensor:
-        """센서 배치 후 binary coverage mask 반환 (H,W) float32 {0,1}"""
+    def _deploy(self, sensor: Sensor, point: Gene):
+        x, y = int(point[0]), int(point[1])
+        cov = int(self.coverage)
 
-        # corners mask 캐시 (동일 corners 리스트 요청 시)
-        if sensor_positions == self.corners and self._corners_mask_cache is not None:
-            return self._corners_mask_cache
+        if "sensor_position" in self.deployKeys:
+            kw = {"sensor_position": (x, y)}
+            if "coverage" in self.deployKeys:
+                kw["coverage"] = cov
+            sensor.deploy(**kw)
+            return
 
-        # 단일 센서 캐시
-        if self.cache_single_masks and len(sensor_positions) == 1:
-            x, y = map(int, sensor_positions[0])
-            key = (x, y, int(self.coverage))
-            cached = self._single_mask_cache.get(key, None)
+        for key in ("sensor_positions", "positions", "corner_positions"):
+            if key in self.deployKeys:
+                kw = {key: [(x, y)]}
+                if "coverage" in self.deployKeys:
+                    kw["coverage"] = cov
+                sensor.deploy(**kw)
+                return
+
+        try:
+            sensor.deploy((x, y), coverage=cov)
+        except TypeError:
+            sensor.deploy((x, y))
+
+    def _makeMask(self, points: List[Gene]) -> torch.Tensor:
+        key = tuple(points)
+
+        if key == self.cornerKey and self.cornerMask is not None:
+            return self.cornerMask
+
+        ck = None
+        if self.useCache and len(points) == 1:
+            x, y = map(int, points[0])
+            ck = (x, y, self.coverage)
+            cached = self.singleMask.get(ck)
             if cached is not None:
                 return cached
 
         sensor = Sensor(self.map)
-        for (x, y) in sensor_positions:
-            sensor.deploy(sensor_position=(int(x), int(y)), coverage=self.coverage)
+        for p in points:
+            self._deploy(sensor, p)
 
-        mask = torch.as_tensor(sensor.extract_only_sensor(), dtype=torch.float16, device=self.device)
-        mask01 = (mask > 0).float()
+        raw = torch.as_tensor(sensor.extract_only_sensor(), dtype=torch.float16, device=self.device)
+        mask = (raw > 0).float()
 
-        # 캐시 저장
-        if sensor_positions == self.corners:
-            self._corners_mask_cache = mask01
-        elif self.cache_single_masks and len(sensor_positions) == 1:
-            self._single_mask_cache[key] = mask01
+        if key == self.cornerKey:
+            self.cornerMask = mask
+        elif ck is not None:
+            self.singleMask[ck] = mask
 
-        return mask01
+        return mask
 
-    def _fitness_from_mask(self, mask01: torch.Tensor) -> float:
-        """coverage mask(0/1)에서 coverage% 계산 (0~100)"""
-        if self.map_sum <= 0:
+    def _computeCoverage(self, mask: torch.Tensor) -> float:
+        if self.mapArea <= 0:
             return 0.0
-        covered = (self.tensor_map * mask01).sum().item()
-        return float(100.0 * covered / self.map_sum)
-
-    def _fitness_given(self, sensor_positions: list[tuple[int, int]]) -> float:
-        """corner+inner 전체를 배치해서 coverage% (0~100)"""
-        mask = self._deploy_and_get_mask(sensor_positions)
-        return self._fitness_from_mask(mask)
-
-    def _extract_uncovered(self, sensor_positions: list[tuple[int, int]]) -> list[tuple[int, int]]:
-        """uncovered 좌표 리스트: (y,x) 반환 (argwhere 규약 유지)"""
-        mask = self._deploy_and_get_mask(sensor_positions)
-        uncovered = (self.tensor_map * (1 - mask)).cpu().numpy()
-        return list(map(tuple, np.argwhere(uncovered == 1)))
+        return float(100.0 * (self.mapTensor * mask).sum().item() / self.mapArea)
 
     # -------------------------
-    # public (same behavior)
+    # public API
     # -------------------------
-    def fitness_score(self, inner_positions: list[tuple[int, int]]) -> float:
-        """✅원래 구현 유지: coverage%만 반환"""
-        inner = [tuple(map(int, p)) for p in inner_positions]
-        return self._fitness_given(self.corners + inner)
+    def computeFitness(self, inner: List[Gene]) -> float:
+        pts = self.corners + toInt(inner)
+        return self._computeCoverage(self._makeMask(pts))
 
-    def evaluate(self, inner_positions: list[tuple[int, int]]):
-        """logging용: (fitness=coverage%, coverage%, total_sensors)"""
-        inner = [tuple(map(int, p)) for p in inner_positions]
-        cov = self._fitness_given(self.corners + inner)
-        total = len(self.corners) + len(inner)
-        return float(cov), float(cov), int(total)
+    def fitness_score(self, inner_positions: List[Gene]) -> float:
+        return self.computeFitness(inner_positions)
 
-    def rank_single_sensor(self, sensor_points: list[tuple[int, int]]) -> list:
-        """단일 센서를 단독으로 설치했을 때의 잠재력 랭킹 (interaction 미고려)"""
+    def evaluate(self, inner_positions: List[Gene]):
+        cov = self.computeFitness(inner_positions)
+        return float(cov), float(cov), len(self.corners) + len(inner_positions)
+
+    def rankSensor(self, points: List[Gene]):
         with torch.no_grad():
-            fitness_map = self.model(self.map).detach()  # [1,1,H,W]
+            fmap = self.model(self.map.astype(np.float16)).detach()
 
-        ranking = []
-        for pos in [tuple(map(int, p)) for p in sensor_points]:
-            mask = self._deploy_and_get_mask([pos]).unsqueeze(0).unsqueeze(0)
-            score = (fitness_map * mask).sum().item()
-            ranking.append((pos, float(score)))
+        result = []
+        for p in toInt(points):
+            mask = self._makeMask([p]).unsqueeze(0).unsqueeze(0)
+            score = (fmap * mask).sum().item()
+            result.append((p, float(score)))
 
-        ranking.sort(key=lambda x: x[1], reverse=True)
-        return ranking
+        result.sort(key=lambda x: x[1], reverse=True)
+        return result
 
-    def ordering_sensors(self, chromosome: list[tuple[int, int]], return_score: bool = True):
-        """
-        corners 선설치 후, chromosome 내부 센서들을 greedy marginal-gain 방식으로 정렬
-        - base_mask 누적 OR 유지 (원래 방식)
-        - 최적화: 단일센서 mask 캐시 / corners mask 캐시
-        - (옵션) 후보 샘플링 / gain 미미 시 조기 종료
-        """
-        remaining = [tuple(map(int, p)) for p in chromosome]
+    def orderSensor(self, chromosome: List[Gene], returnScore: bool = True):
+        remain = toInt(chromosome)
         ordered = []
 
-        base_mask = self._deploy_and_get_mask(self.corners)  # cached
-        base_fit = self._fitness_from_mask(base_mask)
+        baseMask = self._makeMask(self.corners)
+        baseCov = self._computeCoverage(baseMask)
 
-        while remaining:
-            # 후보 샘플링 (원래대로 전수조사하려면 candidate_sample_k=None)
-            if self.candidate_sample_k is None or self.candidate_sample_k >= len(remaining):
-                candidates = remaining
-            else:
-                candidates = random.sample(remaining, int(self.candidate_sample_k))
+        while remain:
+            cand = remain if self.sampleCount is None else random.sample(remain, min(self.sampleCount, len(remain)))
 
-            best_pos, best_gain, best_fit, best_mask = None, -1e18, None, None
+            bestP, bestG, bestC, bestM = None, -1e18, None, None
 
-            for cand in candidates:
-                cand_mask = self._deploy_and_get_mask([cand])  # cached if repeated
-                merged_mask = torch.clamp(base_mask + cand_mask, 0, 1)  # OR
-                fit_after = self._fitness_from_mask(merged_mask)
-                gain = fit_after - base_fit
+            for p in cand:
+                m = torch.clamp(baseMask + self._makeMask([p]), 0, 1)
+                c = self._computeCoverage(m)
+                g = c - baseCov
+                if g > bestG:
+                    bestP, bestG, bestC, bestM = p, g, c, m
 
-                if gain > best_gain:
-                    best_pos, best_gain, best_fit, best_mask = cand, gain, fit_after, merged_mask
-
-            if best_pos is None:
+            if bestP is None:
                 break
 
-            ordered.append((best_pos, float(best_gain), float(best_fit)))
-            remaining.remove(best_pos)
+            ordered.append((bestP, float(bestG), float(bestC)))
+            remain.remove(bestP)
 
-            # update base
-            base_mask = best_mask
-            base_fit = best_fit
+            baseMask, baseCov = bestM, bestC
 
-            # gain이 너무 작으면 중단 (옵션)
-            if self.min_gain_stop is not None and float(best_gain) < float(self.min_gain_stop):
+            if self.gainLimit is not None and bestG < self.gainLimit:
                 break
 
-        return ordered if return_score else [p for (p, _, _) in ordered]
+        return ordered if returnScore else [p for (p, _, _) in ordered]
 
-    def uncovered_map(self, inner_positions: list[tuple[int, int]]) -> np.ndarray:
-        uncovered = self._extract_uncovered(self.corners + [tuple(map(int, p)) for p in inner_positions])
+    # ---- backward compatible wrapper ----
+    def ordering_sensors(self, chromosome: List[Gene], return_score: bool = True):
+        return self.orderSensor(chromosome, returnScore=return_score)
+
+    def extractUncovered(self, inner: List[Gene]) -> List[Gene]:
+        pts = self.corners + toInt(inner)
+        mask = self._makeMask(pts)
+        u = (self.mapTensor * (1 - mask)).detach().cpu().numpy()
+        yx = np.argwhere(u > 0.5)
+        return [(int(x), int(y)) for (y, x) in yx]
+
+    def uncovered_map(self, inner_positions: List[Gene]) -> np.ndarray:
         grid = np.zeros_like(self.map, dtype=np.uint8)
-        for y, x in uncovered:
-            grid[y, x] = 1
+        for x, y in self.extractUncovered(inner_positions):
+            if 0 <= y < grid.shape[0] and 0 <= x < grid.shape[1]:
+                grid[y, x] = 1
         return grid
