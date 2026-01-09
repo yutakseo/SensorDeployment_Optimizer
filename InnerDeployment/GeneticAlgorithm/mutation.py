@@ -16,22 +16,17 @@ def mutation(
     jobsite_map,
     corner_positions: List[Gene],
     coverage: int,
+    max_tries: int = 64,
 ) -> Chromosome:
     """
-    Mutation:
-    - corner + chromosome 기준으로 센서 배치했을 때 uncovered 영역을 계산
+    Mutation (optimized):
+    - corner + chromosome 기준 uncovered 영역을 계산
     - uncovered ∩ installable 후보 중 랜덤 1개를 뽑아 chromosome 맨 뒤에 추가
     - 후보가 없으면 원본 chromosome 반환(복사본)
 
-    Args:
-        chromosome: inner sensor positions [(x,y), ...]
-        installable_map: (H,W) 설치 가능 그리드 (1/True가 installable)
-        jobsite_map: (H,W) 커버 대상 영역(보통 1/0)
-        corner_positions: corner sensor positions
-        coverage: 센서 커버리지
-
-    Returns:
-        mutated: 새 유전자가 append된 chromosome (새 리스트)
+    최적화 포인트:
+    - np.argwhere((H,W)->(N,2)) 대신 np.flatnonzero((H,W)->(N,)) 사용
+    - 후보 전체를 (x,y) 리스트로 만들지 않고, 랜덤 샘플링으로 중복 회피
     """
     # 원본 보호
     mutated: Chromosome = [tuple(map(int, g)) for g in chromosome]
@@ -42,42 +37,43 @@ def mutation(
         coverage=coverage,
     )
 
-    # uncovered_map: (H,W)에서 1이면 "jobsite_map=1 이면서 커버 안 된 셀"
     uncovered = evaluator.uncovered_map(mutated)
 
     # numpy로 통일
-    if not isinstance(uncovered, np.ndarray):
-        uncovered = np.asarray(uncovered)
-
-    if not isinstance(installable_map, np.ndarray):
-        installable = np.asarray(installable_map)
-    else:
-        installable = installable_map
+    uncovered = np.asarray(uncovered)
+    installable = np.asarray(installable_map)
 
     # installable 값이 1/True인 것을 설치 가능으로 간주
     installable01 = (installable == 1) | (installable == True)
 
-    # 후보: uncovered==1 AND installable==True
-    cand_yx = np.argwhere((uncovered == 1) & installable01)  # (N,2) with (y,x)
-    if cand_yx.size == 0:
-        return mutated  # 추가할 곳이 없음
+    # 후보 마스크
+    cand_mask = (uncovered == 1) & installable01
+    if not np.any(cand_mask):
+        return mutated
 
     # 이미 들어있는 좌표(중복 방지)
     existing = set(mutated)
-    # corner 중복도 방지(원하면 제거 가능)
     existing.update(tuple(map(int, c)) for c in corner_positions)
 
-    # 후보 중에서 기존에 없는 좌표만 남기기
-    filtered: List[Gene] = []
-    for (y, x) in cand_yx:
-        g = (int(x), int(y))
-        if g not in existing:
-            filtered.append(g)
-
-    if not filtered:
+    # 후보를 (N,2)로 만들지 말고 1D flat index로 뽑는다
+    flat_idx = np.flatnonzero(cand_mask)  # shape (N,)
+    if flat_idx.size == 0:
         return mutated
 
-    new_gene = random.choice(filtered)
-    mutated.append(new_gene)  # “맨 뒤에 추가”
+    h, w = cand_mask.shape
 
+    # 랜덤으로 여러 번 뽑아 existing 중복만 회피 (전체 후보 리스트 생성 X)
+    # 중복 후보가 많아도 max_tries 내에서 대부분 해결됨
+    for _ in range(int(max_tries)):
+        k = random.randrange(int(flat_idx.size))
+        idx = int(flat_idx[k])
+        y = idx // w
+        x = idx - y * w
+        g = (int(x), int(y))
+        if g not in existing:
+            mutated.append(g)
+            return mutated
+
+    # 드물게: 후보가 거의 다 existing에 포함된 경우
+    # (여기서는 안전하게 “추가 없이 반환”)
     return mutated

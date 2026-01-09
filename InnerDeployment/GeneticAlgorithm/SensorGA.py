@@ -1,5 +1,7 @@
 import random
-from typing import List, Tuple, Dict
+import time
+from contextlib import contextmanager
+from typing import List, Tuple, Dict, Optional
 
 from .initializer import initialize_population
 from .FitnessFunction import FitnessFunc
@@ -15,6 +17,15 @@ from .selection import (
 Gene = Tuple[int, int]
 Chromosome = List[Gene]
 Generation = List[Chromosome]
+
+
+@contextmanager
+def _timer(name: str, acc: Dict[str, float]):
+    t0 = time.perf_counter()
+    try:
+        yield
+    finally:
+        acc[name] = acc.get(name, 0.0) + (time.perf_counter() - t0)
 
 
 class SensorGA:
@@ -42,7 +53,6 @@ class SensorGA:
         self.min_sensors = int(min_sensors)
         self.max_sensors = int(max_sensors)
 
-        # (현재 미사용) 추후 fitness 캐싱에 사용 가능
         self._fitness_cache: Dict[Tuple[Gene, ...], float] = {}
 
         self.init_population: Generation = initialize_population(
@@ -55,16 +65,7 @@ class SensorGA:
         )
         self.population: Generation = self.init_population
 
-    # -------------------------
-    # Logger (internal)
-    # -------------------------
-    def _log_generation(
-        self,
-        gen_idx: int,
-        best_fitness: float,
-        avg_fitness: float,
-        best_sensor_count: int,
-    ) -> None:
+    def _log_generation(self, gen_idx: int, best_fitness: float, avg_fitness: float, best_sensor_count: int) -> None:
         print(
             f"[Gen:{gen_idx:03d}/{self.generations:03d}] "
             f"BestFit:{best_fitness:6.2f}  "
@@ -72,10 +73,35 @@ class SensorGA:
             f"Sensors:{best_sensor_count}"
         )
 
+    def _log_profile(self, gen_idx: int, prof: Dict[str, float], *, child_size: int, mutation_rate: float) -> None:
+        exp_mut = child_size * float(mutation_rate)
+        print(
+            f"[Profile Gen {gen_idx:03d}] "
+            f"fitness={prof.get('fitness_total', 0.0):.3f}s | "
+            f"selection={prof.get('selection_total', 0.0):.3f}s | "
+            f"repro={prof.get('reproduction_total', 0.0):.3f}s "
+            f"(crossover={prof.get('crossover_total', 0.0):.3f}s, "
+            f"mutation={prof.get('mutation_total', 0.0):.3f}s) | "
+            f"calls: crossover~{child_size}, mutation~{exp_mut:.1f}"
+        )
+        if "fitness_ordering" in prof or "fitness_score" in prof:
+            print(
+                f"               fitness_breakdown: "
+                f"ordering={prof.get('fitness_ordering', 0.0):.3f}s | "
+                f"score={prof.get('fitness_score', 0.0):.3f}s | "
+                f"pop={prof.get('fitness_pop', 0.0):.0f}"
+            )
+
     # -------------------------
     # Fitness
     # -------------------------
-    def fitness(self, generation: Generation) -> Tuple[Generation, List[float]]:
+    def fitness(
+        self,
+        generation: Generation,
+        *,
+        profile_acc: Optional[Dict[str, float]] = None,
+        profile_breakdown: bool = False,
+    ) -> Tuple[Generation, List[float]]:
         evaluator = FitnessFunc(
             jobsite_map=self.jobsite_map,
             corner_positions=self.corner_positions,
@@ -83,24 +109,37 @@ class SensorGA:
         )
 
         scored: List[Tuple[float, Chromosome]] = []
+        t_order = 0.0
+        t_score = 0.0
+
         for chromosome in generation:
-            # 1) 염색체 내부 좌표를 greedy 순서로 정렬 (정렬 상태 유지)
-            ordered_chromosome = evaluator.ordering_sensors(chromosome, return_score=False)
+            if profile_breakdown:
+                t0 = time.perf_counter()
+                ordered = evaluator.ordering_sensors(chromosome, return_score=False)
+                t_order += (time.perf_counter() - t0)
 
-            # 2) fitness는 정렬된 염색체 기준으로 계산
-            score = evaluator.fitness_score(ordered_chromosome)
+                t0 = time.perf_counter()
+                score = evaluator.fitness_score(ordered)
+                t_score += (time.perf_counter() - t0)
+            else:
+                ordered = evaluator.ordering_sensors(chromosome, return_score=False)
+                score = evaluator.fitness_score(ordered)
 
-            scored.append((score, ordered_chromosome))
+            scored.append((score, ordered))
 
-        # 3) 세대 전체를 fitness 내림차순 정렬
         scored.sort(key=lambda x: x[0], reverse=True)
+
+        if profile_acc is not None and profile_breakdown:
+            profile_acc["fitness_ordering"] = profile_acc.get("fitness_ordering", 0.0) + t_order
+            profile_acc["fitness_score"] = profile_acc.get("fitness_score", 0.0) + t_score
+            profile_acc["fitness_pop"] = len(generation)
 
         sorted_generation: Generation = [chrom for (score, chrom) in scored]
         fitness_scores: List[float] = [score for (score, chrom) in scored]
         return sorted_generation, fitness_scores
 
     # -------------------------
-    # Selection (API-based)
+    # Selection
     # -------------------------
     def selection(
         self,
@@ -113,10 +152,7 @@ class SensorGA:
             return []
 
         if method == "elite":
-            parents = elite_selection(
-                sorted_generation=sorted_generation,
-                next_generation=self.selection_size,
-            )
+            parents = elite_selection(sorted_generation=sorted_generation, next_generation=self.selection_size)
         elif method == "tournament":
             parents = tournament_selection(
                 sorted_generation=sorted_generation,
@@ -137,57 +173,30 @@ class SensorGA:
                 next_generation=self.selection_size,
             )
         else:
-            raise ValueError(
-                f"Unknown selection method: {method}. Choose from ['elite', 'tournament', 'roulette', 'sus']"
-            )
+            raise ValueError(f"Unknown selection method: {method}. Choose from ['elite', 'tournament', 'roulette', 'sus']")
 
-        # 부모는 최소 2개 보장 (교배 안정성)
         if len(parents) < 2 and len(sorted_generation) >= 2:
             parents = [sorted_generation[0][:], sorted_generation[1][:]]
 
         return parents
 
     # -------------------------
-    # Crossover
+    # Crossover  (ordering 제거)
     # -------------------------
     def crossover(self, parent1: Chromosome, parent2: Chromosome) -> Chromosome:
-        # crossover_op 시그니처: (parent1, parent2, installable_map) -> Chromosome
-        child = crossover_op(parent1, parent2, self.installable_map)
-
-        # 교차로 인해 내부 순서가 깨질 수 있으니 정규화
-        evaluator = FitnessFunc(
-            jobsite_map=self.jobsite_map,
-            corner_positions=self.corner_positions,
-            coverage=self.coverage,
-        )
-        child = evaluator.ordering_sensors(child, return_score=False)
-        return child
+        return crossover_op(parent1, parent2, self.installable_map)
 
     # -------------------------
-    # Mutation
+    # Mutation  (ordering 제거)
     # -------------------------
     def mutation(self, chromosome: Chromosome) -> Chromosome:
-        """
-        Mutation:
-        - corner + chromosome 기준 uncovered ∩ installable 후보 중 랜덤 1개를 chromosome 맨 뒤에 append
-        - append 후 greedy 정규화로 내부 순서 유지
-        """
-        mutated = mutation_op(
+        return mutation_op(
             chromosome,
             installable_map=self.installable_map,
             jobsite_map=self.jobsite_map,
             corner_positions=self.corner_positions,
             coverage=self.coverage,
         )
-
-        # append로 인해 순서가 깨질 수 있으니 정규화
-        evaluator = FitnessFunc(
-            jobsite_map=self.jobsite_map,
-            corner_positions=self.corner_positions,
-            coverage=self.coverage,
-        )
-        mutated = evaluator.ordering_sensors(mutated, return_score=False)
-        return mutated
 
     # -------------------------
     # Run GA
@@ -198,57 +207,57 @@ class SensorGA:
         tournament_size: int = 3,
         mutation_rate: float = 0.7,
         verbose: bool = True,
+        profile: bool = True,
+        profile_every: int = 1,
+        profile_fitness_breakdown: bool = True,
     ) -> Generation:
-        """
-        mutation_rate:
-            - 0.0 ~ 1.0
-            - child 생성 시 mutation 적용 확률
-        """
         population = self.population
 
         for gen_idx in range(1, self.generations + 1):
-            # 1) fitness 평가 + 세대 정렬
-            sorted_generation, fitness_scores = self.fitness(population)
+            prof: Dict[str, float] = {}
 
-            # logging: 세대수(현재/전체), 적합도(best/avg), 센서수(corner+inner)
+            with _timer("fitness_total", prof):
+                sorted_generation, fitness_scores = self.fitness(
+                    population,
+                    profile_acc=prof if profile else None,
+                    profile_breakdown=bool(profile and profile_fitness_breakdown),
+                )
+
             if verbose and fitness_scores:
                 best_fitness = fitness_scores[0]
                 avg_fitness = sum(fitness_scores) / len(fitness_scores)
-
                 best_inner = len(sorted_generation[0]) if sorted_generation else 0
-                best_sensor_count = len(self.corner_positions) + best_inner  # ✅ corner + inner
+                best_sensor_count = len(self.corner_positions) + best_inner
+                self._log_generation(gen_idx, best_fitness, avg_fitness, best_sensor_count)
 
-                self._log_generation(
-                    gen_idx=gen_idx,
-                    best_fitness=best_fitness,
-                    avg_fitness=avg_fitness,
-                    best_sensor_count=best_sensor_count,
+            with _timer("selection_total", prof):
+                parents = self.selection(
+                    sorted_generation=sorted_generation,
+                    fitness_scores=fitness_scores,
+                    method=selection_method,
+                    tournament_size=tournament_size,
                 )
-
-            # 2) selection
-            parents = self.selection(
-                sorted_generation=sorted_generation,
-                fitness_scores=fitness_scores,
-                method=selection_method,
-                tournament_size=tournament_size,
-            )
             if len(parents) < 2:
                 break
 
-            # 3) crossover + mutation → children 생성
             children: Generation = []
-            while len(children) < self.child_size:
-                p1, p2 = random.sample(parents, 2)
+            with _timer("reproduction_total", prof):
+                while len(children) < self.child_size:
+                    p1, p2 = random.sample(parents, 2)
 
-                child = self.crossover(p1, p2)
+                    with _timer("crossover_total", prof):
+                        child = self.crossover(p1, p2)
 
-                # mutation 확률 적용
-                if mutation_rate > 0 and random.random() < float(mutation_rate):
-                    child = self.mutation(child)
+                    if mutation_rate > 0 and random.random() < float(mutation_rate):
+                        with _timer("mutation_total", prof):
+                            child = self.mutation(child)
 
-                children.append(child)
+                    children.append(child)
 
             population = children
+
+            if profile and (gen_idx % int(profile_every) == 0):
+                self._log_profile(gen_idx, prof, child_size=self.child_size, mutation_rate=float(mutation_rate))
 
         self.population = population
         return self.population
