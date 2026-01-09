@@ -3,4 +3,4 @@ from .initializer import *
 from .FitnessFunction import *
 from .selection import *
 from .crossover import *
-from .SensorGA import *
+from .main import *
