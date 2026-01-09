@@ -342,3 +342,8 @@ class Sensor:
         if as_tensor:
             return uncovered_bool
         return self._to_numpy_bool(uncovered_bool)
+
+
+    def extract_only_sensor(self):
+        mask = (self.MAP > self.FIXED_STRENGTH).float()
+        return self.MAP * mask
