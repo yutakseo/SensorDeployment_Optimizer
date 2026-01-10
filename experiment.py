@@ -13,7 +13,7 @@ class CornerConfig:
 @dataclass
 class GAInitConfig:
     coverage: int = 45
-    generations: int = 100
+    generations: int = 1
     initial_size: int = 100
     selection_size: int = 50
     child_chromo_size: int = 100

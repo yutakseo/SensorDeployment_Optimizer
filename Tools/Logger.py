@@ -1,4 +1,4 @@
-# /workspace/Tools/Logger.py  (또는 네가 저장한 경로에 그대로 덮어쓰기)
+# /workspace/Tools/Logger.py
 from __future__ import annotations
 
 import json
@@ -55,20 +55,45 @@ def _ensure_dir(path: str) -> None:
     os.makedirs(path, exist_ok=True)
 
 
-def _next_run_dir(base_dir: str, date_yyyymmdd: str, map_name: str) -> Tuple[str, str]:
+def _sanitize_dirname(name: str) -> str:
     """
-    __RESULTS__/yyyymmdd_mapname_01 형태로 디렉토리 생성.
-    이미 있으면 02,03...로 증가.
-    return (run_dir, run_name)
+    디렉토리명 안전화 (OS/FS 호환)
+    - 슬래시/역슬래시 등 경로 문자 제거
+    - 공백은 언더스코어로 치환
+    """
+    name = str(name).strip().replace(" ", "_")
+    for ch in ["/", "\\", ":", "*", "?", '"', "<", ">", "|"]:
+        name = name.replace(ch, "_")
+    return name if name else "unknown_map"
+
+
+def _next_result_path(base_dir: str, map_name: str, ts: datetime) -> Tuple[str, str, str]:
+    """
+    저장 규칙:
+      root: /workspace/__RESULTS__
+      dir : /workspace/__RESULTS__/<map_name>/
+      file: yyyymmdd_HHMMSS.json
+    동일 초 충돌 시:
+      yyyymmdd_HHMMSS_01.json, _02.json ...
+    return (map_dir, file_stem, out_path)
     """
     _ensure_dir(base_dir)
+
+    safe_map = _sanitize_dirname(map_name)
+    map_dir = os.path.join(base_dir, safe_map)
+    _ensure_dir(map_dir)
+
+    file_stem = ts.strftime("%Y%m%d_%H%M%S")
+    out_path = os.path.join(map_dir, f"{file_stem}.json")
+    if not os.path.exists(out_path):
+        return map_dir, file_stem, out_path
+
     i = 1
     while True:
-        run_name = f"{date_yyyymmdd}_{map_name}_{i:02d}"
-        run_dir = os.path.join(base_dir, run_name)
-        if not os.path.exists(run_dir):
-            os.makedirs(run_dir, exist_ok=False)
-            return run_dir, run_name
+        stem_i = f"{file_stem}_{i:02d}"
+        out_i = os.path.join(map_dir, f"{stem_i}.json")
+        if not os.path.exists(out_i):
+            return map_dir, stem_i, out_i
         i += 1
 
 
@@ -121,17 +146,18 @@ class GAJsonLogger:
     """
     - 세대별 통계 저장
     - 종료 시 최종 결과 저장
-    - __RESULTS__/yyyymmdd_mapname_01/yyyymmdd_mapname_01.json 생성
+    - 저장 경로:
+        /workspace/__RESULTS__/<map_name>/yyyymmdd_HHMMSS.json
     """
 
     def __init__(
         self,
         *,
         map_name: str,
-        base_dir: str = "__RESULTS__",
+        base_dir: str = "/workspace/__RESULTS__",
         meta: Optional[Dict[str, Any]] = None,
-        point_format: str = "tuple_str",  # ✅ 추가
-        sort_points: bool = False,        # ✅ 추가 (보기용 정렬)
+        point_format: str = "tuple_str",
+        sort_points: bool = False,
     ):
         self.t0 = _kst_now()
         self.map_name = map_name
@@ -141,9 +167,9 @@ class GAJsonLogger:
         self.point_format = point_format
         self.sort_points = bool(sort_points)
 
-        date = self.t0.strftime("%Y%m%d")
-        self.run_dir, self.run_name = _next_run_dir(self.base_dir, date, self.map_name)
-        self.out_path = os.path.join(self.run_dir, f"{self.run_name}.json")
+        self.map_dir, self.run_name, self.out_path = _next_result_path(
+            self.base_dir, self.map_name, self.t0
+        )
 
         self.generations: List[GenStats] = []
 
@@ -184,7 +210,7 @@ class GAJsonLogger:
                 fitness_min=float(fitness_min),
                 fitness_max=float(fitness_max),
                 fitness_avg=float(fitness_avg),
-                best_solution=best_fmt,               # ✅ 포맷 적용
+                best_solution=best_fmt,
                 best_fitness=float(best_fitness),
                 best_coverage=float(best_coverage),
             )
@@ -211,8 +237,9 @@ class GAJsonLogger:
         self.final_coverage = float(coverage)
 
         payload: Dict[str, Any] = {
-            "run_name": self.run_name,
+            "run_name": self.run_name,  # yyyymmdd_HHMMSS(또는 _01)
             "map_name": self.map_name,
+            "map_dir": self.map_dir,
             "created_at_kst": self.t0.isoformat(),
             "finished_at_kst": t1.isoformat(),
             "elapsed_sec": float(elapsed),
@@ -220,11 +247,11 @@ class GAJsonLogger:
             "generations": _to_jsonable([asdict(g) for g in self.generations]),
             "final": _to_jsonable(
                 {
-                    "best_solution": self.final_best_solution,               # ✅ 포맷 적용
-                    "corner_points": _fmt_points(corner_pts, self.point_format),  # ✅ 포맷 적용
+                    "best_solution": self.final_best_solution,
+                    "corner_points": _fmt_points(corner_pts, self.point_format),
                     "fitness": self.final_fitness,
                     "coverage": self.final_coverage,
-                    "elapsed_sec": float(elapsed),                           # ✅ final에도 포함
+                    "elapsed_sec": float(elapsed),
                 }
             ),
         }
@@ -232,6 +259,7 @@ class GAJsonLogger:
         if extra:
             payload["extra"] = _to_jsonable(extra)
 
+        # map_dir는 __init__에서 생성/확정, 여기서는 파일만 저장
         with open(self.out_path, "w", encoding="utf-8") as f:
             json.dump(payload, f, ensure_ascii=False, indent=2)
 
