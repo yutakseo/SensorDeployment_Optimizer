@@ -301,20 +301,18 @@ class SensorGA:
 
         stable_count = 0
         last_best_total: Optional[int] = None
-
         best_so_far_inner: Optional[Chromosome] = None
         best_so_far_fit = float("-inf")
 
+
         for gen_idx in range(1, self.generations + 1):
             prof: Dict[str, float] = {}
-
             with _timer("fitness_total", prof):
                 sorted_generation, fitness_scores = self.fitness(
                     population,
                     profile_acc=prof if profile else None,
                     profile_breakdown=bool(profile and profile_fitness_breakdown),
                 )
-
             if not fitness_scores:
                 break
 
