@@ -147,6 +147,87 @@ class Analyzer:
         )
 
     # =========================
+    # Plot helpers
+    # =========================
+    def _apply_xticks(self, x: List[int], *, xtick_step: int) -> None:
+        """
+        xtick_step:
+          - 1: 모든 세대 표시
+          - 5: 5세대마다 표시
+        마지막 세대는 항상 tick에 포함.
+        """
+        if not isinstance(xtick_step, int) or xtick_step <= 0:
+            raise ValueError(f"xtick_step must be a positive int. Got: {xtick_step}")
+
+        if len(x) == 0:
+            return
+
+        ticks = x[::xtick_step]
+        if len(ticks) == 0 or ticks[-1] != x[-1]:
+            ticks = list(ticks) + [x[-1]]
+
+        plt.xticks(ticks)
+
+    def _resolve_save_path(
+        self,
+        *,
+        save_path: Optional[PathLike],
+        save_dir: Optional[PathLike],
+        default_stem: str,
+        ext: str,
+    ) -> Optional[Path]:
+        """
+        Priority:
+          1) save_path (file) -> exact
+          2) save_dir (dir) + auto filename
+          3) None
+        """
+        if save_path is None and save_dir is None:
+            return None
+
+        if save_path is not None:
+            p = Path(save_path)
+            # if user passes a directory accidentally, drop file inside
+            if p.exists() and p.is_dir():
+                run_name = str(self.run.get("run_name", "unknown_run"))
+                return p / f"{run_name}_{default_stem}.{ext}"
+            # if no suffix, append ext
+            if p.suffix == "":
+                return p.with_suffix(f".{ext}")
+            return p
+
+        # save_dir mode
+        d = Path(save_dir)
+        run_name = str(self.run.get("run_name", "unknown_run"))
+        return d / f"{run_name}_{default_stem}.{ext}"
+
+    def _maybe_savefig(
+        self,
+        *,
+        save_path: Optional[PathLike],
+        save_dir: Optional[PathLike],
+        default_stem: str,
+        ext: str = "png",
+        save_dpi: Optional[int] = None,
+        overwrite: bool = True,
+    ) -> Optional[Path]:
+        out = self._resolve_save_path(
+            save_path=save_path,
+            save_dir=save_dir,
+            default_stem=default_stem,
+            ext=ext,
+        )
+        if out is None:
+            return None
+
+        out.parent.mkdir(parents=True, exist_ok=True)
+        if out.exists() and not overwrite:
+            raise FileExistsError(f"save_path exists (overwrite=False): {out}")
+
+        plt.savefig(out, dpi=(save_dpi if save_dpi is not None else None), bbox_inches="tight")
+        return out
+
+    # =========================
     # Existing analysis methods
     # =========================
     def _get_generations(self) -> List[Dict[str, Any]]:
@@ -178,7 +259,16 @@ class Analyzer:
         figsize: Tuple[float, float] = (10.0, 4.8),
         dpi: int = 100,
         show: bool = True,
-    ) -> Tuple[List[int], List[float], List[float], List[int]]:
+        xtick_step: int = 1,
+        annotate_last: bool = True,
+        # ---- saving ----
+        save_path: Optional[PathLike] = None,
+        save_dir: Optional[PathLike] = None,
+        save_ext: str = "png",
+        save_dpi: Optional[int] = None,
+        overwrite: bool = True,
+        close: bool = False,
+    ) -> None:
         gens = self._get_generations()
 
         x = [int(g["gen"]) for g in gens]
@@ -212,8 +302,23 @@ class Analyzer:
             best_counts,
             marker="o",
             linewidth=2,
-            label=("Best sensor count (inner + corner)" if include_corners else "Best sensor count (inner only)"),
+            label=("Best sensor count (inner+corner)" if include_corners else "Best sensor count (inner only)"),
         )
+
+        # 마지막 결과 센서수 점 위에 라벨
+        if len(x) > 0:
+            last_x = x[-1]
+            last_y = best_counts[-1]
+            plt.scatter([last_x], [last_y], zorder=5)
+            if annotate_last:
+                plt.annotate(
+                    f"{int(last_y)}",
+                    (last_x, last_y),
+                    textcoords="offset points",
+                    xytext=(0, 8),
+                    ha="center",
+                    fontsize=10,
+                )
 
         if title is None:
             run_name = self.run.get("run_name", "unknown_run")
@@ -222,17 +327,30 @@ class Analyzer:
         plt.title(title)
         plt.xlabel("Generation")
         plt.ylabel("Number of sensors")
-        plt.xticks(x)
+
+        self._apply_xticks(x, xtick_step=xtick_step)
+
         plt.grid(True, linewidth=0.5, alpha=0.5)
         plt.legend()
         plt.tight_layout()
 
+        # 저장
+        self._maybe_savefig(
+            save_path=save_path,
+            save_dir=save_dir,
+            default_stem="evolution_trend",
+            ext=save_ext,
+            save_dpi=save_dpi,
+            overwrite=overwrite,
+        )
+
         if show:
             plt.show()
 
-        # 기존 반환 시그니처 유지하고 싶으면 아래처럼 반환해도 됨.
-        # return x, smin, smax, best_counts
-        return None  # 네 기존 코드가 None 반환이라 그대로 유지
+        if close:
+            plt.close()
+
+        return None  # 기존 반환 유지
 
     def _extract_best_coverage(self, g: Dict[str, Any]) -> float:
         if "best_coverage" in g and g["best_coverage"] is not None:
@@ -251,7 +369,15 @@ class Analyzer:
         ylim: Optional[Tuple[float, float]] = (0.0, 100.0),
         marker: str = "o",
         linewidth: float = 2.0,
-    ) -> Tuple[List[int], List[float]]:
+        xtick_step: int = 1,
+        # ---- saving ----
+        save_path: Optional[PathLike] = None,
+        save_dir: Optional[PathLike] = None,
+        save_ext: str = "png",
+        save_dpi: Optional[int] = None,
+        overwrite: bool = True,
+        close: bool = False,
+    ) -> None:
         gens = self._get_generations()
 
         x = [int(g["gen"]) for g in gens]
@@ -267,7 +393,9 @@ class Analyzer:
         plt.title(title)
         plt.xlabel("Generation")
         plt.ylabel("Coverage (%)")
-        plt.xticks(x)
+
+        self._apply_xticks(x, xtick_step=xtick_step)
+
         plt.grid(True, linewidth=0.5, alpha=0.5)
         plt.legend()
         plt.tight_layout()
@@ -275,10 +403,23 @@ class Analyzer:
         if ylim is not None:
             plt.ylim(ylim)
 
+        # 저장
+        self._maybe_savefig(
+            save_path=save_path,
+            save_dir=save_dir,
+            default_stem="coverage_trend",
+            ext=save_ext,
+            save_dpi=save_dpi,
+            overwrite=overwrite,
+        )
+
         if show:
             plt.show()
 
-        return None  # 네 기존 코드 유지
+        if close:
+            plt.close()
+
+        return None  # 기존 반환 유지
 
     def plot_fitness_trend(
         self,
@@ -290,7 +431,15 @@ class Analyzer:
         ylim: Optional[Tuple[float, float]] = None,
         plot_avg: bool = True,
         plot_best: bool = True,
-    ) -> Tuple[List[int], List[float], List[float], List[float], List[float]]:
+        xtick_step: int = 1,
+        # ---- saving ----
+        save_path: Optional[PathLike] = None,
+        save_dir: Optional[PathLike] = None,
+        save_ext: str = "png",
+        save_dpi: Optional[int] = None,
+        overwrite: bool = True,
+        close: bool = False,
+    ) -> None:
         gens = self._get_generations()
 
         x = [int(g["gen"]) for g in gens]
@@ -321,7 +470,9 @@ class Analyzer:
         plt.title(title)
         plt.xlabel("Generation")
         plt.ylabel("Fitness")
-        plt.xticks(x)
+
+        self._apply_xticks(x, xtick_step=xtick_step)
+
         plt.grid(True, linewidth=0.5, alpha=0.5)
         plt.legend()
         plt.tight_layout()
@@ -329,7 +480,20 @@ class Analyzer:
         if ylim is not None:
             plt.ylim(ylim)
 
+        # 저장
+        self._maybe_savefig(
+            save_path=save_path,
+            save_dir=save_dir,
+            default_stem="fitness_trend",
+            ext=save_ext,
+            save_dpi=save_dpi,
+            overwrite=overwrite,
+        )
+
         if show:
             plt.show()
 
-        return None  # 네 기존 코드 유지
+        if close:
+            plt.close()
+
+        return None  # 기존 반환 유지
