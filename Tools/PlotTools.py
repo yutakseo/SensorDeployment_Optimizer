@@ -190,3 +190,114 @@ class VisualTool:
             print("Warning: Both show=False and save=False → Nothing will happen.")
 
         plt.close(fig)
+
+            
+    def map_check(
+        self,
+        map_data,
+        title: Optional[str] = None,
+        return_stats: bool = False,
+        *,
+        target_value: int = 1,
+        show_original: bool = True,
+        filename: str = "map_check",
+        save_path: Optional[str] = None,
+    ):
+        GRID_M = 5.0
+        CELL_AREA_M2 = GRID_M * GRID_M          # 25 m^2
+        HA_M2 = 10_000.0
+        KM2_M2 = 1_000_000.0
+
+        arr = self._normalize_image(map_data)
+        if arr.ndim != 2:
+            raise ValueError(f"map_check expects 2D map. Got shape={arr.shape}")
+
+        total_cells = int(arr.size)
+
+        total_area_m2 = total_cells * CELL_AREA_M2
+        total_area_ha = total_area_m2 / HA_M2
+        total_area_km2 = total_area_m2 / KM2_M2
+
+        target_cells = int(np.sum(arr == target_value))
+        target_area_m2 = target_cells * CELL_AREA_M2
+        target_area_ha = target_area_m2 / HA_M2
+        target_area_km2 = target_area_m2 / KM2_M2
+        target_ratio = (target_cells / total_cells) if total_cells > 0 else 0.0
+
+        unique, counts = np.unique(arr, return_counts=True)
+        value_counts = {int(k): int(v) for k, v in zip(unique, counts)}
+
+        print("========== MAP CHECK ==========")
+        print(f"Map shape (H,W): {arr.shape[0]} x {arr.shape[1]}")
+        print(f"Grid size: {GRID_M:.1f}m x {GRID_M:.1f}m  |  Cell area: {CELL_AREA_M2:.1f} m^2")
+        print("--------------------------------")
+        print(f"Total cells: {total_cells:,}")
+        print(
+            f"Total area : "
+            f"{total_area_m2:,.2f} m^2  |  "
+            f"{total_area_ha:,.4f} ha  |  "
+            f"{total_area_km2:,.6f} km^2"
+        )
+        print("--------------------------------")
+        print(f"Target value      : {target_value}")
+        print(
+            f"Target area       : "
+            f"{target_area_m2:,.2f} m^2  |  "
+            f"{target_area_ha:,.4f} ha  |  "
+            f"{target_area_km2:,.6f} km^2"
+        )
+        print(f"Target cells      : {target_cells:,}  ({target_ratio*100:.2f}%)")
+        print("--------------------------------")
+        print("Value counts (entire map):")
+        for k in sorted(value_counts.keys()):
+            pct = (value_counts[k] / total_cells * 100.0) if total_cells > 0 else 0.0
+            print(f"  - value {k}: {value_counts[k]:,} ({pct:.2f}%)")
+        print("================================")
+
+        # 시각화
+        if show_original:
+            vis = arr
+            cmap = "jet"
+        else:
+            vis = (arr == target_value).astype(np.uint8)
+            cmap = "gray"
+
+        if title is None:
+            title = (
+                f"Target={target_value} | "
+                f"{target_area_m2:,.1f} m² / "
+                f"{target_area_ha:.4f} ha / "
+                f"{target_area_km2:.6f} km²"
+            )
+
+        self.showJetMap(
+            map_data=vis,
+            title=title,
+            cmap=cmap,
+            filename=filename,
+            save_path=save_path,
+        )
+
+        stats = {
+            "shape": tuple(arr.shape),
+            "grid_m": GRID_M,
+            "cell_area_m2": CELL_AREA_M2,
+            "total": {
+                "cells": total_cells,
+                "area_m2": total_area_m2,
+                "area_ha": total_area_ha,
+                "area_km2": total_area_km2,
+            },
+            "target": {
+                "value": int(target_value),
+                "cells": target_cells,
+                "area_m2": target_area_m2,
+                "area_ha": target_area_ha,
+                "area_km2": target_area_km2,
+                "ratio": target_ratio,
+            },
+            "value_counts": value_counts,
+        }
+
+        return stats if return_stats else None
+
