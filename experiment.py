@@ -25,7 +25,7 @@ class GARunConfig:
     selection_method: str = "tournament"
     tournament_size: int = 3
     mutation_rate: float = 0.7
-    early_stop: bool = True
+    early_stop: bool = False
     early_stop_coverage: float = 90.0
     early_stop_patience: int = 5
     return_best_only: bool = True
