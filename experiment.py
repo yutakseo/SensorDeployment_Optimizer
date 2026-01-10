@@ -17,7 +17,7 @@ class GAInitConfig:
     initial_size: int = 100
     selection_size: int = 50
     child_chromo_size: int = 100
-    min_sensors: int = 50
+    min_sensors: int = 70
     max_sensors: int = 100
 
 @dataclass
