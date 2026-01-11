@@ -52,6 +52,17 @@ class HarrisCorner:
         mask = (np.asarray(installable_layer) > 0)
         h, w = mask.shape
         return [(x, y) for (x, y) in points if 0 <= x < w and 0 <= y < h and mask[y, x]]
+    
+    def LMX(self, harris_map, installable_map, nms_ratio=0.1, dilate_size=5, min_dist=5):
+        mx = float(harris_map.max() if harris_map.size else 0.0)
+        thr = float(nms_ratio) * mx
+        self.nms_map = self.non_max_suppression(resp=harris_map, thr=thr, dilate_size=int(dilate_size))
+
+        # 4) corners -> close filter -> installable filter
+        pts = self.extract(self.nms_map)
+        pts = self.filter_close(pts, min_dist=int(min_dist))
+        if installable_map is not None:
+            return self.filter_installable(pts, installable_map)
 
     def run(
         self,
