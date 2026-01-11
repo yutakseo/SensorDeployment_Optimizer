@@ -171,14 +171,23 @@ class VisualTool:
     def save_or_show(
         self, fig: plt.Figure, filename: str, save_path: Optional[str] = None
     ) -> None:
-        for ax in fig.axes:
-            ax.set_axis_off()
 
-        fname = f"{filename}_{self.time}.png" if self.stamp_filename else f"{filename}.png"
-
+        # ===== 1) 화면 출력 (타이틀 포함 상태) =====
         if self.show:
             plt.show()
 
+        # ===== 2) 저장 직전에만 타이틀 제거 =====
+        for ax in fig.axes:
+            ax.set_axis_off()
+            ax.set_title("")   # ★ 저장본에서는 항상 제거
+
+        fname = (
+            f"{filename}_{self.time}.png"
+            if self.stamp_filename
+            else f"{filename}.png"
+        )
+
+        # ===== 3) 파일 저장 =====
         if self.save:
             dirpath = self._resolve_dir(save_path)
             os.makedirs(dirpath, exist_ok=True)
@@ -190,6 +199,7 @@ class VisualTool:
             print("Warning: Both show=False and save=False → Nothing will happen.")
 
         plt.close(fig)
+
 
             
     def map_check(
