@@ -195,6 +195,45 @@ class VisualTool:
             ax.add_patch(center)
 
         self.save_or_show(fig, filename, save_path)
+        
+        
+    def showMap_dot(
+        self,
+        map_data: Union[np.ndarray, List],
+        sensor_positions: Optional[
+            List[Tuple[Union[int, float, str], Union[int, float, str]]]
+        ],
+        title: str = "MAP_with_sensor",
+        radius: float = 45,
+        cmap: Union[str, list] = "jet",
+        filename: str = "map_with_sensor",
+        save_path: Optional[str] = None,
+        *,
+        vmin: Optional[float] = None,
+        vmax: Optional[float] = None,
+    ) -> None:
+        map_data = self._normalize_image(map_data)
+        sensor_positions = self._normalize_positions(sensor_positions)
+        cmap_custom = self._resolve_cmap(cmap)
+
+        fig, ax = plt.subplots(figsize=self.figsize, dpi=self.dpi)
+        self._imshow(ax, map_data, cmap_custom, vmin=vmin, vmax=vmax)
+        ax.set_title(title)
+
+        for pos in sensor_positions:
+            center = plt.Circle(
+                pos,
+                radius=0.5,
+                edgecolor="red",
+                facecolor="red",
+                linewidth=1.0,
+            )
+
+            ax.add_patch(center)
+
+        self.save_or_show(fig, filename, save_path)
+
+
 
     def showMap(
         self,
