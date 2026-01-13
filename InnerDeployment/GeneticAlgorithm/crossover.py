@@ -54,10 +54,18 @@ def _pickGene(g1: Gene, g2: Gene, m, h: int, w: int) -> Gene:
 
 
 def crossover(parent1: Chromosome, parent2: Chromosome, installable_map) -> Chromosome:
+    """
+    Your intended behavior:
+      - ordered chromosome is meaningful (highest contribution first)
+      - crossover is allowed to induce deletion pressure (length shrinkage)
+
+    Thus:
+      - child length = min(len(p1), len(p2))  (intentional)
+      - gene-wise recombination within bounding box (installable-only)
+    """
     h, w = _getShape(installable_map)
     m = min(len(parent1), len(parent2))
 
-    # ✅ 빈 맵 방어: 이 경우 crossover 의미가 없으니 부모 중 하나를 복사해서 반환
     if h <= 0 or w <= 0 or m <= 0:
         return [tuple(map(int, p)) for p in parent1[:m]]
 

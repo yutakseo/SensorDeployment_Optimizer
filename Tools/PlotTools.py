@@ -173,7 +173,7 @@ class VisualTool:
                 radius=radius / 5,
                 edgecolor="lime",
                 facecolor="white",
-                alpha=0.1,
+                alpha=0.3,
                 linewidth=0.02,
             )
             border = plt.Circle(
@@ -181,7 +181,7 @@ class VisualTool:
                 radius=radius / 5,
                 edgecolor="lime",
                 facecolor="none",
-                linewidth=0.2,
+                linewidth=0.8,
             )
             center = plt.Circle(
                 pos,
