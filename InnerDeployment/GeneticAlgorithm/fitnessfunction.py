@@ -51,19 +51,35 @@ class MeanConv(nn.Module):
 
 
 # ==================================================
-# Fitness Function
+# Fitness Function (Feasibility-first; Option 2)
 # ==================================================
 class FitnessFunc:
     """
-    coverage% fitness + corner-first greedy ordering
+    Your intended objective:
+      - Primary: minimize #sensors (|S|)
+      - Constraint: Coverage(S) >= target_coverage
+
+    We implement feasibility-first scalar fitness (maximize):
+      if cov < target_coverage:
+          fitness = -(target_coverage - cov)             # negative: deficit
+      else:
+          fitness = big_reward - n_sensors               # large: fewer sensors is better
+
+    Important:
+      - "inner_positions" is variable-length chromosome (excluding corners).
+      - Corners are always included in evaluation.
+      - computeFitness/fitness_score are kept for backward compatibility (return coverage%).
+      - evaluate returns (fitness, coverage, total_sensors).
     """
 
     def __init__(
         self,
         jobsite_map,
         corner_positions: List[Gene],
-        coverage: int,
+        coverage: int,  # sensor radius for Sensor.deploy
         *,
+        target_coverage: float = 90.0,
+        big_reward: float = 1_000_000.0,
         useCache: bool = True,
         sampleCount: Optional[int] = None,
         gainLimit: Optional[float] = None,
@@ -74,6 +90,9 @@ class FitnessFunc:
         self.coverage = int(coverage)
         self.corners: List[Gene] = toInt(corner_positions)
         self.cornerKey = tuple(self.corners)
+
+        self.target_coverage = float(target_coverage)
+        self.big_reward = float(big_reward)
 
         self.useCache = bool(useCache)
         self.sampleCount = sampleCount
@@ -149,20 +168,41 @@ class FitnessFunc:
             return 0.0
         return float(100.0 * (self.mapTensor * mask).sum().item() / self.mapArea)
 
+    def _n_total(self, inner_positions: List[Gene]) -> int:
+        return int(len(self.corners) + len(inner_positions))
+
     # -------------------------
     # public API
     # -------------------------
-    def computeFitness(self, inner: List[Gene]) -> float:
+    def computeCoverage(self, inner: List[Gene]) -> float:
         pts = self.corners + toInt(inner)
         return self._computeCoverage(self._makeMask(pts))
 
+    # backward compatible (coverage%)
+    def computeFitness(self, inner: List[Gene]) -> float:
+        return self.computeCoverage(inner)
+
+    # backward compatible (coverage%)
     def fitness_score(self, inner_positions: List[Gene]) -> float:
-        return self.computeFitness(inner_positions)
+        return self.computeCoverage(inner_positions)
 
+    # objective fitness (maximize)
+    def fitness_min_sensors(self, inner_positions: List[Gene]) -> float:
+        cov = self.computeCoverage(inner_positions)
+        n = self._n_total(inner_positions)
+
+        if cov < self.target_coverage:
+            return -(self.target_coverage - cov)  # deficit (negative)
+        return self.big_reward - float(n)         # feasible: fewer sensors better
+
+    # (fitness, coverage, total_sensors)
     def evaluate(self, inner_positions: List[Gene]):
-        cov = self.computeFitness(inner_positions)
-        return float(cov), float(cov), len(self.corners) + len(inner_positions)
+        cov = self.computeCoverage(inner_positions)
+        n = self._n_total(inner_positions)
+        fit = self.fitness_min_sensors(inner_positions)
+        return float(fit), float(cov), int(n)
 
+    # Used only for ordering/ranking heuristics (not objective)
     def rankSensor(self, points: List[Gene]):
         with torch.no_grad():
             fmap = self.model(self.map.astype(np.float16)).detach()
@@ -177,6 +217,11 @@ class FitnessFunc:
         return result
 
     def orderSensor(self, chromosome: List[Gene], returnScore: bool = True):
+        """
+        Greedy marginal-gain ordering: produces a meaningful sequence
+        (g1, g2, ...) in descending contribution order for THIS candidate.
+        This matches your assumption that chromosome order is meaningful.
+        """
         remain = toInt(chromosome)
         ordered = []
 
@@ -208,7 +253,7 @@ class FitnessFunc:
 
         return ordered if returnScore else [p for (p, _, _) in ordered]
 
-    # ---- backward compatible wrapper ----
+    # backward compatible wrapper
     def ordering_sensors(self, chromosome: List[Gene], return_score: bool = True):
         return self.orderSensor(chromosome, returnScore=return_score)
 
