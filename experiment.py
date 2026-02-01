@@ -37,7 +37,7 @@ class GARunConfig:
 
 
 
-for i in range(10):
+for i in range(100):
     Experiment(
         map_name="gangjin.full",
         ga_init=GAInitConfig(),
@@ -45,7 +45,7 @@ for i in range(10):
         corner_cfg=CornerConfig(),
     ).run()
     
-for i in range(10):
+for i in range(100):
     Experiment(
         map_name="gangjin.crop1",
         ga_init=GAInitConfig(),
@@ -53,7 +53,7 @@ for i in range(10):
         corner_cfg=CornerConfig(),
     ).run()
 
-for i in range(10):
+for i in range(100):
     Experiment(
         map_name="gangjin.crop2",
         ga_init=GAInitConfig(),
@@ -61,7 +61,7 @@ for i in range(10):
         corner_cfg=CornerConfig(),
     ).run()
 
-for i in range(10):
+for i in range(100):
     Experiment(
         map_name="sejong.full",
         ga_init=GAInitConfig(),
@@ -69,7 +69,7 @@ for i in range(10):
         corner_cfg=CornerConfig(),
     ).run()
     
-for i in range(10):
+for i in range(100):
     Experiment(
         map_name="seocho.full",
         ga_init=GAInitConfig(),
@@ -77,7 +77,7 @@ for i in range(10):
         corner_cfg=CornerConfig(),
     ).run()
 
-for i in range(10):
+for i in range(100):
     Experiment(
         map_name="seocho.crop1",
         ga_init=GAInitConfig(),
@@ -85,7 +85,7 @@ for i in range(10):
         corner_cfg=CornerConfig(),
     ).run()
 
-for i in range(10):
+for i in range(100):
     Experiment(
         map_name="seocho.crop2",
         ga_init=GAInitConfig(),
