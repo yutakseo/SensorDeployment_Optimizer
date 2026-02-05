@@ -35,59 +35,61 @@ class GARunConfig:
     profile_fitness_breakdown: bool = True
 
 
+Iter=10
 
-for i in range(10):
-    Experiment(
-        map_name="gangjin.full",
-        ga_init=GAInitConfig(),
-        ga_run=GARunConfig(),
-        corner_cfg=CornerConfig(),
-    ).run()
-    
-for i in range(10):
-    Experiment(
-        map_name="gangjin.up",
-        ga_init=GAInitConfig(),
-        ga_run=GARunConfig(),
-        corner_cfg=CornerConfig(),
-    ).run()
+if __name__ == "__main__":
+    for i in range(Iter):
+        Experiment(
+            map_name="gangjin.full",
+            ga_init=GAInitConfig(),
+            ga_run=GARunConfig(),
+            corner_cfg=CornerConfig(),
+        ).run()
+        
+    for i in range(Iter):
+        Experiment(
+            map_name="gangjin.up",
+            ga_init=GAInitConfig(),
+            ga_run=GARunConfig(),
+            corner_cfg=CornerConfig(),
+        ).run()
 
-for i in range(10):
-    Experiment(
-        map_name="gangjin.down",
-        ga_init=GAInitConfig(),
-        ga_run=GARunConfig(),
-        corner_cfg=CornerConfig(),
-    ).run()
+    for i in range(Iter):
+        Experiment(
+            map_name="gangjin.down",
+            ga_init=GAInitConfig(),
+            ga_run=GARunConfig(),
+            corner_cfg=CornerConfig(),
+        ).run()
 
-for i in range(10):
-    Experiment(
-        map_name="sejong.full",
-        ga_init=GAInitConfig(),
-        ga_run=GARunConfig(),
-        corner_cfg=CornerConfig(),
-    ).run()
-    
-for i in range(10):
-    Experiment(
-        map_name="seocho.full",
-        ga_init=GAInitConfig(),
-        ga_run=GARunConfig(),
-        corner_cfg=CornerConfig(),
-    ).run()
+    for i in range(Iter):
+        Experiment(
+            map_name="sejong.full",
+            ga_init=GAInitConfig(),
+            ga_run=GARunConfig(),
+            corner_cfg=CornerConfig(),
+        ).run()
+        
+    for i in range(Iter):
+        Experiment(
+            map_name="seocho.full",
+            ga_init=GAInitConfig(),
+            ga_run=GARunConfig(),
+            corner_cfg=CornerConfig(),
+        ).run()
 
-for i in range(10):
-    Experiment(
-        map_name="seocho.up",
-        ga_init=GAInitConfig(),
-        ga_run=GARunConfig(),
-        corner_cfg=CornerConfig(),
-    ).run()
+    for i in range(Iter):
+        Experiment(
+            map_name="seocho.up",
+            ga_init=GAInitConfig(),
+            ga_run=GARunConfig(),
+            corner_cfg=CornerConfig(),
+        ).run()
 
-for i in range(10):
-    Experiment(
-        map_name="seocho.down",
-        ga_init=GAInitConfig(),
-        ga_run=GARunConfig(),
-        corner_cfg=CornerConfig(),
-    ).run()
+    for i in range(Iter):
+        Experiment(
+            map_name="seocho.down",
+            ga_init=GAInitConfig(),
+            ga_run=GARunConfig(),
+            corner_cfg=CornerConfig(),
+        ).run()
