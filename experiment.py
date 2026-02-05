@@ -6,9 +6,9 @@ from dataclasses import dataclass
 class CornerConfig:
     blockSize: int = 3
     ksize: int = 3
-    k: float = 0.01
+    k: float = 0.05
     dilate_size: int = 5
-    min_dist: int = 5
+    min_dist: int = 9
 
 @dataclass
 class GAInitConfig:
@@ -17,8 +17,8 @@ class GAInitConfig:
     initial_size: int = 100
     selection_size: int = 50
     child_chromo_size: int = 100
-    min_sensors: int = 70
-    max_sensors: int = 100
+    min_sensors: int = 40
+    max_sensors: int = 60
 
 @dataclass
 class GARunConfig:
@@ -36,8 +36,7 @@ class GARunConfig:
 
 
 
-
-for i in range(100):
+for i in range(10):
     Experiment(
         map_name="gangjin.full",
         ga_init=GAInitConfig(),
@@ -45,7 +44,7 @@ for i in range(100):
         corner_cfg=CornerConfig(),
     ).run()
     
-for i in range(100):
+for i in range(10):
     Experiment(
         map_name="gangjin.crop1",
         ga_init=GAInitConfig(),
@@ -53,7 +52,7 @@ for i in range(100):
         corner_cfg=CornerConfig(),
     ).run()
 
-for i in range(100):
+for i in range(10):
     Experiment(
         map_name="gangjin.crop2",
         ga_init=GAInitConfig(),
@@ -61,7 +60,7 @@ for i in range(100):
         corner_cfg=CornerConfig(),
     ).run()
 
-for i in range(100):
+for i in range(10):
     Experiment(
         map_name="sejong.full",
         ga_init=GAInitConfig(),
@@ -69,7 +68,7 @@ for i in range(100):
         corner_cfg=CornerConfig(),
     ).run()
     
-for i in range(100):
+for i in range(10):
     Experiment(
         map_name="seocho.full",
         ga_init=GAInitConfig(),
@@ -77,7 +76,7 @@ for i in range(100):
         corner_cfg=CornerConfig(),
     ).run()
 
-for i in range(100):
+for i in range(10):
     Experiment(
         map_name="seocho.crop1",
         ga_init=GAInitConfig(),
@@ -85,7 +84,7 @@ for i in range(100):
         corner_cfg=CornerConfig(),
     ).run()
 
-for i in range(100):
+for i in range(10):
     Experiment(
         map_name="seocho.crop2",
         ga_init=GAInitConfig(),
