@@ -22,7 +22,7 @@ class GAInitConfig:
 
 @dataclass
 class GARunConfig:
-    selection_method: str = "tournament"
+    selection_method: str = "elite"
     tournament_size: int = 3
     mutation_rate: float = 0.7
     early_stop: bool = False
@@ -46,7 +46,7 @@ for i in range(10):
     
 for i in range(10):
     Experiment(
-        map_name="gangjin.crop1",
+        map_name="gangjin.up",
         ga_init=GAInitConfig(),
         ga_run=GARunConfig(),
         corner_cfg=CornerConfig(),
@@ -54,7 +54,7 @@ for i in range(10):
 
 for i in range(10):
     Experiment(
-        map_name="gangjin.crop2",
+        map_name="gangjin.down",
         ga_init=GAInitConfig(),
         ga_run=GARunConfig(),
         corner_cfg=CornerConfig(),
@@ -78,7 +78,7 @@ for i in range(10):
 
 for i in range(10):
     Experiment(
-        map_name="seocho.crop1",
+        map_name="seocho.up",
         ga_init=GAInitConfig(),
         ga_run=GARunConfig(),
         corner_cfg=CornerConfig(),
@@ -86,7 +86,7 @@ for i in range(10):
 
 for i in range(10):
     Experiment(
-        map_name="seocho.crop2",
+        map_name="seocho.down",
         ga_init=GAInitConfig(),
         ga_run=GARunConfig(),
         corner_cfg=CornerConfig(),
