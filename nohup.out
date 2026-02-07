@@ -1,0 +1,464 @@
+[Gen:001/100] Fitness(norm) : (best=100.0000, avg=94.0070, worst=90.0000) | Coverage(best)=91.04% (target=90.00%) | Numb of sensors : (min=20, avg=96.7, max=148) | BestSensors=20 (corner=8)
+[Profile Gen 001] fitness=3.905s | selection=0.000s | repro=3.519s (crossover=2.188s, mutation=1.330s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.189s | prefix=0.073s | score=0.008s | pop=100 
+
+[Gen:002/100] Fitness(norm) : (best=100.0000, avg=86.8159, worst=0.0000) | Coverage(best)=90.04% (target=90.00%) | Numb of sensors : (min=20, avg=65.2, max=89) | BestSensors=20 (corner=8)
+[Profile Gen 002] fitness=2.806s | selection=0.000s | repro=2.055s (crossover=1.064s, mutation=0.990s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.176s | prefix=0.073s | score=0.008s | pop=100 
+
+[Gen:003/100] Fitness(norm) : (best=100.0000, avg=20.3682, worst=0.0000) | Coverage(best)=90.04% (target=90.00%) | Numb of sensors : (min=20, avg=52.5, max=64) | BestSensors=20 (corner=8)
+[Profile Gen 003] fitness=2.295s | selection=0.000s | repro=1.889s (crossover=0.780s, mutation=1.108s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.175s | prefix=0.053s | score=0.005s | pop=100 
+
+[Gen:004/100] Fitness(norm) : (best=100.0000, avg=6.5282, worst=0.0000) | Coverage(best)=90.04% (target=90.00%) | Numb of sensors : (min=20, avg=51.2, max=59) | BestSensors=20 (corner=8)
+[Profile Gen 004] fitness=2.265s | selection=0.000s | repro=1.488s (crossover=0.571s, mutation=0.917s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.175s | prefix=0.073s | score=0.008s | pop=100 
+
+[Gen:005/100] Fitness(norm) : (best=100.0000, avg=2.8400, worst=0.0000) | Coverage(best)=90.04% (target=90.00%) | Numb of sensors : (min=20, avg=49.3, max=55) | BestSensors=20 (corner=8)
+[Profile Gen 005] fitness=2.178s | selection=0.000s | repro=1.475s (crossover=0.433s, mutation=1.041s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.173s | prefix=0.073s | score=0.008s | pop=100 
+
+[Gen:006/100] Fitness(norm) : (best=100.0000, avg=1.9182, worst=0.0000) | Coverage(best)=90.04% (target=90.00%) | Numb of sensors : (min=20, avg=48.2, max=53) | BestSensors=20 (corner=8)
+[Profile Gen 006] fitness=2.025s | selection=0.000s | repro=1.552s (crossover=0.354s, mutation=1.197s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.150s | prefix=0.073s | score=0.008s | pop=100 
+
+[Gen:007/100] Fitness(norm) : (best=100.0000, avg=1.9182, worst=0.0000) | Coverage(best)=90.04% (target=90.00%) | Numb of sensors : (min=20, avg=47.4, max=53) | BestSensors=20 (corner=8)
+[Profile Gen 007] fitness=2.123s | selection=0.000s | repro=1.082s (crossover=0.302s, mutation=0.779s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.174s | prefix=0.073s | score=0.008s | pop=100 
+
+[Gen:008/100] Fitness(norm) : (best=100.0000, avg=1.9100, worst=0.0000) | Coverage(best)=90.04% (target=90.00%) | Numb of sensors : (min=20, avg=46.6, max=50) | BestSensors=20 (corner=8)
+[Profile Gen 008] fitness=1.935s | selection=0.000s | repro=1.249s (crossover=0.253s, mutation=0.996s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.124s | prefix=0.073s | score=0.008s | pop=100 
+
+[Gen:009/100] Fitness(norm) : (best=100.0000, avg=1.9036, worst=0.0000) | Coverage(best)=90.04% (target=90.00%) | Numb of sensors : (min=20, avg=45.8, max=48) | BestSensors=20 (corner=8)
+[Profile Gen 009] fitness=2.059s | selection=0.000s | repro=1.260s (crossover=0.246s, mutation=1.013s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.175s | prefix=0.073s | score=0.008s | pop=100 
+
+[Gen:010/100] Fitness(norm) : (best=100.0000, avg=1.9069, worst=0.0000) | Coverage(best)=90.04% (target=90.00%) | Numb of sensors : (min=20, avg=45.4, max=49) | BestSensors=20 (corner=8)
+[Profile Gen 010] fitness=1.937s | selection=0.000s | repro=1.075s (crossover=0.261s, mutation=0.813s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.089s | prefix=0.054s | score=0.006s | pop=100 
+
+[Gen:011/100] Fitness(norm) : (best=100.0000, avg=1.9069, worst=0.0000) | Coverage(best)=90.04% (target=90.00%) | Numb of sensors : (min=20, avg=45.4, max=49) | BestSensors=20 (corner=8)
+[Profile Gen 011] fitness=2.049s | selection=0.000s | repro=0.976s (crossover=0.226s, mutation=0.749s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.175s | prefix=0.073s | score=0.008s | pop=100 
+
+[Gen:012/100] Fitness(norm) : (best=100.0000, avg=2.8077, worst=0.0000) | Coverage(best)=90.87% (target=90.00%) | Numb of sensors : (min=22, avg=45.0, max=48) | BestSensors=22 (corner=8)
+[Profile Gen 012] fitness=2.046s | selection=0.000s | repro=1.217s (crossover=0.232s, mutation=0.984s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.167s | prefix=0.091s | score=0.009s | pop=100 
+
+[Gen:013/100] Fitness(norm) : (best=100.0000, avg=1.9000, worst=0.0000) | Coverage(best)=90.87% (target=90.00%) | Numb of sensors : (min=22, avg=44.9, max=47) | BestSensors=22 (corner=8)
+[Profile Gen 013] fitness=1.975s | selection=0.000s | repro=1.214s (crossover=0.249s, mutation=0.964s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.166s | prefix=0.090s | score=0.009s | pop=100 
+
+[Gen:014/100] Fitness(norm) : (best=100.0000, avg=1.9000, worst=0.0000) | Coverage(best)=90.87% (target=90.00%) | Numb of sensors : (min=22, avg=44.8, max=47) | BestSensors=22 (corner=8)
+[Profile Gen 014] fitness=2.032s | selection=0.000s | repro=1.169s (crossover=0.230s, mutation=0.938s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.167s | prefix=0.091s | score=0.009s | pop=100 
+
+[Gen:015/100] Fitness(norm) : (best=100.0000, avg=1.9000, worst=0.0000) | Coverage(best)=90.87% (target=90.00%) | Numb of sensors : (min=22, avg=44.5, max=47) | BestSensors=22 (corner=8)
+[Profile Gen 015] fitness=1.923s | selection=0.000s | repro=1.230s (crossover=0.269s, mutation=0.960s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.166s | prefix=0.090s | score=0.009s | pop=100 
+
+[Gen:016/100] Fitness(norm) : (best=100.0000, avg=2.8040, worst=0.0000) | Coverage(best)=90.49% (target=90.00%) | Numb of sensors : (min=22, avg=44.4, max=47) | BestSensors=22 (corner=8)
+[Profile Gen 016] fitness=2.010s | selection=0.000s | repro=1.320s (crossover=0.263s, mutation=1.056s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.161s | prefix=0.091s | score=0.009s | pop=100 
+
+[Gen:017/100] Fitness(norm) : (best=100.0000, avg=2.8120, worst=0.0000) | Coverage(best)=90.49% (target=90.00%) | Numb of sensors : (min=22, avg=44.2, max=47) | BestSensors=22 (corner=8)
+[Profile Gen 017] fitness=1.872s | selection=0.000s | repro=1.190s (crossover=0.264s, mutation=0.925s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.160s | prefix=0.090s | score=0.009s | pop=100 
+
+[Gen:018/100] Fitness(norm) : (best=100.0000, avg=2.8042, worst=0.0000) | Coverage(best)=90.49% (target=90.00%) | Numb of sensors : (min=22, avg=43.9, max=46) | BestSensors=22 (corner=8)
+[Profile Gen 018] fitness=1.989s | selection=0.000s | repro=1.286s (crossover=0.242s, mutation=1.044s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.161s | prefix=0.091s | score=0.009s | pop=100 
+
+[Gen:019/100] Fitness(norm) : (best=100.0000, avg=1.9080, worst=0.0000) | Coverage(best)=90.49% (target=90.00%) | Numb of sensors : (min=22, avg=43.8, max=47) | BestSensors=22 (corner=8)
+[Profile Gen 019] fitness=1.881s | selection=0.000s | repro=1.135s (crossover=0.252s, mutation=0.882s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.160s | prefix=0.090s | score=0.009s | pop=100 
+
+[Gen:020/100] Fitness(norm) : (best=100.0000, avg=2.8120, worst=0.0000) | Coverage(best)=90.49% (target=90.00%) | Numb of sensors : (min=22, avg=43.6, max=47) | BestSensors=22 (corner=8)
+[Profile Gen 020] fitness=1.971s | selection=0.000s | repro=1.144s (crossover=0.223s, mutation=0.920s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.160s | prefix=0.090s | score=0.009s | pop=100 
+
+[Gen:021/100] Fitness(norm) : (best=100.0000, avg=2.8083, worst=0.0000) | Coverage(best)=90.49% (target=90.00%) | Numb of sensors : (min=22, avg=43.5, max=46) | BestSensors=22 (corner=8)
+[Profile Gen 021] fitness=1.836s | selection=0.000s | repro=0.963s (crossover=0.229s, mutation=0.734s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.160s | prefix=0.090s | score=0.009s | pop=100 
+
+[Gen:022/100] Fitness(norm) : (best=100.0000, avg=1.9042, worst=0.0000) | Coverage(best)=90.49% (target=90.00%) | Numb of sensors : (min=22, avg=43.4, max=46) | BestSensors=22 (corner=8)
+[Profile Gen 022] fitness=1.966s | selection=0.000s | repro=1.115s (crossover=0.237s, mutation=0.877s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.160s | prefix=0.090s | score=0.009s | pop=100 
+
+[Gen:023/100] Fitness(norm) : (best=100.0000, avg=1.9042, worst=0.0000) | Coverage(best)=90.49% (target=90.00%) | Numb of sensors : (min=22, avg=43.2, max=46) | BestSensors=22 (corner=8)
+[Profile Gen 023] fitness=1.930s | selection=0.000s | repro=1.197s (crossover=0.233s, mutation=0.963s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.153s | prefix=0.064s | score=0.007s | pop=100 
+
+[Gen:024/100] Fitness(norm) : (best=100.0000, avg=1.9042, worst=0.0000) | Coverage(best)=90.49% (target=90.00%) | Numb of sensors : (min=22, avg=43.2, max=46) | BestSensors=22 (corner=8)
+[Profile Gen 024] fitness=1.864s | selection=0.000s | repro=1.044s (crossover=0.198s, mutation=0.846s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.159s | prefix=0.089s | score=0.009s | pop=100 
+
+[Gen:025/100] Fitness(norm) : (best=100.0000, avg=1.9042, worst=0.0000) | Coverage(best)=90.49% (target=90.00%) | Numb of sensors : (min=22, avg=43.0, max=46) | BestSensors=22 (corner=8)
+[Profile Gen 025] fitness=1.953s | selection=0.000s | repro=1.062s (crossover=0.202s, mutation=0.859s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.160s | prefix=0.090s | score=0.009s | pop=100 
+
+[Gen:026/100] Fitness(norm) : (best=100.0000, avg=1.9042, worst=0.0000) | Coverage(best)=90.49% (target=90.00%) | Numb of sensors : (min=22, avg=42.6, max=46) | BestSensors=22 (corner=8)
+[Profile Gen 026] fitness=1.937s | selection=0.000s | repro=1.100s (crossover=0.186s, mutation=0.914s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.161s | prefix=0.091s | score=0.009s | pop=100 
+
+[Gen:027/100] Fitness(norm) : (best=100.0000, avg=1.9000, worst=0.0000) | Coverage(best)=90.49% (target=90.00%) | Numb of sensors : (min=22, avg=42.2, max=45) | BestSensors=22 (corner=8)
+[Profile Gen 027] fitness=1.789s | selection=0.000s | repro=0.813s (crossover=0.223s, mutation=0.589s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.160s | prefix=0.090s | score=0.009s | pop=100 
+
+[Gen:028/100] Fitness(norm) : (best=100.0000, avg=1.9000, worst=0.0000) | Coverage(best)=90.49% (target=90.00%) | Numb of sensors : (min=22, avg=41.7, max=45) | BestSensors=22 (corner=8)
+[Profile Gen 028] fitness=1.836s | selection=0.000s | repro=1.110s (crossover=0.212s, mutation=0.897s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.160s | prefix=0.090s | score=0.009s | pop=100 
+
+[Gen:029/100] Fitness(norm) : (best=100.0000, avg=1.9000, worst=0.0000) | Coverage(best)=90.49% (target=90.00%) | Numb of sensors : (min=22, avg=41.7, max=45) | BestSensors=22 (corner=8)
+[Profile Gen 029] fitness=1.902s | selection=0.000s | repro=1.202s (crossover=0.216s, mutation=0.985s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.158s | prefix=0.089s | score=0.009s | pop=100 
+
+[Gen:030/100] Fitness(norm) : (best=100.0000, avg=1.9042, worst=0.0000) | Coverage(best)=90.49% (target=90.00%) | Numb of sensors : (min=22, avg=41.8, max=46) | BestSensors=22 (corner=8)
+[Profile Gen 030] fitness=1.912s | selection=0.000s | repro=1.106s (crossover=0.178s, mutation=0.927s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.161s | prefix=0.091s | score=0.009s | pop=100 
+
+[Gen:031/100] Fitness(norm) : (best=100.0000, avg=1.9000, worst=0.0000) | Coverage(best)=90.49% (target=90.00%) | Numb of sensors : (min=22, avg=41.7, max=45) | BestSensors=22 (corner=8)
+[Profile Gen 031] fitness=1.780s | selection=0.000s | repro=1.047s (crossover=0.187s, mutation=0.860s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.161s | prefix=0.090s | score=0.009s | pop=100 
+
+[Gen:032/100] Fitness(norm) : (best=100.0000, avg=2.8000, worst=0.0000) | Coverage(best)=90.04% (target=90.00%) | Numb of sensors : (min=23, avg=41.3, max=45) | BestSensors=23 (corner=8)
+[Profile Gen 032] fitness=1.844s | selection=0.000s | repro=1.023s (crossover=0.203s, mutation=0.819s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.152s | prefix=0.099s | score=0.009s | pop=100 
+
+[Gen:033/100] Fitness(norm) : (best=100.0000, avg=1.9000, worst=0.0000) | Coverage(best)=90.04% (target=90.00%) | Numb of sensors : (min=23, avg=41.1, max=45) | BestSensors=23 (corner=8)
+[Profile Gen 033] fitness=1.885s | selection=0.000s | repro=0.992s (crossover=0.230s, mutation=0.761s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.151s | prefix=0.100s | score=0.009s | pop=100 
+
+[Gen:034/100] Fitness(norm) : (best=100.0000, avg=1.9000, worst=0.0000) | Coverage(best)=90.04% (target=90.00%) | Numb of sensors : (min=23, avg=40.8, max=45) | BestSensors=23 (corner=8)
+[Profile Gen 034] fitness=1.878s | selection=0.000s | repro=0.959s (crossover=0.199s, mutation=0.760s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.153s | prefix=0.100s | score=0.009s | pop=100 
+
+[Gen:035/100] Fitness(norm) : (best=100.0000, avg=1.9000, worst=0.0000) | Coverage(best)=90.04% (target=90.00%) | Numb of sensors : (min=23, avg=40.7, max=45) | BestSensors=23 (corner=8)
+[Profile Gen 035] fitness=1.740s | selection=0.000s | repro=1.003s (crossover=0.196s, mutation=0.806s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.154s | prefix=0.100s | score=0.009s | pop=100 
+
+[Gen:036/100] Fitness(norm) : (best=100.0000, avg=1.9000, worst=0.0000) | Coverage(best)=90.04% (target=90.00%) | Numb of sensors : (min=23, avg=40.8, max=45) | BestSensors=23 (corner=8)
+[Profile Gen 036] fitness=1.776s | selection=0.000s | repro=1.085s (crossover=0.220s, mutation=0.865s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.152s | prefix=0.100s | score=0.009s | pop=100 
+
+[Gen:037/100] Fitness(norm) : (best=100.0000, avg=1.9000, worst=0.0000) | Coverage(best)=90.04% (target=90.00%) | Numb of sensors : (min=23, avg=40.4, max=45) | BestSensors=23 (corner=8)
+[Profile Gen 037] fitness=1.852s | selection=0.000s | repro=0.961s (crossover=0.196s, mutation=0.764s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.151s | prefix=0.098s | score=0.009s | pop=100 
+
+[Gen:038/100] Fitness(norm) : (best=100.0000, avg=1.9000, worst=0.0000) | Coverage(best)=90.04% (target=90.00%) | Numb of sensors : (min=23, avg=40.3, max=45) | BestSensors=23 (corner=8)
+[Profile Gen 038] fitness=1.855s | selection=0.000s | repro=1.128s (crossover=0.192s, mutation=0.936s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.151s | prefix=0.100s | score=0.009s | pop=100 
+
+[Gen:039/100] Fitness(norm) : (best=100.0000, avg=1.9000, worst=0.0000) | Coverage(best)=90.04% (target=90.00%) | Numb of sensors : (min=23, avg=40.0, max=45) | BestSensors=23 (corner=8)
+[Profile Gen 039] fitness=1.836s | selection=0.000s | repro=1.038s (crossover=0.207s, mutation=0.830s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.153s | prefix=0.100s | score=0.009s | pop=100 
+
+[Gen:040/100] Fitness(norm) : (best=100.0000, avg=1.9000, worst=0.0000) | Coverage(best)=90.04% (target=90.00%) | Numb of sensors : (min=23, avg=39.7, max=45) | BestSensors=23 (corner=8)
+[Profile Gen 040] fitness=1.673s | selection=0.000s | repro=0.930s (crossover=0.176s, mutation=0.753s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.078s | prefix=0.074s | score=0.008s | pop=100 
+
+[Gen:041/100] Fitness(norm) : (best=100.0000, avg=1.9000, worst=0.0000) | Coverage(best)=90.04% (target=90.00%) | Numb of sensors : (min=23, avg=39.7, max=45) | BestSensors=23 (corner=8)
+[Profile Gen 041] fitness=1.683s | selection=0.000s | repro=1.030s (crossover=0.202s, mutation=0.827s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.152s | prefix=0.100s | score=0.009s | pop=100 
+
+[Gen:042/100] Fitness(norm) : (best=100.0000, avg=1.9000, worst=0.0000) | Coverage(best)=90.04% (target=90.00%) | Numb of sensors : (min=23, avg=39.6, max=45) | BestSensors=23 (corner=8)
+[Profile Gen 042] fitness=1.743s | selection=0.000s | repro=1.156s (crossover=0.196s, mutation=0.959s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.152s | prefix=0.100s | score=0.009s | pop=100 
+
+[Gen:043/100] Fitness(norm) : (best=100.0000, avg=1.9000, worst=0.0000) | Coverage(best)=90.04% (target=90.00%) | Numb of sensors : (min=23, avg=39.6, max=45) | BestSensors=23 (corner=8)
+[Profile Gen 043] fitness=1.823s | selection=0.000s | repro=1.224s (crossover=0.217s, mutation=1.006s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.149s | prefix=0.099s | score=0.009s | pop=100 
+
+[Gen:044/100] Fitness(norm) : (best=100.0000, avg=1.9000, worst=0.0000) | Coverage(best)=90.04% (target=90.00%) | Numb of sensors : (min=23, avg=39.6, max=45) | BestSensors=23 (corner=8)
+[Profile Gen 044] fitness=1.825s | selection=0.000s | repro=0.553s (crossover=0.240s, mutation=0.312s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.152s | prefix=0.100s | score=0.009s | pop=100 
+
+[Gen:045/100] Fitness(norm) : (best=100.0000, avg=1.9000, worst=0.0000) | Coverage(best)=90.04% (target=90.00%) | Numb of sensors : (min=23, avg=39.5, max=45) | BestSensors=23 (corner=8)
+[Profile Gen 045] fitness=1.360s | selection=0.000s | repro=1.032s (crossover=0.257s, mutation=0.774s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.147s | prefix=0.096s | score=0.009s | pop=100 
+
+[Gen:046/100] Fitness(norm) : (best=100.0000, avg=1.9000, worst=0.0000) | Coverage(best)=90.04% (target=90.00%) | Numb of sensors : (min=23, avg=39.7, max=45) | BestSensors=23 (corner=8)
+[Profile Gen 046] fitness=1.758s | selection=0.000s | repro=1.117s (crossover=0.214s, mutation=0.902s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.146s | prefix=0.096s | score=0.009s | pop=100 
+
+[Gen:047/100] Fitness(norm) : (best=100.0000, avg=2.8000, worst=0.0000) | Coverage(best)=90.04% (target=90.00%) | Numb of sensors : (min=23, avg=39.5, max=45) | BestSensors=23 (corner=8)
+[Profile Gen 047] fitness=1.749s | selection=0.000s | repro=0.965s (crossover=0.204s, mutation=0.760s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.146s | prefix=0.096s | score=0.009s | pop=100 
+
+[Gen:048/100] Fitness(norm) : (best=100.0000, avg=1.9000, worst=0.0000) | Coverage(best)=90.04% (target=90.00%) | Numb of sensors : (min=23, avg=39.6, max=45) | BestSensors=23 (corner=8)
+[Profile Gen 048] fitness=1.767s | selection=0.000s | repro=1.062s (crossover=0.218s, mutation=0.843s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.152s | prefix=0.100s | score=0.009s | pop=100 
+
+[Gen:049/100] Fitness(norm) : (best=100.0000, avg=1.9000, worst=0.0000) | Coverage(best)=90.04% (target=90.00%) | Numb of sensors : (min=23, avg=39.8, max=45) | BestSensors=23 (corner=8)
+[Profile Gen 049] fitness=1.773s | selection=0.000s | repro=0.994s (crossover=0.200s, mutation=0.793s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.146s | prefix=0.096s | score=0.009s | pop=100 
+
+[Gen:050/100] Fitness(norm) : (best=100.0000, avg=1.9000, worst=0.0000) | Coverage(best)=90.04% (target=90.00%) | Numb of sensors : (min=23, avg=40.0, max=45) | BestSensors=23 (corner=8)
+[Profile Gen 050] fitness=1.774s | selection=0.000s | repro=0.899s (crossover=0.202s, mutation=0.697s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.143s | prefix=0.096s | score=0.009s | pop=100 
+
+[Gen:051/100] Fitness(norm) : (best=100.0000, avg=1.9000, worst=0.0000) | Coverage(best)=90.04% (target=90.00%) | Numb of sensors : (min=23, avg=39.9, max=45) | BestSensors=23 (corner=8)
+[Profile Gen 051] fitness=1.780s | selection=0.000s | repro=1.106s (crossover=0.208s, mutation=0.897s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.152s | prefix=0.100s | score=0.009s | pop=100 
+
+[Gen:052/100] Fitness(norm) : (best=100.0000, avg=1.9000, worst=0.0000) | Coverage(best)=90.04% (target=90.00%) | Numb of sensors : (min=23, avg=39.6, max=45) | BestSensors=23 (corner=8)
+[Profile Gen 052] fitness=1.755s | selection=0.000s | repro=0.991s (crossover=0.202s, mutation=0.789s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.146s | prefix=0.096s | score=0.009s | pop=100 
+
+[Gen:053/100] Fitness(norm) : (best=100.0000, avg=2.8048, worst=0.0000) | Coverage(best)=90.04% (target=90.00%) | Numb of sensors : (min=24, avg=39.8, max=45) | BestSensors=24 (corner=8)
+[Profile Gen 053] fitness=1.741s | selection=0.000s | repro=0.976s (crossover=0.197s, mutation=0.778s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.112s | prefix=0.103s | score=0.009s | pop=100 
+
+[Gen:054/100] Fitness(norm) : (best=100.0000, avg=2.8250, worst=0.0000) | Coverage(best)=90.04% (target=90.00%) | Numb of sensors : (min=24, avg=39.8, max=44) | BestSensors=24 (corner=8)
+[Profile Gen 054] fitness=1.735s | selection=0.000s | repro=1.137s (crossover=0.208s, mutation=0.928s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.112s | prefix=0.105s | score=0.009s | pop=100 
+
+[Gen:055/100] Fitness(norm) : (best=100.0000, avg=3.7650, worst=0.0000) | Coverage(best)=90.04% (target=90.00%) | Numb of sensors : (min=24, avg=39.7, max=44) | BestSensors=24 (corner=8)
+[Profile Gen 055] fitness=1.732s | selection=0.000s | repro=1.074s (crossover=0.221s, mutation=0.852s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.112s | prefix=0.105s | score=0.009s | pop=100 
+
+[Gen:056/100] Fitness(norm) : (best=100.0000, avg=1.9167, worst=0.0000) | Coverage(best)=90.04% (target=90.00%) | Numb of sensors : (min=24, avg=39.1, max=42) | BestSensors=24 (corner=8)
+[Profile Gen 056] fitness=1.709s | selection=0.000s | repro=1.131s (crossover=0.230s, mutation=0.901s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.112s | prefix=0.104s | score=0.009s | pop=100 
+
+[Gen:057/100] Fitness(norm) : (best=100.0000, avg=1.9167, worst=0.0000) | Coverage(best)=90.04% (target=90.00%) | Numb of sensors : (min=24, avg=39.2, max=42) | BestSensors=24 (corner=8)
+[Profile Gen 057] fitness=1.713s | selection=0.000s | repro=0.991s (crossover=0.220s, mutation=0.771s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.112s | prefix=0.105s | score=0.009s | pop=100 
+
+[Gen:058/100] Fitness(norm) : (best=100.0000, avg=2.8176, worst=0.0000) | Coverage(best)=90.04% (target=90.00%) | Numb of sensors : (min=24, avg=38.7, max=41) | BestSensors=24 (corner=8)
+[Profile Gen 058] fitness=1.582s | selection=0.000s | repro=1.172s (crossover=0.212s, mutation=0.959s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.117s | prefix=0.109s | score=0.010s | pop=100 
+
+[Gen:059/100] Fitness(norm) : (best=100.0000, avg=1.9118, worst=0.0000) | Coverage(best)=90.04% (target=90.00%) | Numb of sensors : (min=24, avg=38.7, max=41) | BestSensors=24 (corner=8)
+[Profile Gen 059] fitness=1.608s | selection=0.000s | repro=0.960s (crossover=0.198s, mutation=0.761s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.117s | prefix=0.109s | score=0.010s | pop=100 
+
+[Gen:060/100] Fitness(norm) : (best=100.0000, avg=1.9118, worst=0.0000) | Coverage(best)=90.04% (target=90.00%) | Numb of sensors : (min=24, avg=38.6, max=41) | BestSensors=24 (corner=8)
+[Profile Gen 060] fitness=1.688s | selection=0.000s | repro=0.980s (crossover=0.231s, mutation=0.748s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.117s | prefix=0.109s | score=0.010s | pop=100 
+
+[Gen:061/100] Fitness(norm) : (best=100.0000, avg=1.9118, worst=0.0000) | Coverage(best)=90.04% (target=90.00%) | Numb of sensors : (min=24, avg=38.5, max=41) | BestSensors=24 (corner=8)
+[Profile Gen 061] fitness=1.757s | selection=0.000s | repro=1.050s (crossover=0.222s, mutation=0.827s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.115s | prefix=0.108s | score=0.010s | pop=100 
+
+[Gen:062/100] Fitness(norm) : (best=100.0000, avg=1.9118, worst=0.0000) | Coverage(best)=90.04% (target=90.00%) | Numb of sensors : (min=24, avg=38.6, max=41) | BestSensors=24 (corner=8)
+[Profile Gen 062] fitness=1.758s | selection=0.000s | repro=1.072s (crossover=0.207s, mutation=0.864s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.117s | prefix=0.109s | score=0.009s | pop=100 
+
+[Gen:063/100] Fitness(norm) : (best=100.0000, avg=1.9118, worst=0.0000) | Coverage(best)=90.04% (target=90.00%) | Numb of sensors : (min=24, avg=38.8, max=41) | BestSensors=24 (corner=8)
+[Profile Gen 063] fitness=1.765s | selection=0.000s | repro=1.140s (crossover=0.206s, mutation=0.933s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.117s | prefix=0.109s | score=0.010s | pop=100 
+
+[Gen:064/100] Fitness(norm) : (best=100.0000, avg=1.9118, worst=0.0000) | Coverage(best)=90.04% (target=90.00%) | Numb of sensors : (min=24, avg=38.9, max=41) | BestSensors=24 (corner=8)
+[Profile Gen 064] fitness=1.777s | selection=0.000s | repro=1.056s (crossover=0.198s, mutation=0.858s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.118s | prefix=0.110s | score=0.010s | pop=100 
+
+[Gen:065/100] Fitness(norm) : (best=100.0000, avg=1.9167, worst=0.0000) | Coverage(best)=90.04% (target=90.00%) | Numb of sensors : (min=24, avg=38.7, max=42) | BestSensors=24 (corner=8)
+[Profile Gen 065] fitness=1.638s | selection=0.000s | repro=1.022s (crossover=0.191s, mutation=0.830s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.118s | prefix=0.110s | score=0.010s | pop=100 
+
+[Gen:066/100] Fitness(norm) : (best=100.0000, avg=1.9118, worst=0.0000) | Coverage(best)=90.04% (target=90.00%) | Numb of sensors : (min=24, avg=38.5, max=41) | BestSensors=24 (corner=8)
+[Profile Gen 066] fitness=1.658s | selection=0.000s | repro=1.073s (crossover=0.180s, mutation=0.893s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.115s | prefix=0.108s | score=0.010s | pop=100 
+
+[Gen:067/100] Fitness(norm) : (best=100.0000, avg=1.9118, worst=0.0000) | Coverage(best)=90.04% (target=90.00%) | Numb of sensors : (min=24, avg=38.5, max=41) | BestSensors=24 (corner=8)
+[Profile Gen 067] fitness=1.753s | selection=0.000s | repro=1.165s (crossover=0.208s, mutation=0.956s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.117s | prefix=0.109s | score=0.010s | pop=100 
+
+[Gen:068/100] Fitness(norm) : (best=100.0000, avg=1.9118, worst=0.0000) | Coverage(best)=90.04% (target=90.00%) | Numb of sensors : (min=24, avg=38.3, max=41) | BestSensors=24 (corner=8)
+[Profile Gen 068] fitness=1.743s | selection=0.000s | repro=1.089s (crossover=0.203s, mutation=0.885s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.117s | prefix=0.109s | score=0.010s | pop=100 
+
+[Gen:069/100] Fitness(norm) : (best=100.0000, avg=1.9118, worst=0.0000) | Coverage(best)=90.04% (target=90.00%) | Numb of sensors : (min=24, avg=38.3, max=41) | BestSensors=24 (corner=8)
+[Profile Gen 069] fitness=1.756s | selection=0.000s | repro=0.919s (crossover=0.198s, mutation=0.720s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.118s | prefix=0.109s | score=0.010s | pop=100 
+
+[Gen:070/100] Fitness(norm) : (best=100.0000, avg=1.9062, worst=0.0000) | Coverage(best)=90.04% (target=90.00%) | Numb of sensors : (min=24, avg=38.4, max=40) | BestSensors=24 (corner=8)
+[Profile Gen 070] fitness=1.630s | selection=0.000s | repro=0.969s (crossover=0.184s, mutation=0.784s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.066s | prefix=0.109s | score=0.010s | pop=100 
+
+[Gen:071/100] Fitness(norm) : (best=100.0000, avg=1.9118, worst=0.0000) | Coverage(best)=90.04% (target=90.00%) | Numb of sensors : (min=24, avg=38.4, max=41) | BestSensors=24 (corner=8)
+[Profile Gen 071] fitness=1.656s | selection=0.000s | repro=0.957s (crossover=0.194s, mutation=0.763s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.116s | prefix=0.108s | score=0.010s | pop=100 
+
+[Gen:072/100] Fitness(norm) : (best=100.0000, avg=2.8125, worst=0.0000) | Coverage(best)=90.04% (target=90.00%) | Numb of sensors : (min=24, avg=38.2, max=40) | BestSensors=24 (corner=8)
+[Profile Gen 072] fitness=1.743s | selection=0.000s | repro=1.090s (crossover=0.181s, mutation=0.908s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.117s | prefix=0.109s | score=0.010s | pop=100 
+
+[Gen:073/100] Fitness(norm) : (best=100.0000, avg=1.9118, worst=0.0000) | Coverage(best)=90.04% (target=90.00%) | Numb of sensors : (min=24, avg=38.2, max=41) | BestSensors=24 (corner=8)
+[Profile Gen 073] fitness=1.747s | selection=0.000s | repro=1.263s (crossover=0.224s, mutation=1.039s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.117s | prefix=0.110s | score=0.010s | pop=100 
+
+[Gen:074/100] Fitness(norm) : (best=100.0000, avg=1.9118, worst=0.0000) | Coverage(best)=90.04% (target=90.00%) | Numb of sensors : (min=24, avg=38.4, max=41) | BestSensors=24 (corner=8)
+[Profile Gen 074] fitness=1.655s | selection=0.000s | repro=0.992s (crossover=0.220s, mutation=0.772s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.117s | prefix=0.109s | score=0.010s | pop=100 
+
+[Gen:075/100] Fitness(norm) : (best=100.0000, avg=1.9062, worst=0.0000) | Coverage(best)=90.04% (target=90.00%) | Numb of sensors : (min=24, avg=38.2, max=40) | BestSensors=24 (corner=8)
+[Profile Gen 075] fitness=1.750s | selection=0.000s | repro=1.009s (crossover=0.161s, mutation=0.847s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.117s | prefix=0.109s | score=0.010s | pop=100 
+
+[Gen:076/100] Fitness(norm) : (best=100.0000, avg=1.9118, worst=0.0000) | Coverage(best)=90.04% (target=90.00%) | Numb of sensors : (min=24, avg=38.3, max=41) | BestSensors=24 (corner=8)
+[Profile Gen 076] fitness=1.744s | selection=0.000s | repro=1.038s (crossover=0.181s, mutation=0.856s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.115s | prefix=0.109s | score=0.010s | pop=100 
+
+[Gen:077/100] Fitness(norm) : (best=100.0000, avg=3.7286, worst=0.0000) | Coverage(best)=90.25% (target=90.00%) | Numb of sensors : (min=20, avg=38.2, max=41) | BestSensors=20 (corner=8)
+[Profile Gen 077] fitness=1.569s | selection=0.000s | repro=1.044s (crossover=0.208s, mutation=0.835s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.070s | prefix=0.059s | score=0.008s | pop=100 
+
+[Gen:078/100] Fitness(norm) : (best=100.0000, avg=1.9095, worst=0.0000) | Coverage(best)=90.25% (target=90.00%) | Numb of sensors : (min=20, avg=38.0, max=41) | BestSensors=20 (corner=8)
+[Profile Gen 078] fitness=1.565s | selection=0.000s | repro=0.905s (crossover=0.172s, mutation=0.733s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.110s | prefix=0.073s | score=0.008s | pop=100 
+
+[Gen:079/100] Fitness(norm) : (best=100.0000, avg=1.9050, worst=0.0000) | Coverage(best)=90.25% (target=90.00%) | Numb of sensors : (min=20, avg=37.6, max=40) | BestSensors=20 (corner=8)
+[Profile Gen 079] fitness=1.680s | selection=0.000s | repro=0.879s (crossover=0.178s, mutation=0.701s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.110s | prefix=0.073s | score=0.008s | pop=100 
+
+[Gen:080/100] Fitness(norm) : (best=100.0000, avg=2.8100, worst=0.0000) | Coverage(best)=90.25% (target=90.00%) | Numb of sensors : (min=20, avg=37.5, max=40) | BestSensors=20 (corner=8)
+[Profile Gen 080] fitness=1.678s | selection=0.000s | repro=1.061s (crossover=0.179s, mutation=0.881s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.109s | prefix=0.073s | score=0.008s | pop=100 
+
+[Gen:081/100] Fitness(norm) : (best=100.0000, avg=1.9050, worst=0.0000) | Coverage(best)=90.25% (target=90.00%) | Numb of sensors : (min=20, avg=37.2, max=40) | BestSensors=20 (corner=8)
+[Profile Gen 081] fitness=1.665s | selection=0.000s | repro=1.050s (crossover=0.158s, mutation=0.891s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.110s | prefix=0.073s | score=0.008s | pop=100 
+
+[Gen:082/100] Fitness(norm) : (best=100.0000, avg=1.9050, worst=0.0000) | Coverage(best)=90.25% (target=90.00%) | Numb of sensors : (min=20, avg=37.1, max=40) | BestSensors=20 (corner=8)
+[Profile Gen 082] fitness=1.547s | selection=0.000s | repro=0.953s (crossover=0.174s, mutation=0.778s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.062s | prefix=0.061s | score=0.008s | pop=100 
+
+[Gen:083/100] Fitness(norm) : (best=100.0000, avg=1.9050, worst=0.0000) | Coverage(best)=90.25% (target=90.00%) | Numb of sensors : (min=20, avg=36.9, max=40) | BestSensors=20 (corner=8)
+[Profile Gen 083] fitness=1.543s | selection=0.000s | repro=0.954s (crossover=0.122s, mutation=0.831s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.110s | prefix=0.073s | score=0.008s | pop=100 
+
+[Gen:084/100] Fitness(norm) : (best=100.0000, avg=1.9050, worst=0.0000) | Coverage(best)=90.25% (target=90.00%) | Numb of sensors : (min=20, avg=36.7, max=40) | BestSensors=20 (corner=8)
+[Profile Gen 084] fitness=1.643s | selection=0.000s | repro=0.765s (crossover=0.117s, mutation=0.647s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.109s | prefix=0.073s | score=0.008s | pop=100 
+
+[Gen:085/100] Fitness(norm) : (best=100.0000, avg=2.8053, worst=0.0000) | Coverage(best)=90.25% (target=90.00%) | Numb of sensors : (min=20, avg=36.4, max=39) | BestSensors=20 (corner=8)
+[Profile Gen 085] fitness=1.632s | selection=0.000s | repro=0.951s (crossover=0.144s, mutation=0.806s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.109s | prefix=0.073s | score=0.008s | pop=100 
+
+[Gen:086/100] Fitness(norm) : (best=100.0000, avg=2.8105, worst=0.0000) | Coverage(best)=90.25% (target=90.00%) | Numb of sensors : (min=20, avg=36.3, max=39) | BestSensors=20 (corner=8)
+[Profile Gen 086] fitness=1.629s | selection=0.000s | repro=0.928s (crossover=0.156s, mutation=0.771s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.110s | prefix=0.073s | score=0.008s | pop=100 
+
+[Gen:087/100] Fitness(norm) : (best=100.0000, avg=1.9053, worst=0.0000) | Coverage(best)=90.25% (target=90.00%) | Numb of sensors : (min=20, avg=35.9, max=39) | BestSensors=20 (corner=8)
+[Profile Gen 087] fitness=1.615s | selection=0.000s | repro=0.861s (crossover=0.136s, mutation=0.724s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.110s | prefix=0.073s | score=0.008s | pop=100 
+
+[Gen:088/100] Fitness(norm) : (best=100.0000, avg=1.9100, worst=0.0000) | Coverage(best)=90.25% (target=90.00%) | Numb of sensors : (min=20, avg=35.5, max=40) | BestSensors=20 (corner=8)
+[Profile Gen 088] fitness=1.533s | selection=0.000s | repro=0.959s (crossover=0.119s, mutation=0.840s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.066s | prefix=0.051s | score=0.004s | pop=100 
+
+[Gen:089/100] Fitness(norm) : (best=100.0000, avg=1.9053, worst=0.0000) | Coverage(best)=90.25% (target=90.00%) | Numb of sensors : (min=20, avg=34.9, max=39) | BestSensors=20 (corner=8)
+[Profile Gen 089] fitness=1.472s | selection=0.000s | repro=0.971s (crossover=0.140s, mutation=0.830s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.110s | prefix=0.073s | score=0.008s | pop=100 
+
+[Gen:090/100] Fitness(norm) : (best=100.0000, avg=1.9000, worst=0.0000) | Coverage(best)=90.25% (target=90.00%) | Numb of sensors : (min=20, avg=34.8, max=38) | BestSensors=20 (corner=8)
+[Profile Gen 090] fitness=1.458s | selection=0.000s | repro=0.869s (crossover=0.124s, mutation=0.744s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.110s | prefix=0.073s | score=0.008s | pop=100 
+
+[Gen:091/100] Fitness(norm) : (best=100.0000, avg=1.9053, worst=0.0000) | Coverage(best)=90.25% (target=90.00%) | Numb of sensors : (min=20, avg=34.8, max=39) | BestSensors=20 (corner=8)
+[Profile Gen 091] fitness=1.578s | selection=0.000s | repro=0.858s (crossover=0.178s, mutation=0.679s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.109s | prefix=0.073s | score=0.008s | pop=100 
+
+[Gen:092/100] Fitness(norm) : (best=100.0000, avg=1.9000, worst=0.0000) | Coverage(best)=90.25% (target=90.00%) | Numb of sensors : (min=20, avg=34.7, max=38) | BestSensors=20 (corner=8)
+[Profile Gen 092] fitness=1.578s | selection=0.000s | repro=0.811s (crossover=0.152s, mutation=0.658s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.110s | prefix=0.073s | score=0.008s | pop=100 
+
+[Gen:093/100] Fitness(norm) : (best=100.0000, avg=1.9053, worst=0.0000) | Coverage(best)=90.25% (target=90.00%) | Numb of sensors : (min=20, avg=34.9, max=39) | BestSensors=20 (corner=8)
+[Profile Gen 093] fitness=1.580s | selection=0.000s | repro=0.873s (crossover=0.153s, mutation=0.719s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.109s | prefix=0.073s | score=0.008s | pop=100 
+
+[Gen:094/100] Fitness(norm) : (best=100.0000, avg=1.9000, worst=0.0000) | Coverage(best)=90.25% (target=90.00%) | Numb of sensors : (min=20, avg=34.9, max=38) | BestSensors=20 (corner=8)
+[Profile Gen 094] fitness=1.578s | selection=0.000s | repro=1.042s (crossover=0.156s, mutation=0.885s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.110s | prefix=0.073s | score=0.008s | pop=100 
+
+[Gen:095/100] Fitness(norm) : (best=100.0000, avg=1.9000, worst=0.0000) | Coverage(best)=90.25% (target=90.00%) | Numb of sensors : (min=20, avg=35.1, max=38) | BestSensors=20 (corner=8)
+[Profile Gen 095] fitness=1.511s | selection=0.000s | repro=0.968s (crossover=0.186s, mutation=0.782s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.110s | prefix=0.073s | score=0.008s | pop=100 
+
+[Gen:096/100] Fitness(norm) : (best=100.0000, avg=2.8000, worst=0.0000) | Coverage(best)=90.25% (target=90.00%) | Numb of sensors : (min=20, avg=35.4, max=38) | BestSensors=20 (corner=8)
+[Profile Gen 096] fitness=1.590s | selection=0.000s | repro=0.716s (crossover=0.155s, mutation=0.561s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.110s | prefix=0.073s | score=0.008s | pop=100 
+
+[Gen:097/100] Fitness(norm) : (best=100.0000, avg=2.8105, worst=0.0000) | Coverage(best)=90.25% (target=90.00%) | Numb of sensors : (min=20, avg=35.3, max=39) | BestSensors=20 (corner=8)
+[Profile Gen 097] fitness=1.600s | selection=0.000s | repro=0.818s (crossover=0.114s, mutation=0.704s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.109s | prefix=0.073s | score=0.008s | pop=100 
+
+[Gen:098/100] Fitness(norm) : (best=100.0000, avg=1.9000, worst=0.0000) | Coverage(best)=90.25% (target=90.00%) | Numb of sensors : (min=20, avg=35.1, max=38) | BestSensors=20 (corner=8)
+[Profile Gen 098] fitness=1.581s | selection=0.000s | repro=0.848s (crossover=0.150s, mutation=0.698s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.110s | prefix=0.073s | score=0.008s | pop=100 
+
+[Gen:099/100] Fitness(norm) : (best=100.0000, avg=1.9000, worst=0.0000) | Coverage(best)=90.25% (target=90.00%) | Numb of sensors : (min=20, avg=35.0, max=38) | BestSensors=20 (corner=8)
+[Profile Gen 099] fitness=1.588s | selection=0.000s | repro=0.829s (crossover=0.108s, mutation=0.720s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.110s | prefix=0.073s | score=0.008s | pop=100 
+
+[Gen:100/100] Fitness(norm) : (best=100.0000, avg=1.9053, worst=0.0000) | Coverage(best)=90.25% (target=90.00%) | Numb of sensors : (min=20, avg=35.0, max=39) | BestSensors=20 (corner=8)
+[Profile Gen 100] fitness=1.532s | selection=0.000s | repro=0.980s (crossover=0.082s, mutation=0.897s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.071s | prefix=0.058s | score=0.007s | pop=100 
+
+[Gen:001/100] Fitness(norm) : (best=100.0000, avg=93.5478, worst=90.0000) | Coverage(best)=91.28% (target=90.00%) | Numb of sensors : (min=10, avg=96.5, max=144) | BestSensors=10 (corner=4)
+[Profile Gen 001] fitness=3.867s | selection=0.000s | repro=2.982s (crossover=1.802s, mutation=1.179s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.181s | prefix=0.021s | score=0.004s | pop=100 
+
+[Gen:002/100] Fitness(norm) : (best=100.0000, avg=94.2674, worst=90.0000) | Coverage(best)=91.28% (target=90.00%) | Numb of sensors : (min=10, avg=59.3, max=96) | BestSensors=10 (corner=4)
+[Profile Gen 002] fitness=2.527s | selection=0.000s | repro=1.797s (crossover=0.959s, mutation=0.837s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.181s | prefix=0.020s | score=0.004s | pop=100 
+
+[Gen:003/100] Fitness(norm) : (best=100.0000, avg=73.3400, worst=0.0000) | Coverage(best)=91.21% (target=90.00%) | Numb of sensors : (min=11, avg=48.4, max=56) | BestSensors=11 (corner=4)
+[Profile Gen 003] fitness=2.111s | selection=0.000s | repro=1.766s (crossover=0.628s, mutation=1.138s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.173s | prefix=0.025s | score=0.005s | pop=100 
+
+[Gen:004/100] Fitness(norm) : (best=100.0000, avg=47.5050, worst=0.0000) | Coverage(best)=91.21% (target=90.00%) | Numb of sensors : (min=11, avg=45.5, max=51) | BestSensors=11 (corner=4)
+[Profile Gen 004] fitness=2.004s | selection=0.000s | repro=1.397s (crossover=0.488s, mutation=0.909s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.173s | prefix=0.025s | score=0.005s | pop=100 
+
+[Gen:005/100] Fitness(norm) : (best=100.0000, avg=38.2895, worst=0.0000) | Coverage(best)=91.21% (target=90.00%) | Numb of sensors : (min=11, avg=44.8, max=49) | BestSensors=11 (corner=4)
+[Profile Gen 005] fitness=1.897s | selection=0.000s | repro=1.396s (crossover=0.407s, mutation=0.989s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.173s | prefix=0.025s | score=0.005s | pop=100 
+
+[Gen:006/100] Fitness(norm) : (best=100.0000, avg=40.8297, worst=0.0000) | Coverage(best)=91.01% (target=90.00%) | Numb of sensors : (min=10, avg=44.4, max=47) | BestSensors=10 (corner=4)
+[Profile Gen 006] fitness=1.943s | selection=0.000s | repro=1.185s (crossover=0.309s, mutation=0.874s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.165s | prefix=0.021s | score=0.004s | pop=100 
+
+[Gen:007/100] Fitness(norm) : (best=100.0000, avg=32.6528, worst=0.0000) | Coverage(best)=91.01% (target=90.00%) | Numb of sensors : (min=10, avg=43.9, max=46) | BestSensors=10 (corner=4)
+[Profile Gen 007] fitness=1.827s | selection=0.000s | repro=1.192s (crossover=0.282s, mutation=0.909s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.165s | prefix=0.021s | score=0.004s | pop=100 
+
+[Gen:008/100] Fitness(norm) : (best=100.0000, avg=30.0324, worst=0.0000) | Coverage(best)=91.01% (target=90.00%) | Numb of sensors : (min=10, avg=43.4, max=47) | BestSensors=10 (corner=4)
+[Profile Gen 008] fitness=1.903s | selection=0.000s | repro=1.149s (crossover=0.228s, mutation=0.920s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.165s | prefix=0.021s | score=0.004s | pop=100 
+
+[Gen:009/100] Fitness(norm) : (best=100.0000, avg=30.8694, worst=0.0000) | Coverage(best)=91.01% (target=90.00%) | Numb of sensors : (min=10, avg=43.3, max=46) | BestSensors=10 (corner=4)
+[Profile Gen 009] fitness=1.794s | selection=0.000s | repro=1.122s (crossover=0.194s, mutation=0.927s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.092s | prefix=0.015s | score=0.002s | pop=100 
+
+[Gen:010/100] Fitness(norm) : (best=100.0000, avg=30.0917, worst=0.0000) | Coverage(best)=91.70% (target=90.00%) | Numb of sensors : (min=11, avg=43.1, max=47) | BestSensors=11 (corner=4)
+[Profile Gen 010] fitness=1.840s | selection=0.000s | repro=0.857s (crossover=0.164s, mutation=0.692s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.156s | prefix=0.025s | score=0.005s | pop=100 
+
+[Gen:011/100] Fitness(norm) : (best=100.0000, avg=26.3353, worst=0.0000) | Coverage(best)=91.70% (target=90.00%) | Numb of sensors : (min=11, avg=42.6, max=45) | BestSensors=11 (corner=4)
+[Profile Gen 011] fitness=1.869s | selection=0.000s | repro=1.002s (crossover=0.176s, mutation=0.825s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.156s | prefix=0.025s | score=0.005s | pop=100 
+
+[Gen:012/100] Fitness(norm) : (best=100.0000, avg=23.6382, worst=0.0000) | Coverage(best)=91.70% (target=90.00%) | Numb of sensors : (min=11, avg=42.4, max=45) | BestSensors=11 (corner=4)
+[Profile Gen 012] fitness=1.862s | selection=0.000s | repro=1.009s (crossover=0.155s, mutation=0.853s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.158s | prefix=0.026s | score=0.005s | pop=100 
+
+[Gen:013/100] Fitness(norm) : (best=100.0000, avg=24.5588, worst=0.0000) | Coverage(best)=91.70% (target=90.00%) | Numb of sensors : (min=11, avg=42.2, max=45) | BestSensors=11 (corner=4)
+[Profile Gen 013] fitness=1.751s | selection=0.000s | repro=1.011s (crossover=0.146s, mutation=0.865s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.156s | prefix=0.025s | score=0.005s | pop=100 
+
+[Gen:014/100] Fitness(norm) : (best=100.0000, avg=23.6706, worst=0.0000) | Coverage(best)=91.70% (target=90.00%) | Numb of sensors : (min=11, avg=41.9, max=45) | BestSensors=11 (corner=4)
+[Profile Gen 014] fitness=1.806s | selection=0.000s | repro=1.090s (crossover=0.154s, mutation=0.935s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.157s | prefix=0.025s | score=0.005s | pop=100 
+
+[Gen:015/100] Fitness(norm) : (best=100.0000, avg=26.4516, worst=0.0000) | Coverage(best)=90.12% (target=90.00%) | Numb of sensors : (min=14, avg=41.7, max=45) | BestSensors=14 (corner=4)
+[Profile Gen 015] fitness=1.841s | selection=0.000s | repro=1.017s (crossover=0.142s, mutation=0.874s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.149s | prefix=0.042s | score=0.006s | pop=100 
+
+[Gen:016/100] Fitness(norm) : (best=100.0000, avg=30.9033, worst=0.0000) | Coverage(best)=90.12% (target=90.00%) | Numb of sensors : (min=14, avg=41.4, max=44) | BestSensors=14 (corner=4)
+[Profile Gen 016] fitness=1.834s | selection=0.000s | repro=0.968s (crossover=0.117s, mutation=0.850s) | calls: crossover~100, mutation~70.0
+               fitness_breakdown: ordering=0.150s | prefix=0.042s | score=0.006s | pop=100 
+

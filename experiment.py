@@ -18,7 +18,7 @@ class GAInitConfig:
     selection_size: int = 50
     child_chromo_size: int = 100
     min_sensors: int = 40
-    max_sensors: int = 140
+    max_sensors: int = 60
 
 @dataclass
 class GARunConfig:
@@ -35,11 +35,16 @@ class GARunConfig:
     profile_fitness_breakdown: bool = True
 
 
-def run_experiments(Iter, DIR):
+def run_experiments(Iter, DIR, min, max):
+    ga_init = GAInitConfig(
+        min_sensors=min,
+        max_sensors=max,
+    )
+    
     for i in range(Iter):
         Experiment(
             map_name="gangjin.full",
-            ga_init=GAInitConfig(),
+            ga_init=ga_init,
             ga_run=GARunConfig(),
             corner_cfg=CornerConfig(),
             results_dir=DIR,
@@ -48,7 +53,7 @@ def run_experiments(Iter, DIR):
     for i in range(Iter):
         Experiment(
             map_name="gangjin.up",
-            ga_init=GAInitConfig(),
+            ga_init=ga_init,
             ga_run=GARunConfig(),
             corner_cfg=CornerConfig(),
             results_dir=DIR,
@@ -57,7 +62,7 @@ def run_experiments(Iter, DIR):
     for i in range(Iter):
         Experiment(
             map_name="gangjin.down",
-            ga_init=GAInitConfig(),
+            ga_init=ga_init,
             ga_run=GARunConfig(),
             corner_cfg=CornerConfig(),
             results_dir=DIR,
@@ -66,7 +71,7 @@ def run_experiments(Iter, DIR):
     for i in range(Iter):
         Experiment(
             map_name="sejong.full",
-            ga_init=GAInitConfig(),
+            ga_init=ga_init,
             ga_run=GARunConfig(),
             corner_cfg=CornerConfig(),
             results_dir=DIR,
@@ -75,7 +80,7 @@ def run_experiments(Iter, DIR):
     for i in range(Iter):
         Experiment(
             map_name="seocho.full",
-            ga_init=GAInitConfig(),
+            ga_init=ga_init,
             ga_run=GARunConfig(),
             corner_cfg=CornerConfig(),
             results_dir=DIR,
@@ -84,7 +89,7 @@ def run_experiments(Iter, DIR):
     for i in range(Iter):
         Experiment(
             map_name="seocho.up",
-            ga_init=GAInitConfig(),
+            ga_init=ga_init,
             ga_run=GARunConfig(),
             corner_cfg=CornerConfig(),
             results_dir=DIR,
@@ -93,7 +98,7 @@ def run_experiments(Iter, DIR):
     for i in range(Iter):
         Experiment(
             map_name="seocho.down",
-            ga_init=GAInitConfig(),
+            ga_init=ga_init,
             ga_run=GARunConfig(),
             corner_cfg=CornerConfig(),
             results_dir=DIR,
@@ -102,5 +107,10 @@ def run_experiments(Iter, DIR):
         
         
 if __name__ == "__main__":
-    Iter=100
-    run_experiments(Iter, DIR="__RESULTS__/100_runs/")
+    Iter=10
+    run_experiments(Iter, DIR="__RESULTS__/reliability/40-60/", min=40, max=60)
+    run_experiments(Iter, DIR="__RESULTS__/reliability/60-80/", min=60, max=80)
+    run_experiments(Iter, DIR="__RESULTS__/reliability/80-100/", min=80, max=100)
+    run_experiments(Iter, DIR="__RESULTS__/reliability/100-120/", min=100, max=120)
+    run_experiments(Iter, DIR="__RESULTS__/reliability/120-140/", min=120, max=140)
+    

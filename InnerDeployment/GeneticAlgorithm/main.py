@@ -49,31 +49,18 @@ def _fitness_norm_0_100(
     sensors_max: int,
     alpha: float = 10.0,
 ) -> float:
-    """
-    Reporting-only normalization to [0,100].
-
-    IMPORTANT (requested):
-      - If internal_fitness <= 0: return 0.0 (regardless of coverage/sensors).
-      - Else: normal mapping:
-          * infeasible (coverage < target): map by coverage ratio -> [0, <100)
-          * feasible: penalize sensor count linearly within [sensors_min, sensors_max]
-              score = 100 - alpha * frac, frac in [0,1]
-    """
     if float(internal_fitness) <= 0.0:
         return 0.0
 
     tau = float(target_coverage)
     cov = float(coverage)
 
-    # no target => just clamp coverage
     if tau <= 0:
         return float(max(0.0, min(100.0, cov)))
 
-    # infeasible: ratio to target (strictly < 100)
     if cov < tau:
         return float(max(0.0, min(99.9999, 100.0 * cov / max(tau, 1e-6))))
 
-    # feasible: sensor-penalty score
     if sensors_max <= sensors_min:
         return 100.0
 
@@ -84,12 +71,12 @@ def _fitness_norm_0_100(
 
 class SensorGA:
     """
-    Sensor Deployment GA (your intended design)
+    Sensor Deployment GA (genotype/phenotype 분리 + ordering 상위 K만 적용)
 
-    - Chromosome order is meaningful: genes are sorted by contribution.
-    - Minimization under coverage constraint is the core goal.
-    - Fitness is feasibility-first internally (used for selection).
-    - Console log fitness is normalized to [0,100] for readability ONLY.
+    - population(염색체)은 끝까지 genotype(전체 유전자 리스트)로 유지
+    - phenotype(최소 prefix / 디코딩 결과)은 평가/로그/최종 해에만 사용
+    - ordering/decoder는 상위 K개에만 적용 (병목 제거)
+    - run() 시그니처/입출력은 그대로 유지
     """
 
     def __init__(
@@ -118,15 +105,12 @@ class SensorGA:
         self.selection_size = int(selection_size)
         self.child_size = int(child_chromo_size)
 
-        # INNER gene bounds
         self.min_sensors = int(min_sensors)
         self.max_sensors = int(max_sensors)
 
-        # FitnessFunc.__init__ allowed kwargs only
         self.fitness_kwargs = _filter_kwargs(FitnessFunc.__init__, fitness_kwargs or {})
         self.mutation_kwargs = mutation_kwargs or {}
 
-        # Ensure mutation receives target_coverage if your fitness uses it
         if "target_coverage" in self.fitness_kwargs and "target_coverage" not in self.mutation_kwargs:
             self.mutation_kwargs["target_coverage"] = float(self.fitness_kwargs["target_coverage"])
 
@@ -142,8 +126,8 @@ class SensorGA:
 
         self._mutation_allowed = set(inspect.signature(mutation_op).parameters.keys())
 
-        self.best_solution: Optional[Chromosome] = None
-        self.best_fitness: float = float("-inf")  # internal fitness
+        self.best_solution: Optional[Chromosome] = None  # phenotype
+        self.best_fitness: float = float("-inf")
         self.best_coverage: float = float("nan")
         self.corner_points: List[Gene] = list(self.corner_positions)
 
@@ -201,13 +185,9 @@ class SensorGA:
             )
 
     # -------------------------
-    # Prefix selection
+    # Decoder
     # -------------------------
     def _minimal_prefix_meeting_target(self, evaluator: FitnessFunc, ordered: Chromosome) -> Chromosome:
-        """
-        Select the smallest prefix that meets target_coverage.
-        If none meets, return the prefix with maximum coverage.
-        """
         tau = float(getattr(evaluator, "target_coverage", 0.0))
 
         best_k = 0
@@ -228,6 +208,7 @@ class SensorGA:
 
     # -------------------------
     # Fitness (population)
+    #   - ordering_top_k: 상위 K개만 ordering/decoder 적용
     # -------------------------
     def fitness(
         self,
@@ -235,7 +216,8 @@ class SensorGA:
         *,
         profile_acc: Optional[Dict[str, float]] = None,
         profile_breakdown: bool = False,
-    ) -> Tuple[Generation, List[float]]:
+        ordering_top_k: int = 1,
+    ) -> Tuple[Generation, List[float], List[Chromosome]]:
         evaluator = FitnessFunc(
             jobsite_map=self.jobsite_map,
             corner_positions=self.corner_positions,
@@ -243,34 +225,56 @@ class SensorGA:
             **self.fitness_kwargs,
         )
 
-        scored: List[Tuple[float, Chromosome]] = []
+        ordering_top_k = max(0, int(ordering_top_k))
+
+        # 1) 빠른 1차 점수(근사): ordering 없이 genotype 그대로 평가
+        approx_scored: List[Tuple[float, Chromosome]] = []
+        for genotype in generation:
+            geno = _as_int_pairs(genotype)
+            fit = float(evaluator.fitness_min_sensors(geno))  # 근사(빠름)
+            approx_scored.append((fit, geno))
+
+        approx_scored.sort(key=lambda x: x[0], reverse=True)
+
+        # 2) 상위 K개만 정확 평가(= ordering + prefix decoder)
+        phenotypes: List[Chromosome] = [g for (_, g) in approx_scored]  # 기본은 phenotype=genotype(근사)
+        fitness_scores: List[float] = [float(f) for (f, _) in approx_scored]
+
         t_order = 0.0
         t_prefix = 0.0
         t_score = 0.0
 
-        for chromosome in generation:
-            chrom = _as_int_pairs(chromosome)
+        k = min(ordering_top_k, len(approx_scored))
+        for i in range(k):
+            geno = approx_scored[i][1]
 
             if profile_breakdown:
                 t0 = time.perf_counter()
-                ordered = evaluator.ordering_sensors(chrom, return_score=False)
+                ordered = evaluator.ordering_sensors(geno, return_score=False)
                 t_order += time.perf_counter() - t0
 
                 t0 = time.perf_counter()
-                best_inner = self._minimal_prefix_meeting_target(evaluator, ordered)
+                pheno = self._minimal_prefix_meeting_target(evaluator, ordered)
                 t_prefix += time.perf_counter() - t0
 
                 t0 = time.perf_counter()
-                score = float(evaluator.fitness_min_sensors(best_inner))  # INTERNAL FITNESS
+                fit = float(evaluator.fitness_min_sensors(pheno))
                 t_score += time.perf_counter() - t0
             else:
-                ordered = evaluator.ordering_sensors(chrom, return_score=False)
-                best_inner = self._minimal_prefix_meeting_target(evaluator, ordered)
-                score = float(evaluator.fitness_min_sensors(best_inner))  # INTERNAL FITNESS
+                ordered = evaluator.ordering_sensors(geno, return_score=False)
+                pheno = self._minimal_prefix_meeting_target(evaluator, ordered)
+                fit = float(evaluator.fitness_min_sensors(pheno))
 
-            scored.append((score, best_inner))
+            phenotypes[i] = pheno
+            fitness_scores[i] = fit
 
-        scored.sort(key=lambda x: x[0], reverse=True)
+        # 3) 최종 정렬은 "내부 fitness" 기준 (선택 압력 유지)
+        merged = list(zip(fitness_scores, [g for (_, g) in approx_scored], phenotypes))
+        merged.sort(key=lambda x: x[0], reverse=True)
+
+        sorted_genotypes = [g for (f, g, p) in merged]
+        fitness_scores = [float(f) for (f, g, p) in merged]
+        phenotypes = [p for (f, g, p) in merged]
 
         if profile_acc is not None and profile_breakdown:
             profile_acc["fitness_ordering"] = profile_acc.get("fitness_ordering", 0.0) + t_order
@@ -278,9 +282,7 @@ class SensorGA:
             profile_acc["fitness_score"] = profile_acc.get("fitness_score", 0.0) + t_score
             profile_acc["fitness_pop"] = len(generation)
 
-        sorted_generation = [ch for (s, ch) in scored]
-        fitness_scores = [s for (s, _) in scored]  # INTERNAL FITNESS
-        return sorted_generation, fitness_scores
+        return sorted_genotypes, fitness_scores, phenotypes
 
     # -------------------------
     # Selection
@@ -303,7 +305,7 @@ class SensorGA:
         raise ValueError(method)
 
     # -------------------------
-    # Crossover / Mutation
+    # Crossover / Mutation (genotype only)
     # -------------------------
     def crossover(self, parent1: Chromosome, parent2: Chromosome) -> Chromosome:
         return crossover_op(parent1, parent2, self.installable_map)
@@ -325,7 +327,6 @@ class SensorGA:
         if "max_total_sensors" in self._mutation_allowed:
             payload["max_total_sensors"] = max_total
 
-        # align mutation target_coverage with fitness target_coverage
         if "target_coverage" in self._mutation_allowed and "target_coverage" not in kw:
             if "target_coverage" in self.fitness_kwargs:
                 kw["target_coverage"] = float(self.fitness_kwargs["target_coverage"])
@@ -337,7 +338,7 @@ class SensorGA:
         return mutation_op(**payload)
 
     # -------------------------
-    # Run
+    # Run (signature/IO 유지)
     # -------------------------
     def run(
         self,
@@ -356,10 +357,11 @@ class SensorGA:
         logger=None,
         *,
         elitism_k: int = 2,
-        log_alpha: float = 10.0,      # sensor-penalty strength for normalized log fitness
-        log_eval_exact: bool = True,  # compute exact avg/worst normalized via evaluate()
+        log_alpha: float = 10.0,
+        log_eval_exact: bool = True,
+        ordering_top_k: int = 1,   # ✅ 추가: ordering 적용 개체 수(기본 1=best만)
     ) -> Union[Generation, Chromosome]:
-        population = self.population
+        population = self.population  # genotype population
 
         log_eval = FitnessFunc(
             jobsite_map=self.jobsite_map,
@@ -371,23 +373,23 @@ class SensorGA:
 
         stable_count = 0
         last_best_total: Optional[int] = None
-        best_so_far_inner: Optional[Chromosome] = None
+        best_so_far_inner: Optional[Chromosome] = None  # phenotype
         best_so_far_fit_internal = float("-inf")
 
         for gen_idx in range(1, self.generations + 1):
             prof: Dict[str, float] = {}
 
             with _timer("fitness_total", prof):
-                sorted_generation, fitness_scores = self.fitness(
+                sorted_generation, fitness_scores, phenotypes = self.fitness(
                     population,
                     profile_acc=prof if profile else None,
                     profile_breakdown=bool(profile and profile_fitness_breakdown),
+                    ordering_top_k=int(ordering_top_k),
                 )
             if not fitness_scores:
                 break
 
-            # INTERNAL fitness stats (used for selection; not printed directly)
-            best_inner = sorted_generation[0]
+            best_inner = phenotypes[0]  # phenotype
             best_fit_internal = float(fitness_scores[0])
             worst_fit_internal = float(fitness_scores[-1])
             avg_fit_internal = float(sum(fitness_scores) / len(fitness_scores))
@@ -398,36 +400,30 @@ class SensorGA:
 
             corner_cnt = len(self.corner_positions)
 
-            # ---- Reporting-only: compute coverage/total for normalization ----
             cov_tot: List[Tuple[float, int]] = []
             if log_eval_exact:
-                for inner in sorted_generation:
+                for inner in phenotypes:
                     _, cov_i, tot_i = log_eval.evaluate(inner)
                     cov_tot.append((float(cov_i), int(tot_i)))
             else:
                 _, cov_best, tot_best = log_eval.evaluate(best_inner)
                 cov_tot = [(float(cov_best), int(tot_best))]
 
-            # total sensor counts for generation (for printing)
             if log_eval_exact:
                 total_counts = [tot for (_, tot) in cov_tot]
             else:
-                total_counts = [corner_cnt + len(ch) for ch in sorted_generation]
+                total_counts = [corner_cnt + len(best_inner)]
 
             sensors_min = int(min(total_counts)) if total_counts else 0
             sensors_max = int(max(total_counts)) if total_counts else 0
 
-            # feasible_min for normalization (IMPORTANT FIX)
             feasible_counts = [tot for (cov, tot) in cov_tot if cov >= tau] if log_eval_exact else []
             sensors_min_for_norm = int(min(feasible_counts)) if feasible_counts else sensors_min
 
-            # best coverage / best total (aligned with sorted_generation[0])
             best_cov = float(cov_tot[0][0])
             best_total = int(cov_tot[0][1])
 
-            # ---- Normalized fitness (REPORTING ONLY) ----
             if log_eval_exact:
-                # NOTE: sorted_generation and fitness_scores share the same order by construction.
                 norms = [
                     _fitness_norm_0_100(
                         internal_fitness=float(fitness_scores[i]),
@@ -472,7 +468,6 @@ class SensorGA:
                 )
 
             if logger is not None:
-                # keep internal metrics in logger
                 logger.log_generation(
                     gen=gen_idx,
                     sensors_min=float(sensors_min),
@@ -486,7 +481,6 @@ class SensorGA:
                     best_coverage=float(best_cov),
                 )
 
-            # early stop: coverage satisfied and best sensor count stable
             if early_stop and (float(best_cov) >= float(early_stop_coverage)):
                 if last_best_total is None:
                     last_best_total = int(best_total)
@@ -520,7 +514,6 @@ class SensorGA:
             if len(parents) < 2:
                 break
 
-            # Elitism (keep top-k INTERNAL-best)
             k = max(0, min(int(elitism_k), self.child_size))
             elites = [c[:] for c in sorted_generation[:k]]
             children: Generation = elites
@@ -545,8 +538,7 @@ class SensorGA:
 
         self.population = population
 
-        # persist best (internal)
-        self.best_solution = best_so_far_inner if best_so_far_inner is not None else (population[0] if population else [])
+        self.best_solution = best_so_far_inner if best_so_far_inner is not None else []
         self.best_fitness = float(best_so_far_fit_internal) if best_so_far_inner is not None else float("nan")
 
         try:
