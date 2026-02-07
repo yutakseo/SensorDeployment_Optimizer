@@ -18,7 +18,7 @@ class GAInitConfig:
     selection_size: int = 50
     child_chromo_size: int = 100
     min_sensors: int = 40
-    max_sensors: int = 60
+    max_sensors: int = 140
 
 @dataclass
 class GARunConfig:
@@ -35,15 +35,14 @@ class GARunConfig:
     profile_fitness_breakdown: bool = True
 
 
-Iter=10
-
-if __name__ == "__main__":
+def run_experiments(Iter, DIR):
     for i in range(Iter):
         Experiment(
             map_name="gangjin.full",
             ga_init=GAInitConfig(),
             ga_run=GARunConfig(),
             corner_cfg=CornerConfig(),
+            results_dir=DIR,
         ).run()
         
     for i in range(Iter):
@@ -52,6 +51,7 @@ if __name__ == "__main__":
             ga_init=GAInitConfig(),
             ga_run=GARunConfig(),
             corner_cfg=CornerConfig(),
+            results_dir=DIR,
         ).run()
 
     for i in range(Iter):
@@ -60,6 +60,7 @@ if __name__ == "__main__":
             ga_init=GAInitConfig(),
             ga_run=GARunConfig(),
             corner_cfg=CornerConfig(),
+            results_dir=DIR,
         ).run()
 
     for i in range(Iter):
@@ -68,6 +69,7 @@ if __name__ == "__main__":
             ga_init=GAInitConfig(),
             ga_run=GARunConfig(),
             corner_cfg=CornerConfig(),
+            results_dir=DIR,
         ).run()
         
     for i in range(Iter):
@@ -76,6 +78,7 @@ if __name__ == "__main__":
             ga_init=GAInitConfig(),
             ga_run=GARunConfig(),
             corner_cfg=CornerConfig(),
+            results_dir=DIR,
         ).run()
 
     for i in range(Iter):
@@ -84,6 +87,7 @@ if __name__ == "__main__":
             ga_init=GAInitConfig(),
             ga_run=GARunConfig(),
             corner_cfg=CornerConfig(),
+            results_dir=DIR,
         ).run()
 
     for i in range(Iter):
@@ -92,4 +96,11 @@ if __name__ == "__main__":
             ga_init=GAInitConfig(),
             ga_run=GARunConfig(),
             corner_cfg=CornerConfig(),
+            results_dir=DIR,
         ).run()
+        
+        
+        
+if __name__ == "__main__":
+    Iter=100
+    run_experiments(Iter, DIR="__RESULTS__/100_runs/")
