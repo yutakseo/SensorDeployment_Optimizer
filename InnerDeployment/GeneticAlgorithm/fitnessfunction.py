@@ -307,6 +307,8 @@ class FitnessFunc:
     def extractUncovered(self, inner: List[Gene]) -> List[Gene]:
         pts = self.corners + to_int_pairs(inner)
         mask = self._makeMask(pts)
+        if mask.device != self.mapTensor.device:
+            mask = mask.to(self.mapTensor.device)
         u = (self.mapTensor * (1 - mask)).detach().cpu().numpy()
         yx = np.argwhere(u > 0.5)
         return [(int(x), int(y)) for (y, x) in yx]

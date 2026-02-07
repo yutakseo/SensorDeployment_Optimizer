@@ -49,8 +49,9 @@ def _worker_init(
     min_total,
     max_total,
     min_sensors: int,
+    worker_device: Optional[str] = None,
 ):
-    # Allow worker processes to use GPU if available.
+    # Default to GPU in workers only when explicitly allowed.
     global _W_INSTALLABLE_MAP, _W_JOBSITE_MAP, _W_CORNER_POSITIONS, _W_COVERAGE
     global _W_MUTATION_ALLOWED, _W_MUTATION_KW, _W_MIN_TOTAL, _W_MAX_TOTAL, _W_MIN_SENSORS
     global _W_INSTALLABLE_POINTS
@@ -61,7 +62,9 @@ def _worker_init(
     _W_COVERAGE = int(coverage)
     _W_MUTATION_ALLOWED = set(mutation_allowed)
     _W_MUTATION_KW = dict(mutation_kw)
-    if torch is not None and torch.cuda.is_available():
+    if worker_device is not None:
+        _W_MUTATION_KW["device"] = worker_device
+    elif torch is not None and torch.cuda.is_available():
         _W_MUTATION_KW["device"] = "cuda"
     _W_MIN_TOTAL = min_total
     _W_MAX_TOTAL = max_total
@@ -627,6 +630,11 @@ class SensorGA:
         if mutation_kwargs:
             combined_kw.update(mutation_kwargs)
 
+        worker_device: Optional[str] = None
+        if torch is not None and torch.cuda.is_available() and int(parallel_workers) > 1:
+            # Avoid CUDA OOM by preventing N workers from each allocating GPU tensors.
+            worker_device = "cpu"
+
         max_total = len(self.corner_positions) + int(self.max_sensors)
         min_total = len(self.corner_positions) + int(self.min_sensors)
 
@@ -651,6 +659,7 @@ class SensorGA:
                     min_total,
                     max_total,
                     self.min_sensors,
+                    worker_device,
                 ),
             )
             t_init = time.perf_counter() - t0
@@ -829,6 +838,7 @@ class SensorGA:
                                         min_total,
                                         max_total,
                                         self.min_sensors,
+                                        worker_device,
                                     ),
                                 )
                             with _timer("reproduction_pool_warmup", prof):

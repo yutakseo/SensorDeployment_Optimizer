@@ -26,7 +26,7 @@ if __name__ == "__main__":
         "seocho.up",
         "seocho.down",
     ]
-
+    
     @dataclass
     class CornerConfig:
         blockSize: int = 3
@@ -73,8 +73,8 @@ if __name__ == "__main__":
         (100, 120),
         (120, 140)
     ]
-
-
+    
+    
     for min_s, max_s in SENSOR_RANGES:
         ga_init.init_min_sensors = int(min_s)
         ga_init.init_max_sensors = int(max_s)

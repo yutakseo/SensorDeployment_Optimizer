@@ -26,7 +26,7 @@ if __name__ == "__main__":
         "seocho.up",
         "seocho.down",
     ]
-
+    
     @dataclass
     class CornerConfig:
         blockSize: int = 3
@@ -69,8 +69,8 @@ if __name__ == "__main__":
     SENSOR_RANGES = [
         (40, 140),
     ]
-
-
+    
+    
     for min_s, max_s in SENSOR_RANGES:
         run_experiments(
             maps=MAPS,
