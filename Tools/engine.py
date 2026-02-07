@@ -126,6 +126,8 @@ class Experiment:
             child_chromo_size=gi.child_chromo_size,
             min_sensors=gi.min_sensors,
             max_sensors=gi.max_sensors,
+            init_min_sensors=getattr(gi, "init_min_sensors", None),
+            init_max_sensors=getattr(gi, "init_max_sensors", None),
         )
 
         # 4) GA 실행 (ga_run 참조) + logger 전달
@@ -142,6 +144,9 @@ class Experiment:
             early_stop_coverage=gr.early_stop_coverage,
             early_stop_patience=gr.early_stop_patience,
             return_best_only=gr.return_best_only,
+            ordering_top_k=getattr(gr, "ordering_top_k", 0),
+            mutation_kwargs=getattr(gr, "mutation_kwargs", None),
+            parallel_workers=getattr(gr, "parallel_workers", 0),
             logger=logger,
         )
 

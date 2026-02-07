@@ -1,4 +1,4 @@
-# experiment.py
+# experiment2.py
 from dataclasses import dataclass
 
 from Tools.engine import Experiment
@@ -61,17 +61,23 @@ if __name__ == "__main__":
     ga_init = GAInitConfig()
     ga_run = GARunConfig()
     corner_cfg = CornerConfig()
-    Iter = 100
+    Iter = 10
     SENSOR_RANGES = [
-        (40, 140),
+        (40, 60),
+        (60, 80),
+        (80, 100),
+        (100, 120),
+        (120, 140)
     ]
 
 
     for min_s, max_s in SENSOR_RANGES:
+        ga_init.init_min_sensors = int(min_s)
+        ga_init.init_max_sensors = int(max_s)
         run_experiments(
             maps=MAPS,
             iter_cnt=Iter,
-            results_dir=f"__RESULTS__/100_rounds/",
+            results_dir=f"__RESULTS__/reliability/{min_s}-{max_s}",
             ga_init=ga_init,
             ga_run=ga_run,
             corner_cfg=corner_cfg,

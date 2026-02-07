@@ -31,8 +31,16 @@ class Sensor:
 
     FIXED_STRENGTH = 10.0
 
-    def __init__(self, MAP: MaskLike, device: Optional[str] = None, *, mask_only: bool = False):
-        self.device = device or ("cuda" if torch.cuda.is_available() else "cpu")
+    def __init__(
+        self,
+        MAP: MaskLike,
+        device: Optional[Union[str, torch.device]] = None,
+        *,
+        mask_only: bool = False,
+    ):
+        self.device = torch.device(device) if device is not None else torch.device(
+            "cuda" if torch.cuda.is_available() else "cpu"
+        )
         self.mask_only = bool(mask_only)
 
         if isinstance(MAP, torch.Tensor):
@@ -132,6 +140,8 @@ class Sensor:
             for x, y in pos.tolist():
                 self.sensor_log.append((int(x), int(y), int(cov)))
 
+        if self._offsets is None:
+            raise RuntimeError("Kernel offsets are not initialized.")
         x0 = pos[:, 0]
         y0 = pos[:, 1]
         dy = self._offsets[:, 0]
@@ -174,7 +184,7 @@ class Sensor:
 
         # single sensor
         if isinstance(sensor_position, torch.Tensor):
-            sensor_position = tuple(sensor_position.tolist())
+            sensor_position = tuple(int(v) for v in sensor_position.tolist())
 
         x, y = sensor_position
         x = int(x)
@@ -199,6 +209,8 @@ class Sensor:
         strength = -float(self.FIXED_STRENGTH)
 
         pos = torch.tensor([(x, y)], device=self.device, dtype=torch.long)
+        if self._offsets is None:
+            raise RuntimeError("Kernel offsets are not initialized.")
         x0 = pos[:, 0]
         y0 = pos[:, 1]
         dy = self._offsets[:, 0]

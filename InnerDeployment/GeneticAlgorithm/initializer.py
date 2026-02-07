@@ -6,15 +6,12 @@ from typing import List, Tuple, Optional, Union
 
 import numpy as np
 from SensorModule.Sensor import Sensor
+from .utils import to_int_pairs
 
 Gene = Tuple[int, int]
 Chromosome = List[Gene]
 Generation = List[Chromosome]
 MapType = Union[np.ndarray, List[List[int]]]
-
-
-def _toInt(points) -> List[Gene]:
-    return [tuple(map(int, p)) for p in points]
 
 
 def initialize_population(
@@ -32,7 +29,7 @@ def initialize_population(
 
     arr = np.asarray(input_map)
     mask = (arr > 0).astype(np.uint8)  # Sensor 입력 안정화
-    corners = _toInt(corner_positions)
+    corners = to_int_pairs(corner_positions)
 
     sensor = Sensor(mask)
 
@@ -46,7 +43,7 @@ def initialize_population(
             except TypeError:
                 sensor.deploy(p)
 
-    uncovered = _toInt(sensor.uncovered(roi_mask=(mask > 0), points=True))
+    uncovered = to_int_pairs(sensor.uncovered(roi_mask=(mask > 0), points=True))
     if not uncovered:
         raise ValueError("No uncovered points after deploying corner sensors.")
 

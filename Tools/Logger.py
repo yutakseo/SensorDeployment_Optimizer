@@ -138,6 +138,7 @@ class GenStats:
     fitness_max: float
     fitness_avg: float
     best_solution: Any
+    n_inner: int
     best_fitness: float
     best_coverage: float
 
@@ -200,6 +201,7 @@ class GAJsonLogger:
     ) -> None:
         best_pts = self._maybe_sort(_as_points(best_solution))
         best_fmt = _fmt_points(best_pts, self.point_format)
+        n_inner = int(len(best_pts))
 
         self.generations.append(
             GenStats(
@@ -211,6 +213,7 @@ class GAJsonLogger:
                 fitness_max=float(fitness_max),
                 fitness_avg=float(fitness_avg),
                 best_solution=best_fmt,
+                n_inner=n_inner,
                 best_fitness=float(best_fitness),
                 best_coverage=float(best_coverage),
             )
@@ -251,6 +254,9 @@ class GAJsonLogger:
                     "corner_points": _fmt_points(corner_pts, self.point_format),
                     "fitness": self.final_fitness,
                     "coverage": self.final_coverage,
+                    "n_inner": int(len(best_pts)),
+                    "n_corner": int(len(corner_pts)),
+                    "n_total": int(len(best_pts) + len(corner_pts)),
                     "elapsed_sec": float(elapsed),
                 }
             ),

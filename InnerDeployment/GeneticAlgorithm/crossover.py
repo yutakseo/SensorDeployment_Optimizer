@@ -6,7 +6,7 @@ Gene = Tuple[int, int]
 Chromosome = List[Gene]
 
 
-def _getShape(m):
+def _get_shape(m):
     try:
         h, w = int(m.shape[0]), int(m.shape[1])  # (H, W)
         return h, w
@@ -16,7 +16,7 @@ def _getShape(m):
         return h, w
 
 
-def _isInstallable(m, x: int, y: int, h: int, w: int) -> bool:
+def _is_installable(m, x: int, y: int, h: int, w: int) -> bool:
     if x < 0 or y < 0 or x >= w or y >= h:
         return False
     try:
@@ -29,12 +29,37 @@ def _isInstallable(m, x: int, y: int, h: int, w: int) -> bool:
         return bool(int(v) > 0)
 
 
-def _pickGene(g1: Gene, g2: Gene, m, h: int, w: int) -> Gene:
+def _pick_gene(
+    g1: Gene,
+    g2: Gene,
+    m,
+    h: int,
+    w: int,
+    *,
+    explore_rate: float = 0.25,
+    expand_ratio: float = 0.35,
+) -> Gene:
     x1, y1 = map(int, g1)
     x2, y2 = map(int, g2)
 
+    # With some probability, explore a wider area by sampling any installable cell.
+    if explore_rate > 0 and random.random() < float(explore_rate):
+        for _ in range(64):
+            rx = random.randrange(w)
+            ry = random.randrange(h)
+            if _is_installable(m, rx, ry, h, w):
+                return (rx, ry)
+
     xmin, xmax = sorted((x1, x2))
     ymin, ymax = sorted((y1, y2))
+
+    # expand search box to widen exploration between two genes
+    dx = max(1, int(abs(x2 - x1) * float(expand_ratio)))
+    dy = max(1, int(abs(y2 - y1) * float(expand_ratio)))
+    xmin -= dx
+    xmax += dx
+    ymin -= dy
+    ymax += dy
 
     xmin = max(0, min(xmin, w - 1))
     xmax = max(0, min(xmax, w - 1))
@@ -44,7 +69,7 @@ def _pickGene(g1: Gene, g2: Gene, m, h: int, w: int) -> Gene:
     cand: List[Gene] = []
     for y in range(ymin, ymax + 1):
         for x in range(xmin, xmax + 1):
-            if _isInstallable(m, x, y, h, w):
+            if _is_installable(m, x, y, h, w):
                 cand.append((x, y))
 
     if cand:
@@ -63,7 +88,7 @@ def crossover(parent1: Chromosome, parent2: Chromosome, installable_map) -> Chro
       - child length = min(len(p1), len(p2))  (intentional)
       - gene-wise recombination within bounding box (installable-only)
     """
-    h, w = _getShape(installable_map)
+    h, w = _get_shape(installable_map)
     m = min(len(parent1), len(parent2))
 
     if h <= 0 or w <= 0 or m <= 0:
@@ -71,5 +96,5 @@ def crossover(parent1: Chromosome, parent2: Chromosome, installable_map) -> Chro
 
     out: Chromosome = []
     for i in range(m):
-        out.append(_pickGene(parent1[i], parent2[i], installable_map, h, w))
+        out.append(_pick_gene(parent1[i], parent2[i], installable_map, h, w))
     return out
