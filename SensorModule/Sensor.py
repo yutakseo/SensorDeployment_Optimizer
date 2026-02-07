@@ -31,19 +31,23 @@ class Sensor:
 
     FIXED_STRENGTH = 10.0
 
-    def __init__(self, MAP: MaskLike, device: Optional[str] = None):
+    def __init__(self, MAP: MaskLike, device: Optional[str] = None, *, mask_only: bool = False):
         self.device = device or ("cuda" if torch.cuda.is_available() else "cpu")
+        self.mask_only = bool(mask_only)
 
         if isinstance(MAP, torch.Tensor):
-            map_tensor = MAP.to(device=self.device, dtype=torch.float32)
+            map_tensor = MAP.to(device=self.device, dtype=torch.float16)
         else:
-            map_tensor = torch.tensor(MAP, device=self.device, dtype=torch.float32)
+            map_tensor = torch.tensor(MAP, device=self.device, dtype=torch.float16)
 
         if map_tensor.ndim != 2:
             raise ValueError(f"MAP must be 2D (H,W). Got shape={tuple(map_tensor.shape)}")
 
         self.map_tensor = map_tensor
         self.MAP = map_tensor.clone()
+        self.sensor_mask: Optional[torch.Tensor] = None
+        if self.mask_only:
+            self.sensor_mask = torch.zeros_like(map_tensor, dtype=torch.bool, device=self.device)
 
         self.radius: Optional[int] = None
         self.circle: Optional[torch.Tensor] = None
@@ -124,8 +128,9 @@ class Sensor:
         if pos.ndim != 2 or pos.shape[1] != 2:
             raise ValueError(f"sensor_position must be (N,2). Got shape={tuple(pos.shape)}")
 
-        for x, y in pos.tolist():
-            self.sensor_log.append((int(x), int(y), int(cov)))
+        if not self.mask_only:
+            for x, y in pos.tolist():
+                self.sensor_log.append((int(x), int(y), int(cov)))
 
         x0 = pos[:, 0]
         y0 = pos[:, 1]
@@ -138,6 +143,11 @@ class Sensor:
         valid = (yy >= 0) & (yy < H) & (xx >= 0) & (xx < W)
 
         lin = (yy * W + xx)[valid]
+
+        if self.mask_only and self.sensor_mask is not None:
+            self.sensor_mask.view(-1)[lin] = True
+            return self.MAP
+
         values = torch.full(
             (lin.numel(),),
             strength,
@@ -150,6 +160,8 @@ class Sensor:
 
     @torch.no_grad()
     def remove(self, sensor_position: PosLike) -> torch.Tensor:
+        if self.mask_only:
+            raise RuntimeError("remove() is not supported when mask_only=True.")
         # many sensors
         if not (
             isinstance(sensor_position, tuple)
@@ -345,5 +357,10 @@ class Sensor:
 
 
     def extract_only_sensor(self):
-        mask = (self.MAP > self.FIXED_STRENGTH).float()
+        mask = (self.MAP > self.FIXED_STRENGTH).to(dtype=self.MAP.dtype)
         return self.MAP * mask
+
+    def extract_only_sensor_mask(self) -> torch.Tensor:
+        if self.sensor_mask is not None:
+            return self.sensor_mask
+        return self.MAP > self.FIXED_STRENGTH

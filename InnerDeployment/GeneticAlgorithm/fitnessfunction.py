@@ -3,6 +3,8 @@ from __future__ import annotations
 
 import inspect
 import random
+import time
+from contextlib import contextmanager
 from typing import Dict, List, Optional, Tuple
 
 import numpy as np
@@ -83,6 +85,8 @@ class FitnessFunc:
         useCache: bool = True,
         sampleCount: Optional[int] = None,
         gainLimit: Optional[float] = None,
+        profile_acc: Optional[Dict[str, float]] = None,
+        profile_cuda_sync: bool = True,
     ):
         arr = np.asarray(jobsite_map)
         self.map: np.ndarray = (arr > 0).astype(np.uint8)
@@ -97,6 +101,8 @@ class FitnessFunc:
         self.useCache = bool(useCache)
         self.sampleCount = sampleCount
         self.gainLimit = None if gainLimit is None else float(gainLimit)
+        self.profile_acc = profile_acc
+        self.profile_cuda_sync = bool(profile_cuda_sync)
 
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.mapTensor = torch.as_tensor(self.map, dtype=torch.float16, device=self.device)
@@ -107,6 +113,25 @@ class FitnessFunc:
 
         self.deployKeys = set(inspect.signature(Sensor.deploy).parameters.keys())
         self.model = MeanConv(self.map)
+
+    @contextmanager
+    def _timer(self, name: str, count_key: Optional[str] = None):
+        if self.profile_acc is None:
+            yield
+            return
+
+        if self.profile_cuda_sync and torch.cuda.is_available():
+            torch.cuda.synchronize()
+        t0 = time.perf_counter()
+        try:
+            yield
+        finally:
+            if self.profile_cuda_sync and torch.cuda.is_available():
+                torch.cuda.synchronize()
+            dt = time.perf_counter() - t0
+            self.profile_acc[name] = self.profile_acc.get(name, 0.0) + dt
+            if count_key:
+                self.profile_acc[count_key] = self.profile_acc.get(count_key, 0.0) + 1.0
 
     # -------------------------
     # internal
@@ -135,38 +160,63 @@ class FitnessFunc:
         except TypeError:
             sensor.deploy((x, y))
 
+    def _deploy_many(self, sensor: Sensor, points: List[Gene]):
+        cov = int(self.coverage)
+        pts = toInt(points)
+
+        if "sensor_position" in self.deployKeys:
+            kw = {"sensor_position": pts}
+            if "coverage" in self.deployKeys:
+                kw["coverage"] = cov
+            sensor.deploy(**kw)
+            return
+
+        for key in ("sensor_positions", "positions", "corner_positions"):
+            if key in self.deployKeys:
+                kw = {key: pts}
+                if "coverage" in self.deployKeys:
+                    kw["coverage"] = cov
+                sensor.deploy(**kw)
+                return
+
+        try:
+            sensor.deploy(pts, coverage=cov)
+        except TypeError:
+            sensor.deploy(pts)
+
     def _makeMask(self, points: List[Gene]) -> torch.Tensor:
-        key = tuple(points)
+        with self._timer("fitness_make_mask_total", "fitness_make_mask_calls"):
+            key = tuple(points)
 
-        if key == self.cornerKey and self.cornerMask is not None:
-            return self.cornerMask
+            if key == self.cornerKey and self.cornerMask is not None:
+                return self.cornerMask
 
-        ck = None
-        if self.useCache and len(points) == 1:
-            x, y = map(int, points[0])
-            ck = (x, y, self.coverage)
-            cached = self.singleMask.get(ck)
-            if cached is not None:
-                return cached
+            ck = None
+            if self.useCache and len(points) == 1:
+                x, y = map(int, points[0])
+                ck = (x, y, self.coverage)
+                cached = self.singleMask.get(ck)
+                if cached is not None:
+                    return cached
 
-        sensor = Sensor(self.map)
-        for p in points:
-            self._deploy(sensor, p)
+            sensor = Sensor(self.mapTensor)
+            if points:
+                self._deploy_many(sensor, points)
 
-        raw = torch.as_tensor(sensor.extract_only_sensor(), dtype=torch.float16, device=self.device)
-        mask = (raw > 0).float()
+            mask = sensor.extract_only_sensor_mask().to(dtype=torch.float16)
 
-        if key == self.cornerKey:
-            self.cornerMask = mask
-        elif ck is not None:
-            self.singleMask[ck] = mask
+            if key == self.cornerKey:
+                self.cornerMask = mask
+            elif ck is not None:
+                self.singleMask[ck] = mask
 
-        return mask
+            return mask
 
     def _computeCoverage(self, mask: torch.Tensor) -> float:
-        if self.mapArea <= 0:
-            return 0.0
-        return float(100.0 * (self.mapTensor * mask).sum().item() / self.mapArea)
+        with self._timer("fitness_compute_coverage_total", "fitness_compute_coverage_calls"):
+            if self.mapArea <= 0:
+                return 0.0
+            return float(100.0 * (self.mapTensor * mask).sum().item() / self.mapArea)
 
     def _n_total(self, inner_positions: List[Gene]) -> int:
         return int(len(self.corners) + len(inner_positions))
@@ -205,7 +255,8 @@ class FitnessFunc:
     # Used only for ordering/ranking heuristics (not objective)
     def rankSensor(self, points: List[Gene]):
         with torch.no_grad():
-            fmap = self.model(self.map.astype(np.float16)).detach()
+            with self._timer("fitness_mean_conv_total", "fitness_mean_conv_calls"):
+                fmap = self.model(self.map.astype(np.float16)).detach()
 
         result = []
         for p in toInt(points):

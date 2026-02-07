@@ -183,6 +183,22 @@ class SensorGA:
                 f"score={prof.get('fitness_score', 0.0):.3f}s | "
                 f"pop={prof.get('fitness_pop', 0.0):.0f} \n"
             )
+        if "fitness_make_mask_total" in prof or "fitness_compute_coverage_total" in prof or "fitness_mean_conv_total" in prof:
+            mm_t = prof.get("fitness_make_mask_total", 0.0)
+            mm_n = int(prof.get("fitness_make_mask_calls", 0.0))
+            cov_t = prof.get("fitness_compute_coverage_total", 0.0)
+            cov_n = int(prof.get("fitness_compute_coverage_calls", 0.0))
+            conv_t = prof.get("fitness_mean_conv_total", 0.0)
+            conv_n = int(prof.get("fitness_mean_conv_calls", 0.0))
+            mm_avg = (mm_t / mm_n) * 1000.0 if mm_n > 0 else 0.0
+            cov_avg = (cov_t / cov_n) * 1000.0 if cov_n > 0 else 0.0
+            conv_avg = (conv_t / conv_n) * 1000.0 if conv_n > 0 else 0.0
+            print(
+                f"               gpu_breakdown: "
+                f"make_mask={mm_t:.3f}s (n={mm_n}, avg={mm_avg:.2f}ms) | "
+                f"coverage={cov_t:.3f}s (n={cov_n}, avg={cov_avg:.2f}ms) | "
+                f"mean_conv={conv_t:.3f}s (n={conv_n}, avg={conv_avg:.2f}ms)\n"
+            )
 
     # -------------------------
     # Decoder
@@ -222,6 +238,8 @@ class SensorGA:
             jobsite_map=self.jobsite_map,
             corner_positions=self.corner_positions,
             coverage=self.coverage,
+            profile_acc=profile_acc if profile_breakdown else None,
+            profile_cuda_sync=True,
             **self.fitness_kwargs,
         )
 
