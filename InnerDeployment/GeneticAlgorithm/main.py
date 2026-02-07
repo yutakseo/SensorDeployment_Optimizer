@@ -50,7 +50,7 @@ def _worker_init(
     max_total,
     min_sensors: int,
 ):
-    os.environ["CUDA_VISIBLE_DEVICES"] = ""
+    # Allow worker processes to use GPU if available.
     global _W_INSTALLABLE_MAP, _W_JOBSITE_MAP, _W_CORNER_POSITIONS, _W_COVERAGE
     global _W_MUTATION_ALLOWED, _W_MUTATION_KW, _W_MIN_TOTAL, _W_MAX_TOTAL, _W_MIN_SENSORS
     global _W_INSTALLABLE_POINTS
@@ -61,7 +61,8 @@ def _worker_init(
     _W_COVERAGE = int(coverage)
     _W_MUTATION_ALLOWED = set(mutation_allowed)
     _W_MUTATION_KW = dict(mutation_kw)
-    _W_MUTATION_KW["device"] = "cpu"
+    if torch is not None and torch.cuda.is_available():
+        _W_MUTATION_KW["device"] = "cuda"
     _W_MIN_TOTAL = min_total
     _W_MAX_TOTAL = max_total
     _W_MIN_SENSORS = int(min_sensors)
@@ -230,6 +231,12 @@ class SensorGA:
         self.max_sensors = int(max_sensors)
 
         self.fitness_kwargs = _filter_kwargs(FitnessFunc.__init__, fitness_kwargs or {})
+        if (
+            "device" not in self.fitness_kwargs
+            and torch is not None
+            and torch.cuda.is_available()
+        ):
+            self.fitness_kwargs["device"] = "cuda"
         self.mutation_kwargs = mutation_kwargs or {}
 
         if "target_coverage" in self.fitness_kwargs and "target_coverage" not in self.mutation_kwargs:
@@ -306,6 +313,17 @@ class SensorGA:
             f"mutation={prof.get('mutation_total', 0.0):.3f}s) | "
             f"calls: crossover~{child_size}, mutation~{exp_mut:.1f}"
         )
+        if (
+            "reproduction_pool_init" in prof
+            or "reproduction_pool_warmup" in prof
+            or "reproduction_parallel" in prof
+        ):
+            print(
+                f"               repro_detail: "
+                f"pool_init={prof.get('reproduction_pool_init', 0.0):.3f}s | "
+                f"warmup={prof.get('reproduction_pool_warmup', 0.0):.3f}s | "
+                f"parallel={prof.get('reproduction_parallel', 0.0):.3f}s"
+            )
         if "fitness_ordering" in prof or "fitness_prefix" in prof or "fitness_score" in prof:
             print(
                 f"               fitness_breakdown: "
@@ -613,6 +631,34 @@ class SensorGA:
         min_total = len(self.corner_positions) + int(self.min_sensors)
 
         pool = None
+        mp_startup = None
+
+        if parallel_workers and parallel_workers > 1 and self.child_size > 0:
+            use_spawn = bool(torch is not None and torch.cuda.is_available())
+            ctx = mp.get_context("spawn" if use_spawn else "fork") if hasattr(mp, "get_context") else mp
+            t0 = time.perf_counter()
+            pool = ProcessPoolExecutor(
+                max_workers=int(parallel_workers),
+                mp_context=ctx,
+                initializer=_worker_init,
+                initargs=(
+                    self.installable_map,
+                    self.jobsite_map,
+                    self.corner_positions,
+                    self.coverage,
+                    self._mutation_allowed,
+                    combined_kw,
+                    min_total,
+                    max_total,
+                    self.min_sensors,
+                ),
+            )
+            t_init = time.perf_counter() - t0
+            t0 = time.perf_counter()
+            warm_chunks = [([], 0.0)] * int(parallel_workers)
+            list(pool.map(_reproduce_many, warm_chunks))
+            t_warm = time.perf_counter() - t0
+            mp_startup = (t_init, t_warm)
 
         try:
             for gen_idx in range(1, self.generations + 1):
@@ -764,31 +810,36 @@ class SensorGA:
 
                 with _timer("reproduction_total", prof):
                     need = self.child_size - len(children)
-                if parallel_workers and parallel_workers > 1 and need > 0 and len(parents) >= 2:
-                    if pool is None:
-                        use_spawn = bool(torch is not None and torch.cuda.is_available())
-                        ctx = mp.get_context("spawn" if use_spawn else "fork") if hasattr(mp, "get_context") else mp
-                        pool = ProcessPoolExecutor(
-                            max_workers=int(parallel_workers),
-                            mp_context=ctx,
-                            initializer=_worker_init,
-                            initargs=(
-                                self.installable_map,
-                                self.jobsite_map,
-                                self.corner_positions,
-                                self.coverage,
-                                self._mutation_allowed,
-                                combined_kw,
-                                min_total,
-                                max_total,
-                                self.min_sensors,
-                            ),
-                        )
-                    pairs = [random.sample(parents, 2) for _ in range(need)]
-                    chunk = max(1, len(pairs) // (int(parallel_workers) * 2))
-                    chunks = [pairs[i : i + chunk] for i in range(0, len(pairs), chunk)]
-                    for batch in pool.map(_reproduce_many, [(c, mutation_rate) for c in chunks]):
-                        children.extend(batch)
+                    if parallel_workers and parallel_workers > 1 and need > 0 and len(parents) >= 2:
+                        if pool is None:
+                            with _timer("reproduction_pool_init", prof):
+                                use_spawn = bool(torch is not None and torch.cuda.is_available())
+                                ctx = mp.get_context("spawn" if use_spawn else "fork") if hasattr(mp, "get_context") else mp
+                                pool = ProcessPoolExecutor(
+                                    max_workers=int(parallel_workers),
+                                    mp_context=ctx,
+                                    initializer=_worker_init,
+                                    initargs=(
+                                        self.installable_map,
+                                        self.jobsite_map,
+                                        self.corner_positions,
+                                        self.coverage,
+                                        self._mutation_allowed,
+                                        combined_kw,
+                                        min_total,
+                                        max_total,
+                                        self.min_sensors,
+                                    ),
+                                )
+                            with _timer("reproduction_pool_warmup", prof):
+                                warm_chunks = [([], 0.0)] * int(parallel_workers)
+                                list(pool.map(_reproduce_many, warm_chunks))
+                        pairs = [random.sample(parents, 2) for _ in range(need)]
+                        chunk = max(1, len(pairs) // (int(parallel_workers) * 2))
+                        chunks = [pairs[i : i + chunk] for i in range(0, len(pairs), chunk)]
+                        with _timer("reproduction_parallel", prof):
+                            for batch in pool.map(_reproduce_many, [(c, mutation_rate) for c in chunks]):
+                                children.extend(batch)
                     else:
                         while len(children) < self.child_size:
                             p1, p2 = random.sample(parents, 2)
@@ -809,6 +860,9 @@ class SensorGA:
                 if profile and (gen_idx % int(profile_every) == 0):
                     self._log_profile(gen_idx, prof, child_size=self.child_size, mutation_rate=float(mutation_rate))
                 if verbose:
+                    if gen_idx == 1 and mp_startup is not None:
+                        init_s, warm_s = mp_startup
+                        print(f"[MP Warmup] pool_init={init_s:.3f}s | warmup={warm_s:.3f}s")
                     gen_dt = time.perf_counter() - gen_t0
                     print(f"[Gen {gen_idx:03d}] time={gen_dt:.3f}s")
 

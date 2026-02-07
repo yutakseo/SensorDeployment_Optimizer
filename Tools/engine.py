@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+import os
 from typing import Any, Dict, Optional
 from dataclasses import asdict, is_dataclass
 
@@ -146,7 +147,7 @@ class Experiment:
             return_best_only=gr.return_best_only,
             ordering_top_k=getattr(gr, "ordering_top_k", 0),
             mutation_kwargs=getattr(gr, "mutation_kwargs", None),
-            parallel_workers=getattr(gr, "parallel_workers", 0),
+            parallel_workers=getattr(gr, "parallel_workers", max(2, (os.cpu_count() or 2) - 1)),
             logger=logger,
         )
 

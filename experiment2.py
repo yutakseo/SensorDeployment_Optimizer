@@ -42,6 +42,8 @@ if __name__ == "__main__":
         initial_size: int = 100
         selection_size: int = 50
         child_chromo_size: int = 100
+        min_sensors: int = 0
+        max_sensors: int = 140
         init_min_sensors: int = 40
         init_max_sensors: int = 140
 
@@ -56,6 +58,8 @@ if __name__ == "__main__":
         return_best_only: bool = True
         verbose: bool = True
         profile: bool = True
+        profile_every: int = 1
+        profile_fitness_breakdown: bool = True
 
 
     ga_init = GAInitConfig()

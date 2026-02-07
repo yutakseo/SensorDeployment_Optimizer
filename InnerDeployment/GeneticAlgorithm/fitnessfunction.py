@@ -18,9 +18,17 @@ Gene = Tuple[int, int]
 
 
 class MeanConv(nn.Module):
-    def __init__(self, mapU8: np.ndarray, kernels=(3, 5, 7, 9, 11, 13, 15)):
+    def __init__(
+        self,
+        mapU8: np.ndarray,
+        kernels=(3, 5, 7, 9, 11, 13, 15),
+        *,
+        device: Optional[object] = None,
+    ):
         super().__init__()
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.device = torch.device(device) if device is not None else torch.device(
+            "cuda" if torch.cuda.is_available() else "cpu"
+        )
 
         self.map = torch.as_tensor(mapU8, device=self.device)
         self.mapHalf = self.map.to(torch.float16)
@@ -106,7 +114,7 @@ class FitnessFunc:
         self.singleMask: Dict[Tuple[int, int, int], torch.Tensor] = {}
 
         self.deployKeys = set(inspect.signature(Sensor.deploy).parameters.keys())
-        self.model = MeanConv(self.map)
+        self.model = MeanConv(self.map, device=self.device)
 
     @contextmanager
     def _timer(self, name: str, count_key: Optional[str] = None):
