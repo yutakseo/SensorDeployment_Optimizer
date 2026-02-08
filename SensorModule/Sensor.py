@@ -64,6 +64,13 @@ class Sensor:
         # (x, y, cov_radius_in_cells)
         self.sensor_log: list[tuple[int, int, int]] = []
 
+    def reset(self) -> None:
+        """MAP을 초기 상태로 되돌려 동일 Sensor 재사용(배치 루프용)."""
+        self.MAP.copy_(self.map_tensor)
+        self.sensor_log.clear()
+        if self.sensor_mask is not None:
+            self.sensor_mask.zero_()
+
     # -------------------------
     # Internal helpers
     # -------------------------

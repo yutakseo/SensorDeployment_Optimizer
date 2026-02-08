@@ -42,6 +42,8 @@ if __name__ == "__main__":
         initial_size: int = 100
         selection_size: int = 50
         child_chromo_size: int = 100
+        min_sensors: int = 0
+        max_sensors: int = 140
         init_min_sensors: int = 40
         init_max_sensors: int = 140
 
@@ -63,7 +65,7 @@ if __name__ == "__main__":
     ga_init = GAInitConfig()
     ga_run = GARunConfig()
     corner_cfg = CornerConfig()
-    Iter = 100
+    Iter = 10
     SENSOR_RANGES = [
         (40, 140),
     ]
@@ -73,7 +75,7 @@ if __name__ == "__main__":
         run_experiments(
             maps=MAPS,
             iter_cnt=Iter,
-            results_dir=f"__RESULTS__/100_rounds/",
+            results_dir=f"__RESULTS__/10_rounds/",
             ga_init=ga_init,
             ga_run=ga_run,
             corner_cfg=corner_cfg,
