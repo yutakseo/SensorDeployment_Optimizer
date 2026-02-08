@@ -75,7 +75,7 @@ if __name__ == "__main__":
         run_experiments(
             maps=MAPS,
             iter_cnt=Iter,
-            results_dir=f"__RESULTS__/10_rounds/",
+            results_dir=f"__RESULTS__/{Iter}_rounds/",
             ga_init=ga_init,
             ga_run=ga_run,
             corner_cfg=corner_cfg,

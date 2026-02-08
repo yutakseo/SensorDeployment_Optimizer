@@ -1,0 +1,2408 @@
+[Gen 001/100] sensors: (min=41, avg=90.3, max=140) / coverage: 99.24% (target=90.00%) / best_inner=41 (corner=8)
+[Profile Gen 001] fitness=0.128s | selection=0.000s | repro=5.581s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=5.581s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[MP Warmup] pool_init=0.002s | warmup=24.798s
+[Gen 001] time=5.840s
+[Gen 002/100] sensors: (min=41, avg=54.0, max=80) / coverage: 99.24% (target=90.00%) / best_inner=41 (corner=8)
+[Profile Gen 002] fitness=0.065s | selection=0.000s | repro=0.195s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.195s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 002] time=0.350s
+[Gen 003/100] sensors: (min=39, avg=43.6, max=52) / coverage: 99.24% (target=90.00%) / best_inner=41 (corner=8)
+[Profile Gen 003] fitness=0.055s | selection=0.000s | repro=0.165s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.165s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 003] time=0.301s
+[Gen 004/100] sensors: (min=38, avg=40.5, max=43) / coverage: 97.04% (target=90.00%) / best_inner=38 (corner=8)
+[Profile Gen 004] fitness=0.052s | selection=0.000s | repro=0.168s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.168s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 004] time=0.299s
+[Gen 005/100] sensors: (min=38, avg=39.4, max=41) / coverage: 98.28% (target=90.00%) / best_inner=38 (corner=8)
+[Profile Gen 005] fitness=0.051s | selection=0.000s | repro=0.178s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.178s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 005] time=0.306s
+[Gen 006/100] sensors: (min=37, avg=38.5, max=41) / coverage: 98.97% (target=90.00%) / best_inner=37 (corner=8)
+[Profile Gen 006] fitness=0.051s | selection=0.000s | repro=0.175s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.174s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 006] time=0.303s
+[Gen 007/100] sensors: (min=35, avg=37.4, max=40) / coverage: 94.00% (target=90.00%) / best_inner=36 (corner=8)
+[Profile Gen 007] fitness=0.052s | selection=0.000s | repro=0.144s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.143s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 007] time=0.274s
+[Gen 008/100] sensors: (min=34, avg=36.4, max=38) / coverage: 96.69% (target=90.00%) / best_inner=35 (corner=8)
+[Profile Gen 008] fitness=0.050s | selection=0.000s | repro=0.146s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.146s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 008] time=0.272s
+[Gen 009/100] sensors: (min=32, avg=35.4, max=37) / coverage: 97.31% (target=90.00%) / best_inner=35 (corner=8)
+[Profile Gen 009] fitness=0.050s | selection=0.000s | repro=0.149s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.149s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 009] time=0.276s
+[Gen 010/100] sensors: (min=31, avg=34.4, max=37) / coverage: 98.14% (target=90.00%) / best_inner=33 (corner=8)
+[Profile Gen 010] fitness=0.049s | selection=0.000s | repro=0.129s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.129s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 010] time=0.254s
+[Gen 011/100] sensors: (min=30, avg=33.2, max=35) / coverage: 93.59% (target=90.00%) / best_inner=30 (corner=8)
+[Profile Gen 011] fitness=0.047s | selection=0.000s | repro=0.134s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.134s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 011] time=0.254s
+[Gen 012/100] sensors: (min=29, avg=32.0, max=34) / coverage: 95.80% (target=90.00%) / best_inner=29 (corner=8)
+[Profile Gen 012] fitness=0.047s | selection=0.000s | repro=0.143s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.143s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 012] time=0.262s
+[Gen 013/100] sensors: (min=28, avg=30.5, max=34) / coverage: 97.86% (target=90.00%) / best_inner=28 (corner=8)
+[Profile Gen 013] fitness=0.046s | selection=0.000s | repro=0.118s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.118s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 013] time=0.242s
+[Gen 014/100] sensors: (min=27, avg=29.0, max=31) / coverage: 94.69% (target=90.00%) / best_inner=27 (corner=8)
+[Profile Gen 014] fitness=0.046s | selection=0.000s | repro=0.123s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.122s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 014] time=0.241s
+[Gen 015/100] sensors: (min=26, avg=27.9, max=30) / coverage: 96.14% (target=90.00%) / best_inner=27 (corner=8)
+[Profile Gen 015] fitness=0.046s | selection=0.000s | repro=0.133s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.133s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 015] time=0.251s
+[Gen 016/100] sensors: (min=25, avg=27.0, max=29) / coverage: 97.66% (target=90.00%) / best_inner=26 (corner=8)
+[Profile Gen 016] fitness=0.046s | selection=0.000s | repro=0.135s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.135s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 016] time=0.253s
+[Gen 017/100] sensors: (min=23, avg=26.1, max=28) / coverage: 90.01% (target=90.00%) / best_inner=26 (corner=8)
+[Profile Gen 017] fitness=0.045s | selection=0.000s | repro=0.122s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.122s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 017] time=0.240s
+[Gen 018/100] sensors: (min=23, avg=25.1, max=27) / coverage: 97.45% (target=90.00%) / best_inner=23 (corner=8)
+[Profile Gen 018] fitness=0.045s | selection=0.000s | repro=0.116s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.115s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 018] time=0.234s
+[Gen 019/100] sensors: (min=23, avg=24.4, max=27) / coverage: 95.38% (target=90.00%) / best_inner=23 (corner=8)
+[Profile Gen 019] fitness=0.046s | selection=0.000s | repro=0.113s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.112s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 019] time=0.231s
+[Gen 020/100] sensors: (min=22, avg=23.5, max=26) / coverage: 93.73% (target=90.00%) / best_inner=23 (corner=8)
+[Profile Gen 020] fitness=0.043s | selection=0.000s | repro=0.102s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.102s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 020] time=0.216s
+[Gen 021/100] sensors: (min=21, avg=22.7, max=25) / coverage: 96.83% (target=90.00%) / best_inner=22 (corner=8)
+[Profile Gen 021] fitness=0.043s | selection=0.000s | repro=0.113s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.113s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 021] time=0.226s
+[Gen 022/100] sensors: (min=20, avg=22.1, max=24) / coverage: 94.69% (target=90.00%) / best_inner=21 (corner=8)
+[Profile Gen 022] fitness=0.043s | selection=0.000s | repro=0.100s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.100s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 022] time=0.213s
+[Gen 023/100] sensors: (min=19, avg=21.3, max=23) / coverage: 89.66% (target=90.00%) / best_inner=19 (corner=8)
+[Profile Gen 023] fitness=0.042s | selection=0.000s | repro=0.099s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.099s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 023] time=0.214s
+[Gen 024/100] sensors: (min=18, avg=20.4, max=23) / coverage: 90.97% (target=90.00%) / best_inner=19 (corner=8)
+[Profile Gen 024] fitness=0.042s | selection=0.000s | repro=0.087s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.087s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 024] time=0.198s
+[Gen 025/100] sensors: (min=17, avg=19.8, max=23) / coverage: 93.04% (target=90.00%) / best_inner=19 (corner=8)
+[Profile Gen 025] fitness=0.042s | selection=0.000s | repro=0.090s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.090s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 025] time=0.201s
+[Gen 026/100] sensors: (min=17, avg=19.2, max=22) / coverage: 92.97% (target=90.00%) / best_inner=18 (corner=8)
+[Profile Gen 026] fitness=0.041s | selection=0.000s | repro=0.091s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.090s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 026] time=0.200s
+[Gen 027/100] sensors: (min=17, avg=18.4, max=21) / coverage: 91.39% (target=90.00%) / best_inner=17 (corner=8)
+[Profile Gen 027] fitness=0.042s | selection=0.000s | repro=0.088s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.088s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 027] time=0.197s
+[Gen 028/100] sensors: (min=16, avg=17.6, max=20) / coverage: 91.39% (target=90.00%) / best_inner=17 (corner=8)
+[Profile Gen 028] fitness=0.041s | selection=0.000s | repro=0.076s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.076s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 028] time=0.185s
+[Gen 029/100] sensors: (min=15, avg=17.1, max=19) / coverage: 91.11% (target=90.00%) / best_inner=16 (corner=8)
+[Profile Gen 029] fitness=0.041s | selection=0.000s | repro=0.076s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.076s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 029] time=0.186s
+[Gen 030/100] sensors: (min=14, avg=16.8, max=19) / coverage: 90.56% (target=90.00%) / best_inner=15 (corner=8)
+[Profile Gen 030] fitness=0.041s | selection=0.000s | repro=0.083s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.083s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 030] time=0.192s
+[Gen 031/100] sensors: (min=13, avg=15.8, max=19) / coverage: 90.08% (target=90.00%) / best_inner=13 (corner=8)
+[Profile Gen 031] fitness=0.040s | selection=0.000s | repro=0.075s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.075s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 031] time=0.182s
+[Gen 032/100] sensors: (min=12, avg=15.4, max=18) / coverage: 90.08% (target=90.00%) / best_inner=13 (corner=8)
+[Profile Gen 032] fitness=0.040s | selection=0.000s | repro=0.077s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.076s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 032] time=0.184s
+[Gen 033/100] sensors: (min=11, avg=14.7, max=19) / coverage: 90.08% (target=90.00%) / best_inner=13 (corner=8)
+[Profile Gen 033] fitness=0.040s | selection=0.000s | repro=0.077s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.077s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 033] time=0.184s
+[Gen 034/100] sensors: (min=11, avg=14.3, max=18) / coverage: 91.66% (target=90.00%) / best_inner=13 (corner=8)
+[Profile Gen 034] fitness=0.041s | selection=0.000s | repro=0.074s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.074s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 034] time=0.181s
+[Gen 035/100] sensors: (min=12, avg=14.0, max=16) / coverage: 91.66% (target=90.00%) / best_inner=13 (corner=8)
+[Profile Gen 035] fitness=0.041s | selection=0.000s | repro=0.075s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.075s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 035] time=0.182s
+[Gen 036/100] sensors: (min=11, avg=13.5, max=16) / coverage: 91.66% (target=90.00%) / best_inner=13 (corner=8)
+[Profile Gen 036] fitness=0.041s | selection=0.000s | repro=0.081s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.081s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 036] time=0.188s
+[Gen 037/100] sensors: (min=10, avg=13.1, max=15) / coverage: 91.66% (target=90.00%) / best_inner=13 (corner=8)
+[Profile Gen 037] fitness=0.043s | selection=0.000s | repro=0.064s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.063s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 037] time=0.174s
+[Gen 038/100] sensors: (min=11, avg=13.0, max=15) / coverage: 91.66% (target=90.00%) / best_inner=13 (corner=8)
+[Profile Gen 038] fitness=0.040s | selection=0.000s | repro=0.068s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.068s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 038] time=0.174s
+[Gen 039/100] sensors: (min=10, avg=12.7, max=15) / coverage: 91.66% (target=90.00%) / best_inner=13 (corner=8)
+[Profile Gen 039] fitness=0.041s | selection=0.000s | repro=0.066s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.066s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 039] time=0.174s
+[Gen 040/100] sensors: (min=10, avg=12.7, max=15) / coverage: 91.66% (target=90.00%) / best_inner=13 (corner=8)
+[Profile Gen 040] fitness=0.040s | selection=0.000s | repro=0.073s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.073s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 040] time=0.178s
+[Gen 041/100] sensors: (min=9, avg=12.3, max=15) / coverage: 91.66% (target=90.00%) / best_inner=13 (corner=8)
+[Profile Gen 041] fitness=0.040s | selection=0.000s | repro=0.069s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.068s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 041] time=0.174s
+[Gen 042/100] sensors: (min=9, avg=12.1, max=15) / coverage: 91.66% (target=90.00%) / best_inner=13 (corner=8)
+[Profile Gen 042] fitness=0.040s | selection=0.000s | repro=0.071s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.071s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 042] time=0.176s
+[Gen 043/100] sensors: (min=9, avg=11.9, max=15) / coverage: 91.66% (target=90.00%) / best_inner=13 (corner=8)
+[Profile Gen 043] fitness=0.042s | selection=0.000s | repro=0.071s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.071s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 043] time=0.179s
+[Gen 044/100] sensors: (min=8, avg=11.5, max=14) / coverage: 91.66% (target=90.00%) / best_inner=13 (corner=8)
+[Profile Gen 044] fitness=0.041s | selection=0.000s | repro=0.063s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.063s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 044] time=0.170s
+[Gen 045/100] sensors: (min=9, avg=11.8, max=15) / coverage: 91.66% (target=90.00%) / best_inner=13 (corner=8)
+[Profile Gen 045] fitness=0.039s | selection=0.000s | repro=0.063s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.063s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 045] time=0.168s
+[Gen 046/100] sensors: (min=9, avg=11.5, max=14) / coverage: 91.66% (target=90.00%) / best_inner=13 (corner=8)
+[Profile Gen 046] fitness=0.040s | selection=0.000s | repro=0.069s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.069s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 046] time=0.175s
+[Gen 047/100] sensors: (min=9, avg=11.3, max=14) / coverage: 91.66% (target=90.00%) / best_inner=13 (corner=8)
+[Profile Gen 047] fitness=0.040s | selection=0.000s | repro=0.068s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.068s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 047] time=0.173s
+[Gen 048/100] sensors: (min=8, avg=10.8, max=13) / coverage: 91.66% (target=90.00%) / best_inner=13 (corner=8)
+[Profile Gen 048] fitness=0.038s | selection=0.000s | repro=0.068s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.068s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 048] time=0.172s
+[Gen 049/100] sensors: (min=8, avg=10.4, max=13) / coverage: 91.66% (target=90.00%) / best_inner=13 (corner=8)
+[Profile Gen 049] fitness=0.039s | selection=0.000s | repro=0.080s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.080s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 049] time=0.184s
+[Gen 050/100] sensors: (min=8, avg=10.6, max=14) / coverage: 91.66% (target=90.00%) / best_inner=13 (corner=8)
+[Profile Gen 050] fitness=0.039s | selection=0.000s | repro=0.075s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.075s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 050] time=0.180s
+[Gen 051/100] sensors: (min=8, avg=10.6, max=13) / coverage: 91.66% (target=90.00%) / best_inner=13 (corner=8)
+[Profile Gen 051] fitness=0.039s | selection=0.000s | repro=0.073s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.073s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 051] time=0.175s
+[Gen 052/100] sensors: (min=8, avg=10.6, max=13) / coverage: 91.66% (target=90.00%) / best_inner=13 (corner=8)
+[Profile Gen 052] fitness=0.039s | selection=0.000s | repro=0.059s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.059s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 052] time=0.165s
+[Gen 053/100] sensors: (min=7, avg=10.7, max=13) / coverage: 91.66% (target=90.00%) / best_inner=13 (corner=8)
+[Profile Gen 053] fitness=0.038s | selection=0.000s | repro=0.072s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.072s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 053] time=0.175s
+[Gen 054/100] sensors: (min=8, avg=10.4, max=13) / coverage: 91.66% (target=90.00%) / best_inner=13 (corner=8)
+[Profile Gen 054] fitness=0.039s | selection=0.000s | repro=0.066s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.065s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 054] time=0.171s
+[Gen 055/100] sensors: (min=8, avg=10.2, max=14) / coverage: 91.66% (target=90.00%) / best_inner=13 (corner=8)
+[Profile Gen 055] fitness=0.040s | selection=0.000s | repro=0.067s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.067s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 055] time=0.175s
+[Gen 056/100] sensors: (min=8, avg=10.5, max=13) / coverage: 91.66% (target=90.00%) / best_inner=13 (corner=8)
+[Profile Gen 056] fitness=0.039s | selection=0.000s | repro=0.068s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.068s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 056] time=0.174s
+[Gen 057/100] sensors: (min=8, avg=10.2, max=13) / coverage: 91.66% (target=90.00%) / best_inner=13 (corner=8)
+[Profile Gen 057] fitness=0.039s | selection=0.000s | repro=0.075s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.074s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 057] time=0.179s
+[Gen 058/100] sensors: (min=8, avg=10.2, max=13) / coverage: 91.66% (target=90.00%) / best_inner=13 (corner=8)
+[Profile Gen 058] fitness=0.039s | selection=0.000s | repro=0.070s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.070s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 058] time=0.172s
+[Gen 059/100] sensors: (min=8, avg=10.3, max=13) / coverage: 91.66% (target=90.00%) / best_inner=13 (corner=8)
+[Profile Gen 059] fitness=0.038s | selection=0.000s | repro=0.075s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.075s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 059] time=0.176s
+[Gen 060/100] sensors: (min=8, avg=10.2, max=13) / coverage: 91.66% (target=90.00%) / best_inner=13 (corner=8)
+[Profile Gen 060] fitness=0.041s | selection=0.000s | repro=0.077s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.077s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 060] time=0.183s
+[Gen 061/100] sensors: (min=8, avg=10.1, max=13) / coverage: 88.63% (target=90.00%) / best_inner=11 (corner=8)
+[Profile Gen 061] fitness=0.039s | selection=0.000s | repro=0.069s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.069s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 061] time=0.172s
+[Gen 062/100] sensors: (min=8, avg=10.0, max=13) / coverage: 88.63% (target=90.00%) / best_inner=11 (corner=8)
+[Profile Gen 062] fitness=0.039s | selection=0.000s | repro=0.072s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.072s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 062] time=0.176s
+[Gen 063/100] sensors: (min=8, avg=10.1, max=13) / coverage: 88.63% (target=90.00%) / best_inner=11 (corner=8)
+[Profile Gen 063] fitness=0.041s | selection=0.000s | repro=0.066s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.066s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 063] time=0.173s
+[Gen 064/100] sensors: (min=8, avg=9.9, max=13) / coverage: 88.63% (target=90.00%) / best_inner=11 (corner=8)
+[Profile Gen 064] fitness=0.039s | selection=0.000s | repro=0.072s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.072s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 064] time=0.178s
+[Gen 065/100] sensors: (min=8, avg=9.8, max=13) / coverage: 88.63% (target=90.00%) / best_inner=11 (corner=8)
+[Profile Gen 065] fitness=0.039s | selection=0.000s | repro=0.067s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.067s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 065] time=0.172s
+[Gen 066/100] sensors: (min=8, avg=9.5, max=13) / coverage: 88.63% (target=90.00%) / best_inner=11 (corner=8)
+[Profile Gen 066] fitness=0.040s | selection=0.000s | repro=0.073s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.073s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 066] time=0.179s
+[Gen 067/100] sensors: (min=7, avg=9.7, max=13) / coverage: 88.63% (target=90.00%) / best_inner=11 (corner=8)
+[Profile Gen 067] fitness=0.039s | selection=0.000s | repro=0.076s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.076s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 067] time=0.182s
+[Gen 068/100] sensors: (min=8, avg=9.9, max=13) / coverage: 88.63% (target=90.00%) / best_inner=11 (corner=8)
+[Profile Gen 068] fitness=0.039s | selection=0.000s | repro=0.068s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.068s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 068] time=0.173s
+[Gen 069/100] sensors: (min=7, avg=9.7, max=13) / coverage: 88.63% (target=90.00%) / best_inner=11 (corner=8)
+[Profile Gen 069] fitness=0.039s | selection=0.000s | repro=0.066s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.066s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 069] time=0.170s
+[Gen 070/100] sensors: (min=7, avg=9.4, max=13) / coverage: 88.63% (target=90.00%) / best_inner=11 (corner=8)
+[Profile Gen 070] fitness=0.039s | selection=0.000s | repro=0.068s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.068s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 070] time=0.175s
+[Gen 071/100] sensors: (min=6, avg=9.3, max=13) / coverage: 88.63% (target=90.00%) / best_inner=11 (corner=8)
+[Profile Gen 071] fitness=0.039s | selection=0.000s | repro=0.063s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.063s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 071] time=0.170s
+[Gen 072/100] sensors: (min=6, avg=9.1, max=13) / coverage: 88.63% (target=90.00%) / best_inner=11 (corner=8)
+[Profile Gen 072] fitness=0.039s | selection=0.000s | repro=0.067s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.067s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 072] time=0.170s
+[Gen 073/100] sensors: (min=7, avg=9.1, max=13) / coverage: 88.63% (target=90.00%) / best_inner=11 (corner=8)
+[Profile Gen 073] fitness=0.039s | selection=0.000s | repro=0.070s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.070s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 073] time=0.173s
+[Gen 074/100] sensors: (min=6, avg=9.0, max=13) / coverage: 88.63% (target=90.00%) / best_inner=11 (corner=8)
+[Profile Gen 074] fitness=0.039s | selection=0.000s | repro=0.067s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.067s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 074] time=0.171s
+[Gen 075/100] sensors: (min=6, avg=9.2, max=13) / coverage: 88.63% (target=90.00%) / best_inner=11 (corner=8)
+[Profile Gen 075] fitness=0.039s | selection=0.000s | repro=0.075s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.074s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 075] time=0.179s
+[Gen 076/100] sensors: (min=6, avg=9.0, max=13) / coverage: 88.63% (target=90.00%) / best_inner=11 (corner=8)
+[Profile Gen 076] fitness=0.039s | selection=0.000s | repro=0.076s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.076s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 076] time=0.180s
+[Gen 077/100] sensors: (min=7, avg=8.9, max=13) / coverage: 88.63% (target=90.00%) / best_inner=11 (corner=8)
+[Profile Gen 077] fitness=0.039s | selection=0.000s | repro=0.062s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.062s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 077] time=0.168s
+[Gen 078/100] sensors: (min=7, avg=9.0, max=13) / coverage: 88.63% (target=90.00%) / best_inner=11 (corner=8)
+[Profile Gen 078] fitness=0.039s | selection=0.000s | repro=0.068s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.068s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 078] time=0.172s
+[Gen 079/100] sensors: (min=6, avg=9.0, max=13) / coverage: 88.63% (target=90.00%) / best_inner=11 (corner=8)
+[Profile Gen 079] fitness=0.038s | selection=0.000s | repro=0.073s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.073s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 079] time=0.176s
+[Gen 080/100] sensors: (min=6, avg=8.9, max=13) / coverage: 88.63% (target=90.00%) / best_inner=11 (corner=8)
+[Profile Gen 080] fitness=0.038s | selection=0.000s | repro=0.068s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.068s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 080] time=0.169s
+[Gen 081/100] sensors: (min=7, avg=8.8, max=13) / coverage: 88.63% (target=90.00%) / best_inner=11 (corner=8)
+[Profile Gen 081] fitness=0.038s | selection=0.000s | repro=0.071s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.071s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 081] time=0.174s
+[Gen 082/100] sensors: (min=6, avg=8.8, max=13) / coverage: 88.63% (target=90.00%) / best_inner=11 (corner=8)
+[Profile Gen 082] fitness=0.040s | selection=0.000s | repro=0.067s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.067s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 082] time=0.172s
+[Gen 083/100] sensors: (min=7, avg=8.9, max=13) / coverage: 88.63% (target=90.00%) / best_inner=11 (corner=8)
+[Profile Gen 083] fitness=0.038s | selection=0.000s | repro=0.071s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.071s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 083] time=0.175s
+[Gen 084/100] sensors: (min=6, avg=8.8, max=13) / coverage: 88.63% (target=90.00%) / best_inner=11 (corner=8)
+[Profile Gen 084] fitness=0.039s | selection=0.000s | repro=0.067s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.067s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 084] time=0.170s
+[Gen 085/100] sensors: (min=7, avg=8.7, max=13) / coverage: 88.63% (target=90.00%) / best_inner=11 (corner=8)
+[Profile Gen 085] fitness=0.041s | selection=0.000s | repro=0.067s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.067s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 085] time=0.174s
+[Gen 086/100] sensors: (min=6, avg=8.7, max=13) / coverage: 88.63% (target=90.00%) / best_inner=11 (corner=8)
+[Profile Gen 086] fitness=0.040s | selection=0.000s | repro=0.070s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.070s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 086] time=0.174s
+[Gen 087/100] sensors: (min=6, avg=8.8, max=13) / coverage: 88.63% (target=90.00%) / best_inner=11 (corner=8)
+[Profile Gen 087] fitness=0.039s | selection=0.000s | repro=0.065s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.065s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 087] time=0.168s
+[Gen 088/100] sensors: (min=6, avg=8.6, max=13) / coverage: 88.63% (target=90.00%) / best_inner=11 (corner=8)
+[Profile Gen 088] fitness=0.040s | selection=0.000s | repro=0.064s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.064s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 088] time=0.168s
+[Gen 089/100] sensors: (min=6, avg=8.8, max=13) / coverage: 88.63% (target=90.00%) / best_inner=11 (corner=8)
+[Profile Gen 089] fitness=0.039s | selection=0.000s | repro=0.067s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.067s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 089] time=0.170s
+[Gen 090/100] sensors: (min=6, avg=8.9, max=13) / coverage: 88.63% (target=90.00%) / best_inner=11 (corner=8)
+[Profile Gen 090] fitness=0.037s | selection=0.000s | repro=0.073s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.073s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 090] time=0.173s
+[Gen 091/100] sensors: (min=6, avg=8.7, max=13) / coverage: 88.63% (target=90.00%) / best_inner=11 (corner=8)
+[Profile Gen 091] fitness=0.037s | selection=0.000s | repro=0.068s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.068s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 091] time=0.169s
+[Gen 092/100] sensors: (min=6, avg=8.7, max=13) / coverage: 88.63% (target=90.00%) / best_inner=11 (corner=8)
+[Profile Gen 092] fitness=0.038s | selection=0.000s | repro=0.068s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.068s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 092] time=0.169s
+[Gen 093/100] sensors: (min=6, avg=9.0, max=13) / coverage: 88.63% (target=90.00%) / best_inner=11 (corner=8)
+[Profile Gen 093] fitness=0.040s | selection=0.000s | repro=0.070s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.070s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 093] time=0.174s
+[Gen 094/100] sensors: (min=7, avg=8.9, max=13) / coverage: 88.63% (target=90.00%) / best_inner=11 (corner=8)
+[Profile Gen 094] fitness=0.037s | selection=0.000s | repro=0.071s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.071s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 094] time=0.171s
+[Gen 095/100] sensors: (min=7, avg=9.1, max=13) / coverage: 88.63% (target=90.00%) / best_inner=11 (corner=8)
+[Profile Gen 095] fitness=0.040s | selection=0.000s | repro=0.065s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.065s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 095] time=0.169s
+[Gen 096/100] sensors: (min=6, avg=8.8, max=13) / coverage: 88.63% (target=90.00%) / best_inner=11 (corner=8)
+[Profile Gen 096] fitness=0.038s | selection=0.000s | repro=0.070s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.070s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 096] time=0.173s
+[Gen 097/100] sensors: (min=6, avg=8.6, max=13) / coverage: 88.63% (target=90.00%) / best_inner=11 (corner=8)
+[Profile Gen 097] fitness=0.039s | selection=0.000s | repro=0.067s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.067s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 097] time=0.170s
+[Gen 098/100] sensors: (min=6, avg=8.9, max=13) / coverage: 88.63% (target=90.00%) / best_inner=11 (corner=8)
+[Profile Gen 098] fitness=0.037s | selection=0.000s | repro=0.067s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.067s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 098] time=0.168s
+[Gen 099/100] sensors: (min=6, avg=8.7, max=13) / coverage: 88.63% (target=90.00%) / best_inner=11 (corner=8)
+[Profile Gen 099] fitness=0.040s | selection=0.000s | repro=0.060s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.060s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 099] time=0.162s
+[Gen 100/100] sensors: (min=6, avg=8.7, max=13) / coverage: 88.63% (target=90.00%) / best_inner=11 (corner=8)
+[Profile Gen 100] fitness=0.038s | selection=0.000s | repro=0.064s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.064s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 100] time=0.165s
+[GA Total Time] 52.438s
+[Gen 001/100] sensors: (min=40, avg=90.4, max=140) / coverage: 97.04% (target=90.00%) / best_inner=42 (corner=8)
+[Profile Gen 001] fitness=0.119s | selection=0.000s | repro=6.953s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=6.953s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[MP Warmup] pool_init=0.000s | warmup=22.868s
+[Gen 001] time=7.209s
+[Gen 002/100] sensors: (min=39, avg=54.2, max=84) / coverage: 96.90% (target=90.00%) / best_inner=39 (corner=8)
+[Profile Gen 002] fitness=0.061s | selection=0.000s | repro=0.164s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.164s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 002] time=0.313s
+[Gen 003/100] sensors: (min=38, avg=41.4, max=48) / coverage: 98.35% (target=90.00%) / best_inner=38 (corner=8)
+[Profile Gen 003] fitness=0.052s | selection=0.000s | repro=0.174s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.174s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 003] time=0.306s
+[Gen 004/100] sensors: (min=36, avg=39.1, max=43) / coverage: 93.04% (target=90.00%) / best_inner=36 (corner=8)
+[Profile Gen 004] fitness=0.051s | selection=0.000s | repro=0.171s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.171s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 004] time=0.301s
+[Gen 005/100] sensors: (min=34, avg=37.6, max=40) / coverage: 93.45% (target=90.00%) / best_inner=34 (corner=8)
+[Profile Gen 005] fitness=0.052s | selection=0.000s | repro=0.164s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.164s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 005] time=0.294s
+[Gen 006/100] sensors: (min=33, avg=35.9, max=39) / coverage: 96.28% (target=90.00%) / best_inner=34 (corner=8)
+[Profile Gen 006] fitness=0.051s | selection=0.000s | repro=0.162s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.162s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 006] time=0.290s
+[Gen 007/100] sensors: (min=33, avg=34.5, max=37) / coverage: 97.38% (target=90.00%) / best_inner=33 (corner=8)
+[Profile Gen 007] fitness=0.047s | selection=0.000s | repro=0.158s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.157s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 007] time=0.278s
+[Gen 008/100] sensors: (min=32, avg=33.4, max=37) / coverage: 97.24% (target=90.00%) / best_inner=32 (corner=8)
+[Profile Gen 008] fitness=0.047s | selection=0.000s | repro=0.139s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.139s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 008] time=0.259s
+[Gen 009/100] sensors: (min=30, avg=32.4, max=35) / coverage: 97.24% (target=90.00%) / best_inner=32 (corner=8)
+[Profile Gen 009] fitness=0.050s | selection=0.000s | repro=0.149s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.149s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 009] time=0.275s
+[Gen 010/100] sensors: (min=30, avg=31.6, max=34) / coverage: 95.52% (target=90.00%) / best_inner=30 (corner=8)
+[Profile Gen 010] fitness=0.048s | selection=0.000s | repro=0.142s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.142s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 010] time=0.265s
+[Gen 011/100] sensors: (min=28, avg=30.5, max=33) / coverage: 95.66% (target=90.00%) / best_inner=30 (corner=8)
+[Profile Gen 011] fitness=0.048s | selection=0.000s | repro=0.129s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.129s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 011] time=0.251s
+[Gen 012/100] sensors: (min=27, avg=29.6, max=32) / coverage: 96.35% (target=90.00%) / best_inner=27 (corner=8)
+[Profile Gen 012] fitness=0.046s | selection=0.000s | repro=0.119s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.119s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 012] time=0.240s
+[Gen 013/100] sensors: (min=26, avg=28.6, max=31) / coverage: 93.31% (target=90.00%) / best_inner=27 (corner=8)
+[Profile Gen 013] fitness=0.046s | selection=0.000s | repro=0.128s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.128s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 013] time=0.247s
+[Gen 014/100] sensors: (min=25, avg=27.5, max=30) / coverage: 96.97% (target=90.00%) / best_inner=26 (corner=8)
+[Profile Gen 014] fitness=0.048s | selection=0.000s | repro=0.119s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.119s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 014] time=0.241s
+[Gen 015/100] sensors: (min=24, avg=26.6, max=29) / coverage: 96.21% (target=90.00%) / best_inner=26 (corner=8)
+[Profile Gen 015] fitness=0.045s | selection=0.000s | repro=0.113s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.113s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 015] time=0.230s
+[Gen 016/100] sensors: (min=23, avg=25.5, max=28) / coverage: 93.87% (target=90.00%) / best_inner=24 (corner=8)
+[Profile Gen 016] fitness=0.045s | selection=0.000s | repro=0.111s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.111s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 016] time=0.229s
+[Gen 017/100] sensors: (min=22, avg=24.7, max=27) / coverage: 92.14% (target=90.00%) / best_inner=24 (corner=8)
+[Profile Gen 017] fitness=0.045s | selection=0.000s | repro=0.109s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.108s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 017] time=0.225s
+[Gen 018/100] sensors: (min=22, avg=23.9, max=26) / coverage: 92.14% (target=90.00%) / best_inner=24 (corner=8)
+[Profile Gen 018] fitness=0.045s | selection=0.000s | repro=0.093s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.093s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 018] time=0.209s
+[Gen 019/100] sensors: (min=21, avg=23.0, max=26) / coverage: 92.14% (target=90.00%) / best_inner=24 (corner=8)
+[Profile Gen 019] fitness=0.044s | selection=0.000s | repro=0.109s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.109s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 019] time=0.223s
+[Gen 020/100] sensors: (min=20, avg=22.1, max=24) / coverage: 92.01% (target=90.00%) / best_inner=22 (corner=8)
+[Profile Gen 020] fitness=0.043s | selection=0.000s | repro=0.109s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.109s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 020] time=0.221s
+[Gen 021/100] sensors: (min=19, avg=21.5, max=24) / coverage: 93.59% (target=90.00%) / best_inner=20 (corner=8)
+[Profile Gen 021] fitness=0.042s | selection=0.000s | repro=0.108s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.108s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 021] time=0.220s
+[Gen 022/100] sensors: (min=18, avg=20.7, max=23) / coverage: 92.63% (target=90.00%) / best_inner=19 (corner=8)
+[Profile Gen 022] fitness=0.045s | selection=0.000s | repro=0.094s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.094s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 022] time=0.209s
+[Gen 023/100] sensors: (min=17, avg=19.8, max=22) / coverage: 92.63% (target=90.00%) / best_inner=17 (corner=8)
+[Profile Gen 023] fitness=0.043s | selection=0.000s | repro=0.087s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.087s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 023] time=0.199s
+[Gen 024/100] sensors: (min=17, avg=19.0, max=22) / coverage: 92.63% (target=90.00%) / best_inner=17 (corner=8)
+[Profile Gen 024] fitness=0.041s | selection=0.000s | repro=0.090s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.090s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 024] time=0.199s
+[Gen 025/100] sensors: (min=16, avg=18.4, max=21) / coverage: 92.63% (target=90.00%) / best_inner=17 (corner=8)
+[Profile Gen 025] fitness=0.042s | selection=0.000s | repro=0.074s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.074s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 025] time=0.184s
+[Gen 026/100] sensors: (min=15, avg=17.7, max=20) / coverage: 92.63% (target=90.00%) / best_inner=17 (corner=8)
+[Profile Gen 026] fitness=0.041s | selection=0.000s | repro=0.085s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.085s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 026] time=0.193s
+[Gen 027/100] sensors: (min=15, avg=17.1, max=19) / coverage: 95.52% (target=90.00%) / best_inner=16 (corner=8)
+[Profile Gen 027] fitness=0.043s | selection=0.000s | repro=0.073s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.073s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 027] time=0.185s
+[Gen 028/100] sensors: (min=14, avg=16.9, max=20) / coverage: 95.52% (target=90.00%) / best_inner=16 (corner=8)
+[Profile Gen 028] fitness=0.042s | selection=0.000s | repro=0.081s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.081s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 028] time=0.190s
+[Gen 029/100] sensors: (min=14, avg=16.4, max=20) / coverage: 95.52% (target=90.00%) / best_inner=16 (corner=8)
+[Profile Gen 029] fitness=0.041s | selection=0.000s | repro=0.070s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.070s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 029] time=0.179s
+[Gen 030/100] sensors: (min=13, avg=15.9, max=20) / coverage: 95.52% (target=90.00%) / best_inner=16 (corner=8)
+[Profile Gen 030] fitness=0.041s | selection=0.000s | repro=0.075s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.074s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 030] time=0.183s
+[Gen 031/100] sensors: (min=13, avg=15.5, max=19) / coverage: 91.11% (target=90.00%) / best_inner=14 (corner=8)
+[Profile Gen 031] fitness=0.041s | selection=0.000s | repro=0.079s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.078s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 031] time=0.186s
+[Gen 032/100] sensors: (min=13, avg=15.2, max=18) / coverage: 91.11% (target=90.00%) / best_inner=14 (corner=8)
+[Profile Gen 032] fitness=0.041s | selection=0.000s | repro=0.075s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.075s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 032] time=0.184s
+[Gen 033/100] sensors: (min=13, avg=14.8, max=17) / coverage: 91.11% (target=90.00%) / best_inner=14 (corner=8)
+[Profile Gen 033] fitness=0.041s | selection=0.000s | repro=0.079s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.079s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 033] time=0.186s
+[Gen 034/100] sensors: (min=12, avg=14.1, max=17) / coverage: 90.35% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 034] fitness=0.041s | selection=0.000s | repro=0.078s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.078s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 034] time=0.185s
+[Gen 035/100] sensors: (min=11, avg=13.5, max=16) / coverage: 90.35% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 035] fitness=0.040s | selection=0.000s | repro=0.072s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.072s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 035] time=0.178s
+[Gen 036/100] sensors: (min=11, avg=13.0, max=16) / coverage: 90.35% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 036] fitness=0.040s | selection=0.000s | repro=0.072s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.071s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 036] time=0.178s
+[Gen 037/100] sensors: (min=10, avg=12.8, max=16) / coverage: 90.35% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 037] fitness=0.039s | selection=0.000s | repro=0.069s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.069s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 037] time=0.178s
+[Gen 038/100] sensors: (min=9, avg=12.3, max=15) / coverage: 90.35% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 038] fitness=0.039s | selection=0.000s | repro=0.069s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.069s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 038] time=0.171s
+[Gen 039/100] sensors: (min=10, avg=12.0, max=16) / coverage: 90.35% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 039] fitness=0.038s | selection=0.000s | repro=0.067s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.067s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 039] time=0.170s
+[Gen 040/100] sensors: (min=10, avg=11.5, max=13) / coverage: 90.35% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 040] fitness=0.038s | selection=0.000s | repro=0.072s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.071s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 040] time=0.173s
+[Gen 041/100] sensors: (min=9, avg=11.5, max=14) / coverage: 90.35% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 041] fitness=0.040s | selection=0.000s | repro=0.072s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.072s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 041] time=0.176s
+[Gen 042/100] sensors: (min=9, avg=11.5, max=13) / coverage: 90.35% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 042] fitness=0.038s | selection=0.000s | repro=0.066s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.066s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 042] time=0.167s
+[Gen 043/100] sensors: (min=8, avg=11.3, max=14) / coverage: 90.35% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 043] fitness=0.038s | selection=0.000s | repro=0.069s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.069s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 043] time=0.171s
+[Gen 044/100] sensors: (min=9, avg=11.1, max=14) / coverage: 90.28% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 044] fitness=0.039s | selection=0.000s | repro=0.071s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.071s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 044] time=0.179s
+[Gen 045/100] sensors: (min=9, avg=11.1, max=13) / coverage: 90.28% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 045] fitness=0.037s | selection=0.000s | repro=0.079s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.079s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 045] time=0.180s
+[Gen 046/100] sensors: (min=9, avg=11.1, max=14) / coverage: 90.28% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 046] fitness=0.040s | selection=0.000s | repro=0.064s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.064s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 046] time=0.170s
+[Gen 047/100] sensors: (min=8, avg=11.0, max=14) / coverage: 90.28% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 047] fitness=0.038s | selection=0.000s | repro=0.069s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.068s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 047] time=0.171s
+[Gen 048/100] sensors: (min=9, avg=10.7, max=13) / coverage: 90.28% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 048] fitness=0.039s | selection=0.000s | repro=0.077s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.077s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 048] time=0.180s
+[Gen 049/100] sensors: (min=8, avg=10.6, max=13) / coverage: 90.28% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 049] fitness=0.037s | selection=0.000s | repro=0.074s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.074s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 049] time=0.175s
+[Gen 050/100] sensors: (min=8, avg=10.5, max=13) / coverage: 90.28% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 050] fitness=0.038s | selection=0.000s | repro=0.073s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.072s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 050] time=0.180s
+[Gen 051/100] sensors: (min=7, avg=10.3, max=12) / coverage: 90.28% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 051] fitness=0.038s | selection=0.000s | repro=0.071s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.070s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 051] time=0.172s
+[Gen 052/100] sensors: (min=7, avg=10.4, max=13) / coverage: 90.28% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 052] fitness=0.037s | selection=0.000s | repro=0.074s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.074s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 052] time=0.175s
+[Gen 053/100] sensors: (min=8, avg=10.7, max=13) / coverage: 90.28% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 053] fitness=0.037s | selection=0.000s | repro=0.076s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.076s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 053] time=0.176s
+[Gen 054/100] sensors: (min=7, avg=10.4, max=13) / coverage: 90.28% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 054] fitness=0.039s | selection=0.000s | repro=0.071s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.071s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 054] time=0.176s
+[Gen 055/100] sensors: (min=8, avg=10.5, max=14) / coverage: 90.28% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 055] fitness=0.039s | selection=0.000s | repro=0.066s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.066s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 055] time=0.168s
+[Gen 056/100] sensors: (min=7, avg=10.7, max=13) / coverage: 90.28% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 056] fitness=0.041s | selection=0.000s | repro=0.075s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.075s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 056] time=0.182s
+[Gen 057/100] sensors: (min=9, avg=10.7, max=13) / coverage: 90.28% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 057] fitness=0.038s | selection=0.000s | repro=0.076s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.075s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 057] time=0.177s
+[Gen 058/100] sensors: (min=9, avg=10.7, max=13) / coverage: 90.28% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 058] fitness=0.039s | selection=0.000s | repro=0.076s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.076s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 058] time=0.180s
+[Gen 059/100] sensors: (min=8, avg=10.7, max=13) / coverage: 90.28% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 059] fitness=0.039s | selection=0.000s | repro=0.074s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.074s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 059] time=0.178s
+[Gen 060/100] sensors: (min=8, avg=10.8, max=13) / coverage: 90.28% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 060] fitness=0.039s | selection=0.000s | repro=0.067s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.067s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 060] time=0.171s
+[Gen 061/100] sensors: (min=7, avg=10.5, max=13) / coverage: 90.28% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 061] fitness=0.039s | selection=0.000s | repro=0.073s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.073s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 061] time=0.178s
+[Gen 062/100] sensors: (min=8, avg=10.7, max=14) / coverage: 90.28% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 062] fitness=0.039s | selection=0.000s | repro=0.070s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.070s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 062] time=0.174s
+[Gen 063/100] sensors: (min=8, avg=10.4, max=13) / coverage: 90.28% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 063] fitness=0.039s | selection=0.000s | repro=0.083s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.083s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 063] time=0.188s
+[Gen 064/100] sensors: (min=8, avg=10.4, max=13) / coverage: 90.28% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 064] fitness=0.039s | selection=0.000s | repro=0.073s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.073s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 064] time=0.178s
+[Gen 065/100] sensors: (min=8, avg=10.5, max=12) / coverage: 90.28% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 065] fitness=0.039s | selection=0.000s | repro=0.065s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.065s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 065] time=0.170s
+[Gen 066/100] sensors: (min=8, avg=10.1, max=12) / coverage: 90.28% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 066] fitness=0.039s | selection=0.000s | repro=0.071s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.071s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 066] time=0.176s
+[Gen 067/100] sensors: (min=8, avg=10.1, max=13) / coverage: 90.28% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 067] fitness=0.039s | selection=0.000s | repro=0.066s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.066s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 067] time=0.168s
+[Gen 068/100] sensors: (min=8, avg=10.4, max=13) / coverage: 90.28% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 068] fitness=0.039s | selection=0.000s | repro=0.069s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.069s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 068] time=0.175s
+[Gen 069/100] sensors: (min=8, avg=10.3, max=13) / coverage: 90.28% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 069] fitness=0.040s | selection=0.000s | repro=0.077s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.077s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 069] time=0.182s
+[Gen 070/100] sensors: (min=7, avg=10.1, max=12) / coverage: 90.28% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 070] fitness=0.039s | selection=0.000s | repro=0.064s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.064s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 070] time=0.169s
+[Gen 071/100] sensors: (min=8, avg=9.9, max=12) / coverage: 90.28% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 071] fitness=0.038s | selection=0.000s | repro=0.067s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.067s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 071] time=0.174s
+[Gen 072/100] sensors: (min=7, avg=10.0, max=12) / coverage: 90.28% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 072] fitness=0.040s | selection=0.000s | repro=0.064s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.064s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 072] time=0.173s
+[Gen 073/100] sensors: (min=6, avg=9.9, max=12) / coverage: 90.28% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 073] fitness=0.039s | selection=0.000s | repro=0.068s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.068s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 073] time=0.182s
+[Gen 074/100] sensors: (min=7, avg=9.8, max=12) / coverage: 90.28% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 074] fitness=0.039s | selection=0.000s | repro=0.079s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.079s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 074] time=0.187s
+[Gen 075/100] sensors: (min=8, avg=9.8, max=12) / coverage: 90.28% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 075] fitness=0.040s | selection=0.000s | repro=0.071s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.071s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 075] time=0.178s
+[Gen 076/100] sensors: (min=7, avg=10.0, max=13) / coverage: 90.28% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 076] fitness=0.040s | selection=0.000s | repro=0.071s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.071s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 076] time=0.179s
+[Gen 077/100] sensors: (min=7, avg=9.9, max=12) / coverage: 90.28% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 077] fitness=0.039s | selection=0.000s | repro=0.066s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.066s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 077] time=0.173s
+[Gen 078/100] sensors: (min=7, avg=9.7, max=12) / coverage: 90.28% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 078] fitness=0.040s | selection=0.000s | repro=0.073s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.073s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 078] time=0.181s
+[Gen 079/100] sensors: (min=7, avg=10.0, max=12) / coverage: 90.28% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 079] fitness=0.039s | selection=0.000s | repro=0.069s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.069s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 079] time=0.175s
+[Gen 080/100] sensors: (min=8, avg=10.2, max=12) / coverage: 90.28% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 080] fitness=0.039s | selection=0.000s | repro=0.082s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.082s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 080] time=0.187s
+[Gen 081/100] sensors: (min=7, avg=9.9, max=12) / coverage: 90.28% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 081] fitness=0.038s | selection=0.000s | repro=0.066s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.066s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 081] time=0.170s
+[Gen 082/100] sensors: (min=7, avg=9.8, max=13) / coverage: 90.28% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 082] fitness=0.041s | selection=0.000s | repro=0.069s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.069s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 082] time=0.176s
+[Gen 083/100] sensors: (min=7, avg=9.6, max=12) / coverage: 90.28% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 083] fitness=0.042s | selection=0.000s | repro=0.073s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.073s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 083] time=0.180s
+[Gen 084/100] sensors: (min=7, avg=9.4, max=12) / coverage: 90.28% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 084] fitness=0.041s | selection=0.000s | repro=0.065s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.064s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 084] time=0.172s
+[Gen 085/100] sensors: (min=7, avg=9.3, max=12) / coverage: 90.28% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 085] fitness=0.038s | selection=0.000s | repro=0.069s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.069s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 085] time=0.172s
+[Gen 086/100] sensors: (min=7, avg=9.2, max=12) / coverage: 90.28% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 086] fitness=0.041s | selection=0.000s | repro=0.067s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.067s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 086] time=0.173s
+[Gen 087/100] sensors: (min=6, avg=8.8, max=12) / coverage: 90.28% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 087] fitness=0.038s | selection=0.000s | repro=0.064s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.064s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 087] time=0.169s
+[Gen 088/100] sensors: (min=5, avg=8.8, max=13) / coverage: 90.28% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 088] fitness=0.040s | selection=0.000s | repro=0.067s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.067s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 088] time=0.173s
+[Gen 089/100] sensors: (min=6, avg=8.8, max=12) / coverage: 90.28% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 089] fitness=0.040s | selection=0.000s | repro=0.070s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.070s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 089] time=0.176s
+[Gen 090/100] sensors: (min=6, avg=8.9, max=12) / coverage: 90.28% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 090] fitness=0.040s | selection=0.000s | repro=0.071s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.071s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 090] time=0.179s
+[Gen 091/100] sensors: (min=6, avg=8.7, max=12) / coverage: 90.28% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 091] fitness=0.041s | selection=0.000s | repro=0.078s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.077s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 091] time=0.186s
+[Gen 092/100] sensors: (min=6, avg=8.9, max=12) / coverage: 90.28% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 092] fitness=0.039s | selection=0.000s | repro=0.069s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.069s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 092] time=0.173s
+[Gen 093/100] sensors: (min=6, avg=9.1, max=12) / coverage: 90.28% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 093] fitness=0.044s | selection=0.000s | repro=0.066s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.066s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 093] time=0.176s
+[Gen 094/100] sensors: (min=6, avg=9.2, max=12) / coverage: 90.28% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 094] fitness=0.039s | selection=0.000s | repro=0.077s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.077s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 094] time=0.181s
+[Gen 095/100] sensors: (min=6, avg=9.3, max=12) / coverage: 90.28% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 095] fitness=0.038s | selection=0.000s | repro=0.056s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.056s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 095] time=0.160s
+[Gen 096/100] sensors: (min=6, avg=9.1, max=13) / coverage: 90.28% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 096] fitness=0.038s | selection=0.000s | repro=0.082s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.082s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 096] time=0.186s
+[Gen 097/100] sensors: (min=7, avg=9.3, max=13) / coverage: 90.28% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 097] fitness=0.039s | selection=0.000s | repro=0.071s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.070s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 097] time=0.175s
+[Gen 098/100] sensors: (min=6, avg=9.3, max=13) / coverage: 90.28% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 098] fitness=0.039s | selection=0.000s | repro=0.066s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.065s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 098] time=0.169s
+[Gen 099/100] sensors: (min=7, avg=9.2, max=12) / coverage: 90.28% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 099] fitness=0.038s | selection=0.000s | repro=0.069s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.069s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 099] time=0.173s
+[Gen 100/100] sensors: (min=7, avg=9.2, max=12) / coverage: 90.28% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 100] fitness=0.039s | selection=0.000s | repro=0.067s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.067s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 100] time=0.171s
+[GA Total Time] 51.855s
+[Gen 001/100] sensors: (min=40, avg=87.7, max=140) / coverage: 96.83% (target=90.00%) / best_inner=40 (corner=8)
+[Profile Gen 001] fitness=0.116s | selection=0.000s | repro=5.916s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=5.916s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[MP Warmup] pool_init=0.000s | warmup=25.057s
+[Gen 001] time=6.154s
+[Gen 002/100] sensors: (min=38, avg=52.1, max=86) / coverage: 96.55% (target=90.00%) / best_inner=39 (corner=8)
+[Profile Gen 002] fitness=0.058s | selection=0.000s | repro=0.181s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.180s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 002] time=0.324s
+[Gen 003/100] sensors: (min=37, avg=42.0, max=48) / coverage: 98.76% (target=90.00%) / best_inner=39 (corner=8)
+[Profile Gen 003] fitness=0.051s | selection=0.000s | repro=0.193s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.193s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 003] time=0.326s
+[Gen 004/100] sensors: (min=35, avg=38.9, max=43) / coverage: 99.93% (target=90.00%) / best_inner=38 (corner=8)
+[Profile Gen 004] fitness=0.049s | selection=0.000s | repro=0.177s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.177s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 004] time=0.302s
+[Gen 005/100] sensors: (min=34, avg=37.5, max=40) / coverage: 98.69% (target=90.00%) / best_inner=36 (corner=8)
+[Profile Gen 005] fitness=0.051s | selection=0.000s | repro=0.173s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.173s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 005] time=0.302s
+[Gen 006/100] sensors: (min=33, avg=36.0, max=39) / coverage: 98.83% (target=90.00%) / best_inner=33 (corner=8)
+[Profile Gen 006] fitness=0.050s | selection=0.000s | repro=0.163s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.163s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 006] time=0.290s
+[Gen 007/100] sensors: (min=32, avg=34.5, max=37) / coverage: 95.38% (target=90.00%) / best_inner=34 (corner=8)
+[Profile Gen 007] fitness=0.048s | selection=0.000s | repro=0.150s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.150s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 007] time=0.275s
+[Gen 008/100] sensors: (min=31, avg=33.4, max=36) / coverage: 98.35% (target=90.00%) / best_inner=31 (corner=8)
+[Profile Gen 008] fitness=0.048s | selection=0.000s | repro=0.157s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.157s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 008] time=0.280s
+[Gen 009/100] sensors: (min=30, avg=32.1, max=35) / coverage: 98.35% (target=90.00%) / best_inner=31 (corner=8)
+[Profile Gen 009] fitness=0.048s | selection=0.000s | repro=0.140s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.140s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 009] time=0.263s
+[Gen 010/100] sensors: (min=29, avg=31.0, max=34) / coverage: 97.73% (target=90.00%) / best_inner=29 (corner=8)
+[Profile Gen 010] fitness=0.047s | selection=0.000s | repro=0.151s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.151s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 010] time=0.275s
+[Gen 011/100] sensors: (min=28, avg=30.1, max=32) / coverage: 94.62% (target=90.00%) / best_inner=29 (corner=8)
+[Profile Gen 011] fitness=0.048s | selection=0.000s | repro=0.157s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.157s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 011] time=0.281s
+[Gen 012/100] sensors: (min=27, avg=29.2, max=31) / coverage: 94.62% (target=90.00%) / best_inner=29 (corner=8)
+[Profile Gen 012] fitness=0.047s | selection=0.000s | repro=0.130s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.130s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 012] time=0.252s
+[Gen 013/100] sensors: (min=26, avg=28.4, max=31) / coverage: 89.94% (target=90.00%) / best_inner=28 (corner=8)
+[Profile Gen 013] fitness=0.047s | selection=0.000s | repro=0.143s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.143s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 013] time=0.266s
+[Gen 014/100] sensors: (min=25, avg=27.5, max=30) / coverage: 93.11% (target=90.00%) / best_inner=26 (corner=8)
+[Profile Gen 014] fitness=0.046s | selection=0.000s | repro=0.128s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.128s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 014] time=0.248s
+[Gen 015/100] sensors: (min=24, avg=26.3, max=28) / coverage: 96.76% (target=90.00%) / best_inner=25 (corner=8)
+[Profile Gen 015] fitness=0.046s | selection=0.000s | repro=0.116s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.116s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 015] time=0.239s
+[Gen 016/100] sensors: (min=23, avg=25.4, max=28) / coverage: 96.07% (target=90.00%) / best_inner=23 (corner=8)
+[Profile Gen 016] fitness=0.046s | selection=0.000s | repro=0.120s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.120s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 016] time=0.237s
+[Gen 017/100] sensors: (min=22, avg=24.5, max=27) / coverage: 94.14% (target=90.00%) / best_inner=23 (corner=8)
+[Profile Gen 017] fitness=0.047s | selection=0.000s | repro=0.108s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.108s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 017] time=0.226s
+[Gen 018/100] sensors: (min=22, avg=23.8, max=26) / coverage: 91.66% (target=90.00%) / best_inner=22 (corner=8)
+[Profile Gen 018] fitness=0.048s | selection=0.000s | repro=0.104s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.104s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 018] time=0.225s
+[Gen 019/100] sensors: (min=21, avg=22.9, max=25) / coverage: 94.56% (target=90.00%) / best_inner=21 (corner=8)
+[Profile Gen 019] fitness=0.044s | selection=0.000s | repro=0.113s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.113s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 019] time=0.227s
+[Gen 020/100] sensors: (min=20, avg=22.1, max=24) / coverage: 93.18% (target=90.00%) / best_inner=21 (corner=8)
+[Profile Gen 020] fitness=0.044s | selection=0.000s | repro=0.102s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.102s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 020] time=0.215s
+[Gen 021/100] sensors: (min=19, avg=21.3, max=24) / coverage: 91.80% (target=90.00%) / best_inner=19 (corner=8)
+[Profile Gen 021] fitness=0.043s | selection=0.000s | repro=0.099s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.098s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 021] time=0.210s
+[Gen 022/100] sensors: (min=18, avg=20.4, max=23) / coverage: 93.31% (target=90.00%) / best_inner=18 (corner=8)
+[Profile Gen 022] fitness=0.041s | selection=0.000s | repro=0.098s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.098s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 022] time=0.206s
+[Gen 023/100] sensors: (min=17, avg=19.4, max=22) / coverage: 93.59% (target=90.00%) / best_inner=17 (corner=8)
+[Profile Gen 023] fitness=0.040s | selection=0.000s | repro=0.086s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.086s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 023] time=0.192s
+[Gen 024/100] sensors: (min=16, avg=18.6, max=22) / coverage: 90.70% (target=90.00%) / best_inner=17 (corner=8)
+[Profile Gen 024] fitness=0.042s | selection=0.000s | repro=0.085s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.085s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 024] time=0.195s
+[Gen 025/100] sensors: (min=16, avg=17.6, max=20) / coverage: 90.70% (target=90.00%) / best_inner=17 (corner=8)
+[Profile Gen 025] fitness=0.041s | selection=0.000s | repro=0.090s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.090s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 025] time=0.198s
+[Gen 026/100] sensors: (min=15, avg=17.1, max=20) / coverage: 91.80% (target=90.00%) / best_inner=16 (corner=8)
+[Profile Gen 026] fitness=0.043s | selection=0.000s | repro=0.083s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.083s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 026] time=0.195s
+[Gen 027/100] sensors: (min=15, avg=16.6, max=18) / coverage: 93.80% (target=90.00%) / best_inner=16 (corner=8)
+[Profile Gen 027] fitness=0.043s | selection=0.000s | repro=0.067s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.067s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 027] time=0.177s
+[Gen 028/100] sensors: (min=14, avg=16.0, max=19) / coverage: 89.94% (target=90.00%) / best_inner=15 (corner=8)
+[Profile Gen 028] fitness=0.040s | selection=0.000s | repro=0.082s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.082s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 028] time=0.189s
+[Gen 029/100] sensors: (min=13, avg=15.6, max=18) / coverage: 92.83% (target=90.00%) / best_inner=15 (corner=8)
+[Profile Gen 029] fitness=0.044s | selection=0.000s | repro=0.076s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.076s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 029] time=0.187s
+[Gen 030/100] sensors: (min=12, avg=15.0, max=18) / coverage: 92.83% (target=90.00%) / best_inner=15 (corner=8)
+[Profile Gen 030] fitness=0.042s | selection=0.000s | repro=0.077s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.077s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 030] time=0.187s
+[Gen 031/100] sensors: (min=13, avg=14.6, max=17) / coverage: 92.83% (target=90.00%) / best_inner=15 (corner=8)
+[Profile Gen 031] fitness=0.040s | selection=0.000s | repro=0.081s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.081s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 031] time=0.188s
+[Gen 032/100] sensors: (min=12, avg=14.4, max=17) / coverage: 92.49% (target=90.00%) / best_inner=14 (corner=8)
+[Profile Gen 032] fitness=0.042s | selection=0.000s | repro=0.080s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.080s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 032] time=0.189s
+[Gen 033/100] sensors: (min=12, avg=14.1, max=16) / coverage: 89.04% (target=90.00%) / best_inner=13 (corner=8)
+[Profile Gen 033] fitness=0.042s | selection=0.000s | repro=0.074s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.074s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 033] time=0.187s
+[Gen 034/100] sensors: (min=12, avg=13.7, max=16) / coverage: 89.04% (target=90.00%) / best_inner=13 (corner=8)
+[Profile Gen 034] fitness=0.040s | selection=0.000s | repro=0.066s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.065s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 034] time=0.170s
+[Gen 035/100] sensors: (min=11, avg=13.1, max=16) / coverage: 89.04% (target=90.00%) / best_inner=13 (corner=8)
+[Profile Gen 035] fitness=0.041s | selection=0.000s | repro=0.076s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.076s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 035] time=0.187s
+[Gen 036/100] sensors: (min=10, avg=12.6, max=16) / coverage: 89.04% (target=90.00%) / best_inner=13 (corner=8)
+[Profile Gen 036] fitness=0.040s | selection=0.000s | repro=0.077s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.076s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 036] time=0.184s
+[Gen 037/100] sensors: (min=10, avg=12.1, max=15) / coverage: 89.04% (target=90.00%) / best_inner=13 (corner=8)
+[Profile Gen 037] fitness=0.041s | selection=0.000s | repro=0.070s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.070s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 037] time=0.181s
+[Gen 038/100] sensors: (min=10, avg=12.0, max=16) / coverage: 92.07% (target=90.00%) / best_inner=14 (corner=8)
+[Profile Gen 038] fitness=0.040s | selection=0.000s | repro=0.068s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.068s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 038] time=0.177s
+[Gen 039/100] sensors: (min=10, avg=12.0, max=15) / coverage: 92.07% (target=90.00%) / best_inner=14 (corner=8)
+[Profile Gen 039] fitness=0.040s | selection=0.000s | repro=0.076s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.076s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 039] time=0.183s
+[Gen 040/100] sensors: (min=10, avg=11.9, max=14) / coverage: 92.07% (target=90.00%) / best_inner=14 (corner=8)
+[Profile Gen 040] fitness=0.040s | selection=0.000s | repro=0.071s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.070s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 040] time=0.178s
+[Gen 041/100] sensors: (min=10, avg=11.9, max=15) / coverage: 89.87% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 041] fitness=0.039s | selection=0.000s | repro=0.081s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.081s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 041] time=0.188s
+[Gen 042/100] sensors: (min=10, avg=12.0, max=14) / coverage: 89.87% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 042] fitness=0.040s | selection=0.000s | repro=0.074s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.074s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 042] time=0.183s
+[Gen 043/100] sensors: (min=9, avg=11.9, max=14) / coverage: 89.87% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 043] fitness=0.041s | selection=0.000s | repro=0.063s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.063s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 043] time=0.173s
+[Gen 044/100] sensors: (min=9, avg=11.7, max=14) / coverage: 89.87% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 044] fitness=0.040s | selection=0.000s | repro=0.068s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.068s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 044] time=0.175s
+[Gen 045/100] sensors: (min=9, avg=11.6, max=14) / coverage: 89.87% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 045] fitness=0.042s | selection=0.000s | repro=0.078s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.078s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 045] time=0.184s
+[Gen 046/100] sensors: (min=8, avg=11.4, max=15) / coverage: 89.87% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 046] fitness=0.039s | selection=0.000s | repro=0.070s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.070s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 046] time=0.176s
+[Gen 047/100] sensors: (min=9, avg=11.6, max=14) / coverage: 89.87% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 047] fitness=0.038s | selection=0.000s | repro=0.072s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.072s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 047] time=0.174s
+[Gen 048/100] sensors: (min=9, avg=11.2, max=14) / coverage: 89.87% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 048] fitness=0.040s | selection=0.000s | repro=0.065s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.065s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 048] time=0.173s
+[Gen 049/100] sensors: (min=8, avg=10.8, max=14) / coverage: 89.87% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 049] fitness=0.038s | selection=0.000s | repro=0.070s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.070s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 049] time=0.177s
+[Gen 050/100] sensors: (min=9, avg=10.6, max=13) / coverage: 89.87% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 050] fitness=0.040s | selection=0.000s | repro=0.072s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.072s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 050] time=0.176s
+[Gen 051/100] sensors: (min=8, avg=10.3, max=13) / coverage: 89.87% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 051] fitness=0.039s | selection=0.000s | repro=0.067s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.067s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 051] time=0.169s
+[Gen 052/100] sensors: (min=7, avg=9.9, max=13) / coverage: 89.87% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 052] fitness=0.041s | selection=0.000s | repro=0.062s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.062s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 052] time=0.168s
+[Gen 053/100] sensors: (min=7, avg=10.0, max=13) / coverage: 89.87% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 053] fitness=0.041s | selection=0.000s | repro=0.073s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.073s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 053] time=0.184s
+[Gen 054/100] sensors: (min=7, avg=9.8, max=13) / coverage: 89.87% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 054] fitness=0.040s | selection=0.000s | repro=0.068s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.068s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 054] time=0.176s
+[Gen 055/100] sensors: (min=7, avg=9.7, max=13) / coverage: 89.87% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 055] fitness=0.038s | selection=0.000s | repro=0.070s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.070s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 055] time=0.174s
+[Gen 056/100] sensors: (min=7, avg=10.0, max=13) / coverage: 89.87% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 056] fitness=0.039s | selection=0.000s | repro=0.061s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.061s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 056] time=0.166s
+[Gen 057/100] sensors: (min=8, avg=10.1, max=13) / coverage: 89.87% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 057] fitness=0.039s | selection=0.000s | repro=0.073s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.073s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 057] time=0.177s
+[Gen 058/100] sensors: (min=8, avg=10.4, max=13) / coverage: 89.87% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 058] fitness=0.038s | selection=0.000s | repro=0.068s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.068s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 058] time=0.172s
+[Gen 059/100] sensors: (min=9, avg=10.7, max=13) / coverage: 89.87% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 059] fitness=0.039s | selection=0.000s | repro=0.068s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.068s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 059] time=0.175s
+[Gen 060/100] sensors: (min=8, avg=10.3, max=13) / coverage: 89.87% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 060] fitness=0.041s | selection=0.000s | repro=0.070s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.070s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 060] time=0.177s
+[Gen 061/100] sensors: (min=8, avg=10.0, max=13) / coverage: 89.87% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 061] fitness=0.039s | selection=0.000s | repro=0.070s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.069s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 061] time=0.173s
+[Gen 062/100] sensors: (min=7, avg=9.7, max=13) / coverage: 89.87% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 062] fitness=0.038s | selection=0.000s | repro=0.068s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.068s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 062] time=0.169s
+[Gen 063/100] sensors: (min=7, avg=9.7, max=13) / coverage: 89.87% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 063] fitness=0.038s | selection=0.000s | repro=0.069s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.069s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 063] time=0.171s
+[Gen 064/100] sensors: (min=7, avg=9.7, max=13) / coverage: 89.87% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 064] fitness=0.039s | selection=0.000s | repro=0.068s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.068s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 064] time=0.170s
+[Gen 065/100] sensors: (min=7, avg=9.6, max=13) / coverage: 89.87% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 065] fitness=0.038s | selection=0.000s | repro=0.072s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.071s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 065] time=0.173s
+[Gen 066/100] sensors: (min=7, avg=9.7, max=13) / coverage: 89.87% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 066] fitness=0.038s | selection=0.000s | repro=0.062s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.062s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 066] time=0.166s
+[Gen 067/100] sensors: (min=7, avg=9.5, max=13) / coverage: 89.87% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 067] fitness=0.038s | selection=0.000s | repro=0.074s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.074s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 067] time=0.175s
+[Gen 068/100] sensors: (min=7, avg=9.1, max=13) / coverage: 89.87% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 068] fitness=0.037s | selection=0.000s | repro=0.072s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.072s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 068] time=0.172s
+[Gen 069/100] sensors: (min=7, avg=9.3, max=13) / coverage: 89.87% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 069] fitness=0.039s | selection=0.000s | repro=0.068s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.068s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 069] time=0.172s
+[Gen 070/100] sensors: (min=8, avg=9.3, max=13) / coverage: 89.87% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 070] fitness=0.038s | selection=0.000s | repro=0.076s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.075s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 070] time=0.179s
+[Gen 071/100] sensors: (min=7, avg=9.1, max=13) / coverage: 89.87% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 071] fitness=0.038s | selection=0.000s | repro=0.065s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.065s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 071] time=0.169s
+[Gen 072/100] sensors: (min=7, avg=9.2, max=13) / coverage: 89.87% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 072] fitness=0.039s | selection=0.000s | repro=0.071s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.071s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 072] time=0.175s
+[Gen 073/100] sensors: (min=7, avg=9.8, max=13) / coverage: 89.87% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 073] fitness=0.039s | selection=0.000s | repro=0.063s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.063s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 073] time=0.168s
+[Gen 074/100] sensors: (min=8, avg=9.7, max=13) / coverage: 89.87% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 074] fitness=0.038s | selection=0.000s | repro=0.069s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.069s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 074] time=0.173s
+[Gen 075/100] sensors: (min=7, avg=9.3, max=13) / coverage: 89.87% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 075] fitness=0.039s | selection=0.000s | repro=0.068s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.068s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 075] time=0.174s
+[Gen 076/100] sensors: (min=7, avg=9.5, max=13) / coverage: 89.87% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 076] fitness=0.039s | selection=0.000s | repro=0.069s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.068s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 076] time=0.173s
+[Gen 077/100] sensors: (min=6, avg=9.2, max=13) / coverage: 89.87% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 077] fitness=0.038s | selection=0.000s | repro=0.070s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.070s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 077] time=0.176s
+[Gen 078/100] sensors: (min=7, avg=9.2, max=13) / coverage: 89.87% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 078] fitness=0.038s | selection=0.000s | repro=0.060s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.060s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 078] time=0.164s
+[Gen 079/100] sensors: (min=6, avg=9.2, max=13) / coverage: 89.87% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 079] fitness=0.038s | selection=0.000s | repro=0.070s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.070s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 079] time=0.173s
+[Gen 080/100] sensors: (min=7, avg=9.2, max=13) / coverage: 89.87% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 080] fitness=0.039s | selection=0.000s | repro=0.072s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.072s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 080] time=0.176s
+[Gen 081/100] sensors: (min=7, avg=9.3, max=13) / coverage: 89.87% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 081] fitness=0.039s | selection=0.000s | repro=0.072s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.071s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 081] time=0.176s
+[Gen 082/100] sensors: (min=6, avg=9.3, max=13) / coverage: 89.87% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 082] fitness=0.038s | selection=0.000s | repro=0.064s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.064s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 082] time=0.168s
+[Gen 083/100] sensors: (min=7, avg=9.6, max=13) / coverage: 89.87% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 083] fitness=0.040s | selection=0.000s | repro=0.072s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.072s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 083] time=0.180s
+[Gen 084/100] sensors: (min=7, avg=9.7, max=13) / coverage: 89.87% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 084] fitness=0.042s | selection=0.000s | repro=0.073s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.073s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 084] time=0.181s
+[Gen 085/100] sensors: (min=7, avg=9.6, max=13) / coverage: 89.87% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 085] fitness=0.038s | selection=0.000s | repro=0.063s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.062s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 085] time=0.166s
+[Gen 086/100] sensors: (min=8, avg=9.9, max=13) / coverage: 89.87% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 086] fitness=0.038s | selection=0.000s | repro=0.078s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.078s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 086] time=0.183s
+[Gen 087/100] sensors: (min=7, avg=9.8, max=13) / coverage: 89.87% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 087] fitness=0.038s | selection=0.000s | repro=0.068s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.067s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 087] time=0.170s
+[Gen 088/100] sensors: (min=7, avg=9.9, max=13) / coverage: 89.87% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 088] fitness=0.039s | selection=0.000s | repro=0.066s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.066s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 088] time=0.170s
+[Gen 089/100] sensors: (min=7, avg=9.8, max=13) / coverage: 89.87% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 089] fitness=0.040s | selection=0.000s | repro=0.072s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.072s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 089] time=0.178s
+[Gen 090/100] sensors: (min=7, avg=9.8, max=13) / coverage: 89.87% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 090] fitness=0.039s | selection=0.000s | repro=0.068s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.067s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 090] time=0.172s
+[Gen 091/100] sensors: (min=7, avg=10.2, max=13) / coverage: 89.87% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 091] fitness=0.039s | selection=0.000s | repro=0.075s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.075s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 091] time=0.179s
+[Gen 092/100] sensors: (min=8, avg=10.1, max=13) / coverage: 89.87% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 092] fitness=0.039s | selection=0.000s | repro=0.075s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.075s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 092] time=0.180s
+[Gen 093/100] sensors: (min=8, avg=9.9, max=13) / coverage: 89.87% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 093] fitness=0.040s | selection=0.000s | repro=0.069s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.069s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 093] time=0.175s
+[Gen 094/100] sensors: (min=7, avg=9.9, max=13) / coverage: 89.87% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 094] fitness=0.039s | selection=0.000s | repro=0.066s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.066s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 094] time=0.171s
+[Gen 095/100] sensors: (min=8, avg=9.8, max=13) / coverage: 89.87% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 095] fitness=0.038s | selection=0.000s | repro=0.067s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.067s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 095] time=0.168s
+[Gen 096/100] sensors: (min=7, avg=9.7, max=13) / coverage: 89.87% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 096] fitness=0.037s | selection=0.000s | repro=0.071s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.070s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 096] time=0.171s
+[Gen 097/100] sensors: (min=8, avg=10.0, max=13) / coverage: 89.87% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 097] fitness=0.039s | selection=0.000s | repro=0.070s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.070s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 097] time=0.172s
+[Gen 098/100] sensors: (min=8, avg=9.9, max=13) / coverage: 89.87% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 098] fitness=0.037s | selection=0.000s | repro=0.073s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.073s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 098] time=0.174s
+[Gen 099/100] sensors: (min=7, avg=9.7, max=13) / coverage: 89.87% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 099] fitness=0.037s | selection=0.000s | repro=0.068s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.068s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 099] time=0.174s
+[Gen 100/100] sensors: (min=7, avg=9.3, max=13) / coverage: 89.87% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 100] fitness=0.038s | selection=0.000s | repro=0.073s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.073s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 100] time=0.176s
+[GA Total Time] 52.879s
+[Gen 001/100] sensors: (min=40, avg=88.8, max=140) / coverage: 96.90% (target=90.00%) / best_inner=44 (corner=8)
+[Profile Gen 001] fitness=0.114s | selection=0.000s | repro=5.785s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=5.785s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[MP Warmup] pool_init=0.000s | warmup=24.773s
+[Gen 001] time=6.025s
+[Gen 002/100] sensors: (min=38, avg=53.1, max=75) / coverage: 97.73% (target=90.00%) / best_inner=38 (corner=8)
+[Profile Gen 002] fitness=0.061s | selection=0.000s | repro=0.187s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.187s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 002] time=0.336s
+[Gen 003/100] sensors: (min=37, avg=44.7, max=52) / coverage: 97.93% (target=90.00%) / best_inner=39 (corner=8)
+[Profile Gen 003] fitness=0.057s | selection=0.000s | repro=0.187s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.187s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 003] time=0.327s
+[Gen 004/100] sensors: (min=35, avg=41.2, max=48) / coverage: 98.41% (target=90.00%) / best_inner=36 (corner=8)
+[Profile Gen 004] fitness=0.055s | selection=0.000s | repro=0.157s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.156s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 004] time=0.292s
+[Gen 005/100] sensors: (min=34, avg=37.7, max=43) / coverage: 96.90% (target=90.00%) / best_inner=34 (corner=8)
+[Profile Gen 005] fitness=0.051s | selection=0.000s | repro=0.170s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.170s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 005] time=0.298s
+[Gen 006/100] sensors: (min=33, avg=36.3, max=39) / coverage: 98.90% (target=90.00%) / best_inner=35 (corner=8)
+[Profile Gen 006] fitness=0.051s | selection=0.000s | repro=0.150s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.150s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 006] time=0.277s
+[Gen 007/100] sensors: (min=32, avg=35.1, max=38) / coverage: 96.76% (target=90.00%) / best_inner=34 (corner=8)
+[Profile Gen 007] fitness=0.051s | selection=0.000s | repro=0.139s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.138s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 007] time=0.265s
+[Gen 008/100] sensors: (min=31, avg=34.1, max=37) / coverage: 98.14% (target=90.00%) / best_inner=31 (corner=8)
+[Profile Gen 008] fitness=0.048s | selection=0.000s | repro=0.162s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.162s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 008] time=0.287s
+[Gen 009/100] sensors: (min=30, avg=32.7, max=36) / coverage: 95.52% (target=90.00%) / best_inner=32 (corner=8)
+[Profile Gen 009] fitness=0.048s | selection=0.000s | repro=0.157s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.157s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 009] time=0.280s
+[Gen 010/100] sensors: (min=29, avg=31.5, max=34) / coverage: 97.73% (target=90.00%) / best_inner=30 (corner=8)
+[Profile Gen 010] fitness=0.048s | selection=0.000s | repro=0.142s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.142s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 010] time=0.267s
+[Gen 011/100] sensors: (min=29, avg=30.6, max=33) / coverage: 97.45% (target=90.00%) / best_inner=29 (corner=8)
+[Profile Gen 011] fitness=0.048s | selection=0.000s | repro=0.142s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.142s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 011] time=0.264s
+[Gen 012/100] sensors: (min=28, avg=29.6, max=32) / coverage: 97.45% (target=90.00%) / best_inner=29 (corner=8)
+[Profile Gen 012] fitness=0.046s | selection=0.000s | repro=0.134s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.134s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 012] time=0.252s
+[Gen 013/100] sensors: (min=26, avg=28.6, max=31) / coverage: 96.00% (target=90.00%) / best_inner=26 (corner=8)
+[Profile Gen 013] fitness=0.046s | selection=0.000s | repro=0.123s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.122s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 013] time=0.241s
+[Gen 014/100] sensors: (min=25, avg=27.7, max=30) / coverage: 96.00% (target=90.00%) / best_inner=26 (corner=8)
+[Profile Gen 014] fitness=0.046s | selection=0.000s | repro=0.124s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.124s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 014] time=0.242s
+[Gen 015/100] sensors: (min=24, avg=26.6, max=29) / coverage: 97.73% (target=90.00%) / best_inner=25 (corner=8)
+[Profile Gen 015] fitness=0.045s | selection=0.000s | repro=0.119s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.119s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 015] time=0.236s
+[Gen 016/100] sensors: (min=23, avg=25.6, max=28) / coverage: 98.14% (target=90.00%) / best_inner=26 (corner=8)
+[Profile Gen 016] fitness=0.045s | selection=0.000s | repro=0.117s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.117s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 016] time=0.233s
+[Gen 017/100] sensors: (min=22, avg=24.7, max=27) / coverage: 93.87% (target=90.00%) / best_inner=23 (corner=8)
+[Profile Gen 017] fitness=0.045s | selection=0.000s | repro=0.120s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.120s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 017] time=0.237s
+[Gen 018/100] sensors: (min=22, avg=23.8, max=26) / coverage: 93.87% (target=90.00%) / best_inner=23 (corner=8)
+[Profile Gen 018] fitness=0.043s | selection=0.000s | repro=0.119s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.119s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 018] time=0.232s
+[Gen 019/100] sensors: (min=21, avg=23.0, max=25) / coverage: 93.25% (target=90.00%) / best_inner=21 (corner=8)
+[Profile Gen 019] fitness=0.043s | selection=0.000s | repro=0.113s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.113s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 019] time=0.227s
+[Gen 020/100] sensors: (min=20, avg=22.2, max=25) / coverage: 92.35% (target=90.00%) / best_inner=20 (corner=8)
+[Profile Gen 020] fitness=0.044s | selection=0.000s | repro=0.106s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.106s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 020] time=0.220s
+[Gen 021/100] sensors: (min=19, avg=21.4, max=24) / coverage: 94.69% (target=90.00%) / best_inner=20 (corner=8)
+[Profile Gen 021] fitness=0.042s | selection=0.000s | repro=0.095s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.095s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 021] time=0.207s
+[Gen 022/100] sensors: (min=18, avg=20.4, max=23) / coverage: 92.76% (target=90.00%) / best_inner=19 (corner=8)
+[Profile Gen 022] fitness=0.042s | selection=0.000s | repro=0.094s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.094s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 022] time=0.205s
+[Gen 023/100] sensors: (min=17, avg=19.7, max=23) / coverage: 92.76% (target=90.00%) / best_inner=19 (corner=8)
+[Profile Gen 023] fitness=0.042s | selection=0.000s | repro=0.086s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.086s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 023] time=0.196s
+[Gen 024/100] sensors: (min=16, avg=18.9, max=21) / coverage: 90.90% (target=90.00%) / best_inner=17 (corner=8)
+[Profile Gen 024] fitness=0.042s | selection=0.000s | repro=0.085s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.085s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 024] time=0.195s
+[Gen 025/100] sensors: (min=16, avg=18.4, max=21) / coverage: 90.90% (target=90.00%) / best_inner=17 (corner=8)
+[Profile Gen 025] fitness=0.042s | selection=0.000s | repro=0.081s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.081s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 025] time=0.193s
+[Gen 026/100] sensors: (min=16, avg=17.9, max=20) / coverage: 93.45% (target=90.00%) / best_inner=17 (corner=8)
+[Profile Gen 026] fitness=0.042s | selection=0.000s | repro=0.085s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.085s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 026] time=0.194s
+[Gen 027/100] sensors: (min=15, avg=17.1, max=20) / coverage: 90.21% (target=90.00%) / best_inner=16 (corner=8)
+[Profile Gen 027] fitness=0.041s | selection=0.000s | repro=0.090s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.090s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 027] time=0.199s
+[Gen 028/100] sensors: (min=14, avg=16.5, max=19) / coverage: 92.90% (target=90.00%) / best_inner=17 (corner=8)
+[Profile Gen 028] fitness=0.041s | selection=0.000s | repro=0.083s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.082s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 028] time=0.191s
+[Gen 029/100] sensors: (min=14, avg=16.0, max=19) / coverage: 92.90% (target=90.00%) / best_inner=17 (corner=8)
+[Profile Gen 029] fitness=0.042s | selection=0.000s | repro=0.072s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.072s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 029] time=0.182s
+[Gen 030/100] sensors: (min=13, avg=15.4, max=18) / coverage: 90.35% (target=90.00%) / best_inner=15 (corner=8)
+[Profile Gen 030] fitness=0.040s | selection=0.000s | repro=0.070s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.069s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 030] time=0.177s
+[Gen 031/100] sensors: (min=12, avg=14.8, max=18) / coverage: 90.35% (target=90.00%) / best_inner=15 (corner=8)
+[Profile Gen 031] fitness=0.040s | selection=0.000s | repro=0.074s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.074s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 031] time=0.181s
+[Gen 032/100] sensors: (min=12, avg=14.4, max=17) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 032] fitness=0.042s | selection=0.000s | repro=0.075s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.075s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 032] time=0.185s
+[Gen 033/100] sensors: (min=11, avg=13.8, max=17) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 033] fitness=0.040s | selection=0.000s | repro=0.081s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.080s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 033] time=0.187s
+[Gen 034/100] sensors: (min=10, avg=13.4, max=16) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 034] fitness=0.040s | selection=0.000s | repro=0.064s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.064s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 034] time=0.173s
+[Gen 035/100] sensors: (min=11, avg=13.1, max=16) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 035] fitness=0.040s | selection=0.000s | repro=0.068s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.068s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 035] time=0.175s
+[Gen 036/100] sensors: (min=10, avg=12.5, max=15) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 036] fitness=0.039s | selection=0.000s | repro=0.076s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.076s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 036] time=0.182s
+[Gen 037/100] sensors: (min=9, avg=12.0, max=14) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 037] fitness=0.039s | selection=0.000s | repro=0.072s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.072s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 037] time=0.178s
+[Gen 038/100] sensors: (min=9, avg=11.7, max=14) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 038] fitness=0.039s | selection=0.000s | repro=0.086s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.086s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 038] time=0.192s
+[Gen 039/100] sensors: (min=9, avg=11.6, max=14) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 039] fitness=0.039s | selection=0.000s | repro=0.061s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.061s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 039] time=0.166s
+[Gen 040/100] sensors: (min=9, avg=11.2, max=14) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 040] fitness=0.040s | selection=0.000s | repro=0.066s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.066s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 040] time=0.176s
+[Gen 041/100] sensors: (min=8, avg=10.8, max=14) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 041] fitness=0.039s | selection=0.000s | repro=0.074s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.074s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 041] time=0.180s
+[Gen 042/100] sensors: (min=7, avg=10.3, max=13) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 042] fitness=0.040s | selection=0.000s | repro=0.063s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.063s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 042] time=0.169s
+[Gen 043/100] sensors: (min=7, avg=10.2, max=13) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 043] fitness=0.039s | selection=0.000s | repro=0.073s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.073s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 043] time=0.178s
+[Gen 044/100] sensors: (min=8, avg=10.0, max=13) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 044] fitness=0.039s | selection=0.000s | repro=0.073s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.073s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 044] time=0.178s
+[Gen 045/100] sensors: (min=8, avg=10.1, max=13) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 045] fitness=0.039s | selection=0.000s | repro=0.071s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.071s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 045] time=0.176s
+[Gen 046/100] sensors: (min=8, avg=9.9, max=12) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 046] fitness=0.039s | selection=0.000s | repro=0.076s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.076s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 046] time=0.181s
+[Gen 047/100] sensors: (min=8, avg=9.8, max=12) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 047] fitness=0.039s | selection=0.000s | repro=0.075s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.075s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 047] time=0.176s
+[Gen 048/100] sensors: (min=7, avg=9.5, max=12) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 048] fitness=0.037s | selection=0.000s | repro=0.069s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.069s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 048] time=0.170s
+[Gen 049/100] sensors: (min=7, avg=9.4, max=12) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 049] fitness=0.038s | selection=0.000s | repro=0.065s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.065s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 049] time=0.167s
+[Gen 050/100] sensors: (min=7, avg=9.5, max=12) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 050] fitness=0.039s | selection=0.000s | repro=0.065s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.065s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 050] time=0.167s
+[Gen 051/100] sensors: (min=7, avg=9.4, max=12) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 051] fitness=0.038s | selection=0.000s | repro=0.074s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.074s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 051] time=0.177s
+[Gen 052/100] sensors: (min=7, avg=9.5, max=12) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 052] fitness=0.040s | selection=0.000s | repro=0.070s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.070s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 052] time=0.177s
+[Gen 053/100] sensors: (min=7, avg=9.7, max=12) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 053] fitness=0.040s | selection=0.000s | repro=0.064s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.064s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 053] time=0.171s
+[Gen 054/100] sensors: (min=7, avg=9.5, max=12) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 054] fitness=0.039s | selection=0.000s | repro=0.066s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.065s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 054] time=0.171s
+[Gen 055/100] sensors: (min=7, avg=9.4, max=12) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 055] fitness=0.039s | selection=0.000s | repro=0.065s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.065s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 055] time=0.170s
+[Gen 056/100] sensors: (min=7, avg=9.5, max=12) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 056] fitness=0.039s | selection=0.000s | repro=0.068s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.068s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 056] time=0.173s
+[Gen 057/100] sensors: (min=7, avg=9.4, max=12) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 057] fitness=0.039s | selection=0.000s | repro=0.059s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.059s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 057] time=0.165s
+[Gen 058/100] sensors: (min=7, avg=9.2, max=12) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 058] fitness=0.038s | selection=0.000s | repro=0.057s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.057s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 058] time=0.160s
+[Gen 059/100] sensors: (min=6, avg=8.9, max=12) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 059] fitness=0.038s | selection=0.000s | repro=0.064s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.064s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 059] time=0.167s
+[Gen 060/100] sensors: (min=6, avg=8.7, max=12) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 060] fitness=0.038s | selection=0.000s | repro=0.066s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.066s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 060] time=0.170s
+[Gen 061/100] sensors: (min=7, avg=8.6, max=12) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 061] fitness=0.038s | selection=0.000s | repro=0.063s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.063s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 061] time=0.167s
+[Gen 062/100] sensors: (min=6, avg=8.5, max=12) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 062] fitness=0.038s | selection=0.000s | repro=0.073s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.073s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 062] time=0.176s
+[Gen 063/100] sensors: (min=6, avg=8.6, max=12) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 063] fitness=0.038s | selection=0.000s | repro=0.064s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.064s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 063] time=0.171s
+[Gen 064/100] sensors: (min=6, avg=8.4, max=12) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 064] fitness=0.040s | selection=0.000s | repro=0.059s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.059s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 064] time=0.168s
+[Gen 065/100] sensors: (min=6, avg=8.6, max=12) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 065] fitness=0.039s | selection=0.000s | repro=0.062s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.062s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 065] time=0.166s
+[Gen 066/100] sensors: (min=7, avg=8.9, max=12) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 066] fitness=0.041s | selection=0.000s | repro=0.061s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.061s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 066] time=0.170s
+[Gen 067/100] sensors: (min=7, avg=9.1, max=12) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 067] fitness=0.038s | selection=0.000s | repro=0.074s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.074s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 067] time=0.178s
+[Gen 068/100] sensors: (min=7, avg=8.9, max=12) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 068] fitness=0.039s | selection=0.000s | repro=0.063s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.063s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 068] time=0.167s
+[Gen 069/100] sensors: (min=6, avg=8.9, max=12) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 069] fitness=0.038s | selection=0.000s | repro=0.067s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.067s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 069] time=0.172s
+[Gen 070/100] sensors: (min=7, avg=8.8, max=12) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 070] fitness=0.038s | selection=0.000s | repro=0.068s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.068s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 070] time=0.171s
+[Gen 071/100] sensors: (min=6, avg=8.5, max=12) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 071] fitness=0.039s | selection=0.000s | repro=0.061s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.061s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 071] time=0.166s
+[Gen 072/100] sensors: (min=7, avg=8.6, max=12) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 072] fitness=0.038s | selection=0.000s | repro=0.067s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.067s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 072] time=0.171s
+[Gen 073/100] sensors: (min=6, avg=8.3, max=12) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 073] fitness=0.038s | selection=0.000s | repro=0.073s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.073s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 073] time=0.177s
+[Gen 074/100] sensors: (min=6, avg=8.5, max=12) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 074] fitness=0.039s | selection=0.000s | repro=0.066s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.066s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 074] time=0.170s
+[Gen 075/100] sensors: (min=6, avg=8.5, max=12) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 075] fitness=0.039s | selection=0.000s | repro=0.066s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.066s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 075] time=0.171s
+[Gen 076/100] sensors: (min=7, avg=8.7, max=12) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 076] fitness=0.039s | selection=0.000s | repro=0.065s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.065s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 076] time=0.171s
+[Gen 077/100] sensors: (min=6, avg=9.0, max=12) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 077] fitness=0.039s | selection=0.000s | repro=0.068s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.067s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 077] time=0.173s
+[Gen 078/100] sensors: (min=6, avg=8.8, max=12) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 078] fitness=0.038s | selection=0.000s | repro=0.067s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.067s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 078] time=0.171s
+[Gen 079/100] sensors: (min=6, avg=8.7, max=12) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 079] fitness=0.038s | selection=0.000s | repro=0.070s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.070s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 079] time=0.174s
+[Gen 080/100] sensors: (min=7, avg=8.8, max=12) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 080] fitness=0.038s | selection=0.000s | repro=0.075s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.075s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 080] time=0.179s
+[Gen 081/100] sensors: (min=7, avg=8.8, max=12) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 081] fitness=0.039s | selection=0.000s | repro=0.072s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.072s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 081] time=0.176s
+[Gen 082/100] sensors: (min=7, avg=9.0, max=12) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 082] fitness=0.038s | selection=0.000s | repro=0.068s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.068s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 082] time=0.171s
+[Gen 083/100] sensors: (min=7, avg=8.9, max=12) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 083] fitness=0.041s | selection=0.000s | repro=0.067s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.067s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 083] time=0.177s
+[Gen 084/100] sensors: (min=6, avg=8.7, max=12) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 084] fitness=0.041s | selection=0.000s | repro=0.064s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.064s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 084] time=0.170s
+[Gen 085/100] sensors: (min=6, avg=8.7, max=12) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 085] fitness=0.039s | selection=0.000s | repro=0.066s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.066s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 085] time=0.170s
+[Gen 086/100] sensors: (min=5, avg=8.6, max=12) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 086] fitness=0.039s | selection=0.000s | repro=0.067s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.067s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 086] time=0.171s
+[Gen 087/100] sensors: (min=6, avg=8.8, max=12) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 087] fitness=0.039s | selection=0.000s | repro=0.073s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.073s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 087] time=0.176s
+[Gen 088/100] sensors: (min=7, avg=9.1, max=12) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 088] fitness=0.039s | selection=0.000s | repro=0.067s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.067s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 088] time=0.173s
+[Gen 089/100] sensors: (min=7, avg=9.2, max=12) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 089] fitness=0.039s | selection=0.000s | repro=0.067s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.067s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 089] time=0.171s
+[Gen 090/100] sensors: (min=6, avg=9.1, max=12) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 090] fitness=0.039s | selection=0.000s | repro=0.063s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.063s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 090] time=0.167s
+[Gen 091/100] sensors: (min=7, avg=9.3, max=12) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 091] fitness=0.039s | selection=0.000s | repro=0.066s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.065s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 091] time=0.169s
+[Gen 092/100] sensors: (min=7, avg=9.4, max=12) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 092] fitness=0.039s | selection=0.000s | repro=0.070s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.070s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 092] time=0.178s
+[Gen 093/100] sensors: (min=6, avg=9.1, max=12) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 093] fitness=0.039s | selection=0.000s | repro=0.070s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.070s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 093] time=0.175s
+[Gen 094/100] sensors: (min=7, avg=9.3, max=12) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 094] fitness=0.039s | selection=0.000s | repro=0.066s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.066s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 094] time=0.170s
+[Gen 095/100] sensors: (min=7, avg=9.5, max=12) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 095] fitness=0.038s | selection=0.000s | repro=0.068s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.068s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 095] time=0.172s
+[Gen 096/100] sensors: (min=7, avg=9.3, max=12) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 096] fitness=0.038s | selection=0.000s | repro=0.066s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.066s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 096] time=0.170s
+[Gen 097/100] sensors: (min=6, avg=9.5, max=12) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 097] fitness=0.038s | selection=0.000s | repro=0.065s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.065s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 097] time=0.168s
+[Gen 098/100] sensors: (min=8, avg=9.8, max=12) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 098] fitness=0.038s | selection=0.000s | repro=0.070s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.070s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 098] time=0.175s
+[Gen 099/100] sensors: (min=7, avg=9.8, max=12) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 099] fitness=0.039s | selection=0.000s | repro=0.065s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.065s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 099] time=0.170s
+[Gen 100/100] sensors: (min=7, avg=9.7, max=12) / coverage: 88.49% (target=90.00%) / best_inner=12 (corner=8)
+[Profile Gen 100] fitness=0.039s | selection=0.000s | repro=0.066s (crossover=0.000s, mutation=0.000s) | calls: crossover~100, mutation~70.0
+               repro_detail: pool_init=0.000s | warmup=0.000s | parallel=0.065s
+               fitness_breakdown: ordering=0.000s | prefix=0.000s | score=0.000s | pop=100 
+
+[Gen 100] time=0.172s
+[GA Total Time] 52.394s
