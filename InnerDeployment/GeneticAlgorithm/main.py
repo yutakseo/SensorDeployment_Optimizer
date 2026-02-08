@@ -247,7 +247,7 @@ class SensorGA:
         if "overlap_min_dist" in self.fitness_kwargs and "min_separation" not in self.mutation_kwargs:
             ov = self.fitness_kwargs.get("overlap_min_dist")
             if ov is not None:
-                self.mutation_kwargs["min_separation"] = max(8.0, float(ov))
+                self.mutation_kwargs["min_separation"] = max(15.0, float(ov))
 
         init_min = int(init_min_sensors) if init_min_sensors is not None else int(self.min_sensors)
         init_max = int(init_max_sensors) if init_max_sensors is not None else int(self.max_sensors)

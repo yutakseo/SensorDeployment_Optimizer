@@ -73,7 +73,7 @@ class FitnessFunc:
         coverage_weight: float = 1.0,
         sensor_weight: float = 1.0,
         deficit_penalty: float = 20.0,
-        overlap_min_dist: Optional[float] = 8.0,
+        overlap_min_dist: Optional[float] = 15.0,
         overlap_penalty: float = 5.0,
         useCache: bool = True,
         sampleCount: Optional[int] = None,

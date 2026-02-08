@@ -38,7 +38,7 @@ def mutation(
     prefix_minimize: bool = True,
     replace_duplicates: bool = True,
     empty_fill_ratio: float = 0.0,
-    min_separation: float = 8.0,
+    min_separation: float = 15.0,
     device: Optional[object] = None,
 ) -> Chromosome:
     """
