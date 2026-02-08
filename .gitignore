@@ -9,7 +9,7 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
-
+nohup.out
 # Python
 __pycache__/
 *.pyc
