@@ -7,6 +7,10 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 
 import matplotlib.pyplot as plt
 
+from Tools.MapLoader import MapLoader
+from Tools.PlotTools import VisualTool
+from Tools.cluster_distance import as_points, mean_nearest_neighbor_stats_m
+
 
 PathLike = Union[str, Path]
 
@@ -497,3 +501,42 @@ class Analyzer:
             plt.close()
 
         return None  # 기존 반환 유지
+
+    def plot_sensor_placement(
+        self,
+        *,
+        grid_m: float = 5.0,
+        coverage: int = 45,
+        save_dir: str = "__RESULTS__/_plots",
+        show: bool = True,
+        dpi: int = 600,
+        figsize: Tuple[int, int] = (10, 10),
+        title: str = "Sensor placement",
+        filename: str = "sensor_placement",
+        cmap: str = "gray",
+    ) -> None:
+        """현재 로드한 run의 최종 센서 배치도를 그리고, 평균 군집거리(m) 출력."""
+        map_name = Path(self.result_root_path).name
+        map_data = MapLoader().load(map_name)
+        final = self.run.get("final", {})
+        best = final.get("best_solution", [])
+        corners = final.get("corner_points", [])
+        sensor_positions = as_points(best) + as_points(corners)
+
+        stats = mean_nearest_neighbor_stats_m(sensor_positions, grid_m=grid_m)
+        if stats["n_points"] >= 2:
+            print("평균 군집거리 (가장 가까운 센서까지의 거리 평균):", round(stats["mean_m"], 3), "m")
+            print("  (최소:", round(stats["min_m"], 2), "m | 최대:", round(stats["max_m"], 2), "m | 표준편차:", round(stats["std_m"], 2), "m)")
+        else:
+            print("평균 군집거리: 센서 2개 미만")
+
+        vis = VisualTool(show=show, size=figsize, save=True, dpi=dpi, save_dir=save_dir)
+        vis.showMap_circle(
+            map_data=map_data,
+            sensor_positions=sensor_positions,
+            title=title,
+            radius=coverage,
+            cmap=cmap,
+            filename=filename,
+        )
+        print("Total sensors:", len(sensor_positions))

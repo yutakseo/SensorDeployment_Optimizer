@@ -222,3 +222,83 @@ def calcStats(
         ga_sec_mean,
         ga_sec_std,
     )
+
+
+def get_final_points(run: Dict[str, Any]) -> List[Any]:
+    """run 한 개에서 최종 포인트 목록(best_solution + corner_points) 반환."""
+    final = run.get("final", {})
+    best = final.get("best_solution", [])
+    corners = final.get("corner_points", [])
+    return list(best) + list(corners)
+
+
+def report_mean_cluster_distance(
+    root_dir: str,
+    map_name: str,
+    grid_m: float = 5.0,
+    verbose: bool = True,
+) -> Optional[Dict[str, float]]:
+    """
+    해당 맵 디렉터리의 모든 run에 대해 평균 군집거리(가장 가까운 센서까지의 거리 평균)를
+    run별로 구한 뒤, 그 평균·표준편차를 실제 거리(m)로 출력합니다.
+    grid_m: 1그리드당 미터 (기본 5m).
+    """
+    from Tools.cluster_distance import mean_nearest_neighbor_distance
+
+    try:
+        run_list = loadRuns(root_dir)
+    except FileNotFoundError as e:
+        if verbose:
+            print(f"[{map_name}] 결과 디렉터리가 없습니다: {e}")
+            print("  → experiment.py로 해당 맵 실험을 먼저 실행하세요.")
+        return None
+    dist_list: List[float] = []
+    for run in run_list:
+        pts = get_final_points(run)
+        if len(pts) >= 2:
+            dist_list.append(mean_nearest_neighbor_distance(pts))
+
+    if not dist_list:
+        if verbose:
+            print(f"[{map_name}] 유효한 run 없음 (최종 포인트 2개 미만)")
+        return None
+
+    n_runs = len(dist_list)
+    mean_d = sum(dist_list) / n_runs
+    std_d = (
+        (sum((d - mean_d) ** 2 for d in dist_list) / (n_runs - 1)) ** 0.5
+        if n_runs > 1
+        else 0.0
+    )
+    if verbose:
+        print(f"[{map_name}] total runs: {n_runs}")
+        print(f"[final] 평균 군집거리 mean ± std: {mean_d * grid_m:.3f} ± {std_d * grid_m:.3f} m")
+    return {"mean": mean_d * grid_m, "std": std_d * grid_m, "n_runs": n_runs}
+
+
+def printStats(root_dir: str) -> None:
+    """calcStats 결과를 읽기 쉬운 형식으로 출력. 디렉터리가 없으면 안내만 출력."""
+    try:
+        (
+            run_cnt,
+            cov_mean,
+            cov_std,
+            corner_mean,
+            corner_std,
+            total_mean,
+            total_std,
+            corner_sec_mean,
+            corner_sec_std,
+            ga_sec_mean,
+            ga_sec_std,
+        ) = calcStats(root_dir)
+    except FileNotFoundError as e:
+        print(f"결과 디렉터리가 없습니다: {e}")
+        print("  → experiment.py로 해당 맵 실험을 먼저 실행하세요.")
+        return
+    print(f"total runs: {run_cnt}")
+    print(f"[gen=100] coverage mean ± std: {cov_mean:.4f} ± {cov_std:.4f}")
+    print(f"[final] corner sensors mean ± std: {corner_mean:.2f} ± {corner_std:.2f}")
+    print(f"[final] total sensors mean ± std: {total_mean:.2f} ± {total_std:.2f}")
+    print(f"[time] corner mean ± std (sec): {corner_sec_mean:.3f} ± {corner_sec_std:.3f}")
+    print(f"[time] GA mean ± std (sec): {ga_sec_mean:.3f} ± {ga_sec_std:.3f}")
