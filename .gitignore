@@ -22,8 +22,8 @@ build/
 
 # Experiments
 tmp/
-!automated_experiment/
-!manual_experiment/
+\!automated_experiment/
+\!manual_experiment/
 .ipynb_checkpoints/
 
 # Data
