@@ -270,10 +270,25 @@ def report_mean_cluster_distance(
         if n_runs > 1
         else 0.0
     )
+    min_d = min(dist_list)
+    max_d = max(dist_list)
     if verbose:
         print(f"[{map_name}] total runs: {n_runs}")
-        print(f"[final] 평균 군집거리 mean ± std: {mean_d * grid_m:.3f} ± {std_d * grid_m:.3f} m")
-    return {"mean": mean_d * grid_m, "std": std_d * grid_m, "n_runs": n_runs}
+        print(
+            "[final] 평균 군집거리 mean ± std: "
+            f"{mean_d * grid_m:.3f} ± {std_d * grid_m:.3f} m"
+        )
+        print(
+            "[final] 군집거리 min / max: "
+            f"{min_d * grid_m:.3f} / {max_d * grid_m:.3f} m"
+        )
+    return {
+        "mean": mean_d * grid_m,
+        "std": std_d * grid_m,
+        "min": min_d * grid_m,
+        "max": max_d * grid_m,
+        "n_runs": n_runs,
+    }
 
 
 def printStats(root_dir: str) -> None:

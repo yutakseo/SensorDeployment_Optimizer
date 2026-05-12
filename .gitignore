@@ -22,23 +22,14 @@ build/
 
 # Experiments
 tmp/
-# 
-# Jupyter notebook
-# *.ipynb
+!automated_experiment/
+!manual_experiment/
 .ipynb_checkpoints/
 
 # Data
-# *.xlsx
-# *.pdf
-# *.sql
-# *.json
-# *.dill
-# *.pk
-# *.bin
-# *.html
-# *.png
-# *.csv
-# *.h5
+*.xlsx
+*.pdf
+.csv
 
 
 __MAPS__/*
