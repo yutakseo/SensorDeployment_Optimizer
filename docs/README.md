@@ -72,4 +72,4 @@ source: [Dmitry Soshnikov, PhD](https://soshnikov.com/) (2024) "Genetic Algorith
 
 ### 4. _SensorModule_
 
-### 5. _PlotTools_
+### 5. _Analysis_

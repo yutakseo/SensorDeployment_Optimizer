@@ -1,7 +1,7 @@
-# experiment2.py
+#  main.py
 from dataclasses import dataclass
 
-from Tools.engine import Experiment
+from Engine.experiment import Experiment
 
 
 def run_experiments(maps, iter_cnt, results_dir, ga_init, ga_run, corner_cfg):

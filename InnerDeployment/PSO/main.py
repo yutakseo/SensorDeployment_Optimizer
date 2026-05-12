@@ -1,0 +1,372 @@
+from __future__ import annotations
+
+import random
+import time
+from typing import List, Optional, Tuple, Union
+
+import numpy as np
+
+from InnerDeployment.GeneticAlgorithm.fitnessfunction import FitnessFunc
+from InnerDeployment.GeneticAlgorithm.initializer import initialize_population
+from InnerDeployment.GeneticAlgorithm.utils import to_int_pairs
+
+try:
+    import torch
+except Exception:  # pragma: no cover - optional dependency at import time
+    torch = None
+
+Gene = Tuple[int, int]
+Chromosome = List[Gene]
+Generation = List[Chromosome]
+
+
+class SensorPSO:
+    """
+    Particle Swarm Optimization for inner-area sensor deployment.
+
+    Each particle keeps a fixed position matrix sized by max_sensors; only the
+    first active_count slots are evaluated.
+    """
+
+    def __init__(
+        self,
+        installable_map,
+        jobsite_map,
+        coverage: int,
+        generations: int,
+        corner_positions: List[Gene],
+        swarm_size: int = 100,
+        min_sensors: int = 10,
+        max_sensors: int = 100,
+        initial_min_sensors: Optional[int] = None,
+        initial_max_sensors: Optional[int] = None,
+        fitness_kwargs: Optional[dict] = None,
+    ):
+        self.installable_map = (np.asarray(installable_map) > 0).astype(np.uint8)
+        self.jobsite_map = np.asarray(jobsite_map)
+        self.coverage = int(coverage)
+        self.generations = int(generations)
+        self.corner_positions = to_int_pairs(corner_positions)
+
+        self.swarm_size = int(swarm_size)
+        self.min_sensors = max(0, int(min_sensors))
+        self.max_sensors = max(self.min_sensors, int(max_sensors))
+
+        self.fitness_kwargs = dict(fitness_kwargs or {})
+        if (
+            "device" not in self.fitness_kwargs
+            and torch is not None
+            and torch.cuda.is_available()
+        ):
+            self.fitness_kwargs["device"] = "cuda"
+
+        yx = np.argwhere(self.installable_map > 0)
+        self._installable_points: List[Gene] = [(int(x), int(y)) for (y, x) in yx]
+        if not self._installable_points:
+            raise ValueError("installable_map has no installable cells.")
+
+        self._height, self._width = self.installable_map.shape
+        self._point_array = np.asarray(self._installable_points, dtype=np.float32)
+        self._installable_set = set(self._installable_points)
+        self._nearest_y = None
+        self._nearest_x = None
+        try:
+            from scipy.ndimage import distance_transform_edt
+
+            invalid = self.installable_map == 0
+            _, indices = distance_transform_edt(invalid, return_indices=True)
+            self._nearest_y = indices[0]
+            self._nearest_x = indices[1]
+        except Exception:
+            pass
+
+        init_min = int(initial_min_sensors) if initial_min_sensors is not None else self.min_sensors
+        init_max = int(initial_max_sensors) if initial_max_sensors is not None else self.max_sensors
+        init_min = max(self.min_sensors, min(self.max_sensors, init_min))
+        init_max = max(init_min, min(self.max_sensors, init_max))
+
+        self.init_population: Generation = initialize_population(
+            input_map=self.installable_map,
+            population_size=self.swarm_size,
+            corner_positions=self.corner_positions,
+            coverage=self.coverage,
+            min_sensors=init_min,
+            max_sensors=init_max,
+        )
+        self.population: Generation = [self._dedupe_chromosome(c) for c in self.init_population]
+
+        self.best_solution: Optional[Chromosome] = None
+        self.best_fitness: float = float("-inf")
+        self.best_coverage: float = float("nan")
+        self.corner_points: List[Gene] = list(self.corner_positions)
+
+        self._positions, self._velocities, self._active_counts = self._init_swarm(self.population)
+
+    def _init_swarm(self, chromosomes: Generation):
+        n = max(1, len(chromosomes))
+        positions = np.zeros((n, self.max_sensors, 2), dtype=np.float32)
+        velocities = np.random.uniform(-1.0, 1.0, size=positions.shape).astype(np.float32)
+        active_counts = np.zeros(n, dtype=np.int32)
+
+        for i, chromo in enumerate(chromosomes):
+            pts = self._dedupe_chromosome(chromo)
+            count = max(self.min_sensors, min(self.max_sensors, len(pts)))
+            active_counts[i] = count
+
+            fill = list(pts[:count])
+            while len(fill) < self.max_sensors:
+                fill.append(random.choice(self._installable_points))
+            positions[i] = np.asarray(fill[: self.max_sensors], dtype=np.float32)
+
+        return positions, velocities, active_counts
+
+    def _dedupe_chromosome(self, chromosome: Chromosome) -> Chromosome:
+        seen = set()
+        out: Chromosome = []
+        for p in chromosome:
+            key = (int(p[0]), int(p[1]))
+            if key in seen:
+                continue
+            if key not in self._installable_set:
+                continue
+            seen.add(key)
+            out.append(key)
+        return out
+
+    def _snap_point(self, x: float, y: float) -> Gene:
+        xi = int(round(float(x)))
+        yi = int(round(float(y)))
+        xi = max(0, min(self._width - 1, xi))
+        yi = max(0, min(self._height - 1, yi))
+        if (xi, yi) in self._installable_set:
+            return xi, yi
+
+        if self._nearest_y is not None and self._nearest_x is not None:
+            return int(self._nearest_x[yi, xi]), int(self._nearest_y[yi, xi])
+
+        # Invalid cells are projected to the nearest installable point.
+        d = self._point_array - np.asarray([xi, yi], dtype=np.float32)
+        idx = int(np.argmin(np.einsum("ij,ij->i", d, d)))
+        x2, y2 = self._point_array[idx]
+        return int(x2), int(y2)
+
+    def _particle_to_chromosome(self, pos: np.ndarray, active_count: int) -> Chromosome:
+        count = max(self.min_sensors, min(self.max_sensors, int(active_count)))
+        out: Chromosome = []
+        seen = set()
+        for x, y in pos[:count]:
+            p = self._snap_point(float(x), float(y))
+            if p in seen:
+                continue
+            seen.add(p)
+            out.append(p)
+
+        tries = 0
+        while len(out) < self.min_sensors and tries < self.min_sensors * 20:
+            tries += 1
+            p = random.choice(self._installable_points)
+            if p in seen:
+                continue
+            seen.add(p)
+            out.append(p)
+        return out[: self.max_sensors]
+
+    def _evaluate_swarm(self, evaluator: FitnessFunc):
+        chromosomes: Generation = []
+        fitness_scores: List[float] = []
+        coverages: List[float] = []
+        totals: List[int] = []
+
+        for i in range(len(self._positions)):
+            chromo = self._particle_to_chromosome(self._positions[i], int(self._active_counts[i]))
+            fit, cov, total = evaluator.evaluate(chromo)
+            chromosomes.append(chromo)
+            fitness_scores.append(float(fit))
+            coverages.append(float(cov))
+            totals.append(int(total))
+
+        return chromosomes, fitness_scores, coverages, totals
+
+    def _adjust_active_counts(
+        self,
+        *,
+        coverages: List[float],
+        target_coverage: float,
+        p_add: float,
+        p_del: float,
+    ) -> None:
+        for i, cov in enumerate(coverages):
+            if cov < target_coverage and random.random() < p_add:
+                self._active_counts[i] = min(self.max_sensors, int(self._active_counts[i]) + 1)
+            elif cov >= target_coverage and random.random() < p_del:
+                self._active_counts[i] = max(self.min_sensors, int(self._active_counts[i]) - 1)
+
+    def _log_generation(
+        self,
+        gen_idx: int,
+        *,
+        best_coverage: float,
+        target_coverage: float,
+        sensors_min: int,
+        sensors_avg: float,
+        sensors_max: int,
+        best_inner_sensors: int,
+        corner_sensor_count: int,
+    ) -> None:
+        print(
+            f"[PSO {gen_idx:03d}/{self.generations:03d}] "
+            f"sensors: (min={sensors_min}, avg={sensors_avg:.1f}, max={sensors_max}) / "
+            f"coverage: {best_coverage:.2f}% (target={target_coverage:.2f}%) / "
+            f"best_inner={best_inner_sensors} (corner={corner_sensor_count})"
+        )
+
+    def run(
+        self,
+        *,
+        inertia: float = 0.72,
+        cognitive: float = 1.49,
+        social: float = 1.49,
+        velocity_clip: Optional[float] = None,
+        count_add_rate: float = 0.40,
+        count_del_rate: float = 0.30,
+        count_change_rate: float = 0.7,
+        verbose: bool = True,
+        profile: bool = True,
+        profile_every: int = 1,
+        early_stop: bool = True,
+        early_stop_coverage: float = 90.0,
+        early_stop_patience: int = 10,
+        return_best_only: bool = True,
+        logger=None,
+    ) -> Union[Generation, Chromosome]:
+        t0 = time.perf_counter()
+        evaluator = FitnessFunc(
+            jobsite_map=self.jobsite_map,
+            corner_positions=self.corner_positions,
+            coverage=self.coverage,
+            **self.fitness_kwargs,
+        )
+        tau = float(getattr(evaluator, "target_coverage", early_stop_coverage))
+
+        pbest_pos = self._positions.copy()
+        pbest_count = self._active_counts.copy()
+        pbest_score = np.full(len(self._positions), -np.inf, dtype=np.float64)
+
+        gbest_pos = self._positions[0].copy()
+        gbest_count = int(self._active_counts[0])
+        gbest_score = float("-inf")
+        gbest_chromosome: Chromosome = []
+        gbest_coverage = float("nan")
+
+        stable_count = 0
+        last_best_total: Optional[int] = None
+
+        if velocity_clip is None:
+            velocity_clip = max(1.0, float(self.coverage) / 5.0)
+
+        for gen_idx in range(1, self.generations + 1):
+            gen_t0 = time.perf_counter()
+            chromosomes, fitness_scores, coverages, totals = self._evaluate_swarm(evaluator)
+
+            for i, score in enumerate(fitness_scores):
+                if score > pbest_score[i]:
+                    pbest_score[i] = float(score)
+                    pbest_pos[i] = self._positions[i].copy()
+                    pbest_count[i] = self._active_counts[i]
+
+            best_idx = int(np.argmax(np.asarray(fitness_scores, dtype=np.float64)))
+            if fitness_scores[best_idx] > gbest_score:
+                gbest_score = float(fitness_scores[best_idx])
+                gbest_pos = self._positions[best_idx].copy()
+                gbest_count = int(self._active_counts[best_idx])
+                gbest_chromosome = chromosomes[best_idx][:]
+                gbest_coverage = float(coverages[best_idx])
+
+            self._adjust_active_counts(
+                coverages=coverages,
+                target_coverage=tau,
+                p_add=float(count_add_rate) * float(count_change_rate),
+                p_del=float(count_del_rate) * float(count_change_rate),
+            )
+
+            r1 = np.random.random(size=self._positions.shape).astype(np.float32)
+            r2 = np.random.random(size=self._positions.shape).astype(np.float32)
+            self._velocities = (
+                float(inertia) * self._velocities
+                + float(cognitive) * r1 * (pbest_pos - self._positions)
+                + float(social) * r2 * (gbest_pos[None, :, :] - self._positions)
+            )
+            if velocity_clip and velocity_clip > 0:
+                np.clip(self._velocities, -float(velocity_clip), float(velocity_clip), out=self._velocities)
+
+            self._positions += self._velocities
+            self._positions[:, :, 0] = np.clip(self._positions[:, :, 0], 0, self._width - 1)
+            self._positions[:, :, 1] = np.clip(self._positions[:, :, 1], 0, self._height - 1)
+
+            sensors_min = int(min(len(c) for c in chromosomes)) if chromosomes else 0
+            sensors_max = int(max(len(c) for c in chromosomes)) if chromosomes else 0
+            sensors_avg = float(sum(len(c) for c in chromosomes) / len(chromosomes)) if chromosomes else 0.0
+            best_total = int(totals[best_idx]) if totals else 0
+
+            if logger is not None:
+                logger.log_generation(
+                    gen=gen_idx,
+                    sensors_min=float(sensors_min),
+                    sensors_max=float(sensors_max),
+                    sensors_avg=float(sensors_avg + len(self.corner_positions)),
+                    fitness_min=float(min(fitness_scores)) if fitness_scores else float("nan"),
+                    fitness_max=float(max(fitness_scores)) if fitness_scores else float("nan"),
+                    fitness_avg=float(sum(fitness_scores) / len(fitness_scores)) if fitness_scores else float("nan"),
+                    best_solution=gbest_chromosome,
+                    best_fitness=float(gbest_score),
+                    best_coverage=float(gbest_coverage),
+                )
+
+            if verbose:
+                self._log_generation(
+                    gen_idx,
+                    best_coverage=float(gbest_coverage),
+                    target_coverage=float(tau),
+                    sensors_min=sensors_min,
+                    sensors_avg=sensors_avg,
+                    sensors_max=sensors_max,
+                    best_inner_sensors=len(gbest_chromosome),
+                    corner_sensor_count=len(self.corner_positions),
+                )
+
+            if early_stop and float(gbest_coverage) >= float(early_stop_coverage):
+                if last_best_total is None or best_total != last_best_total:
+                    last_best_total = best_total
+                    stable_count = 1
+                else:
+                    stable_count += 1
+                if stable_count >= int(early_stop_patience):
+                    if verbose:
+                        print(
+                            f"[PSO EarlyStop] Gen={gen_idx:03d} | "
+                            f"Coverage(best)={gbest_coverage:.2f}% >= {early_stop_coverage:.2f}% and "
+                            f"BestSensors={best_total} stable for {stable_count} generations."
+                        )
+                    break
+            else:
+                stable_count = 0
+                last_best_total = None
+
+            if profile and (gen_idx % int(profile_every) == 0):
+                print(f"[PSO Gen {gen_idx:03d}] time={time.perf_counter() - gen_t0:.3f}s")
+
+        self.best_solution = self._dedupe_chromosome(gbest_chromosome)
+        self.best_fitness = float(gbest_score)
+        self.best_coverage = float(gbest_coverage)
+        self.corner_points = list(self.corner_positions)
+        self.population = [
+            self._particle_to_chromosome(self._positions[i], int(self._active_counts[i]))
+            for i in range(len(self._positions))
+        ]
+
+        if verbose:
+            print(f"[PSO Total Time] {time.perf_counter() - t0:.3f}s")
+
+        if return_best_only:
+            return self.best_solution
+        return self.population

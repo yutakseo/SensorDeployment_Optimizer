@@ -7,9 +7,9 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 
 import matplotlib.pyplot as plt
 
-from Tools.MapLoader import MapLoader
-from Tools.PlotTools import VisualTool
-from Tools.cluster_distance import as_points, mean_nearest_neighbor_stats_m
+from Analysis.distance_metrics import as_points, mean_nearest_neighbor_stats_m
+from Analysis.visualization import VisualTool
+from Engine.map_loader import MapLoader
 
 
 PathLike = Union[str, Path]
@@ -326,7 +326,7 @@ class Analyzer:
 
         if title is None:
             run_name = self.run.get("run_name", "unknown_run")
-            title = f"GA evolution trend: sensor count vs generation ({run_name})"
+            title = f"Optimizer evolution trend: sensor count vs generation ({run_name})"
 
         plt.title(title)
         plt.xlabel("Generation")

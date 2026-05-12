@@ -112,11 +112,11 @@ def getCornerSec(run: Dict[str, Any]) -> Optional[float]:
 
 def getGaSec(run: Dict[str, Any]) -> Optional[float]:
     """
-    GA time (sec).
+    Optimizer time (sec).
     우선순위:
       1) final.elapsed_sec
       2) top-level elapsed_sec
-      3) meta.ga_run.elapsed_sec (있다면)
+      3) meta.optimizer_run.elapsed_sec or legacy meta.ga_run.elapsed_sec (있다면)
     """
     final_data = run.get("final", {})
     val = final_data.get("elapsed_sec", None)
@@ -127,9 +127,12 @@ def getGaSec(run: Dict[str, Any]) -> Optional[float]:
     if isinstance(val, (int, float)):
         return float(val)
 
-    ga_run = run.get("meta", {}).get("ga_run", {})
-    if isinstance(ga_run, dict):
-        val = ga_run.get("elapsed_sec", None)
+    meta = run.get("meta", {})
+    for key in ("optimizer_run", "ga_run"):
+        optimizer_run = meta.get(key, {})
+        if not isinstance(optimizer_run, dict):
+            continue
+        val = optimizer_run.get("elapsed_sec", None)
         if isinstance(val, (int, float)):
             return float(val)
 
@@ -243,7 +246,7 @@ def report_mean_cluster_distance(
     run별로 구한 뒤, 그 평균·표준편차를 실제 거리(m)로 출력합니다.
     grid_m: 1그리드당 미터 (기본 5m).
     """
-    from Tools.cluster_distance import mean_nearest_neighbor_distance
+    from Analysis.distance_metrics import mean_nearest_neighbor_distance
 
     try:
         run_list = loadRuns(root_dir)
@@ -316,4 +319,4 @@ def printStats(root_dir: str) -> None:
     print(f"[final] corner sensors mean ± std: {corner_mean:.2f} ± {corner_std:.2f}")
     print(f"[final] total sensors mean ± std: {total_mean:.2f} ± {total_std:.2f}")
     print(f"[time] corner mean ± std (sec): {corner_sec_mean:.3f} ± {corner_sec_std:.3f}")
-    print(f"[time] GA mean ± std (sec): {ga_sec_mean:.3f} ± {ga_sec_std:.3f}")
+    print(f"[time] optimizer mean ± std (sec): {ga_sec_mean:.3f} ± {ga_sec_std:.3f}")

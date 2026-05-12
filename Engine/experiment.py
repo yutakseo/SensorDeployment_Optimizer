@@ -1,19 +1,13 @@
-# /workspace/Tools/engine.py
 from __future__ import annotations
-
 from datetime import datetime
-import os
 from typing import Any, Dict, Optional
 from dataclasses import asdict, is_dataclass
-
 from cpuinfo import get_cpu_info
-
-from Tools.MapLoader import MapLoader
-from Tools.Mask import layer_map
-from Tools.Logger import GAJsonLogger
-
+from Engine.map_loader import MapLoader
+from Engine.masks import layer_map
+from Engine.logger import GAJsonLogger
+from Engine.optimizers import make_inner_optimizer
 from OuterDeployment.HarrisCorner import HarrisCorner
-from InnerDeployment.GeneticAlgorithm.main import SensorGA
 
 
 class Experiment:
@@ -23,18 +17,20 @@ class Experiment:
         *,
         ga_init: Any = None,
         ga_run: Any = None,
+        optimizer_init: Any = None,
+        optimizer_run: Any = None,
         corner_cfg: Any = None,
         results_dir: str = "__RESULTS__",
-        # logger options (Tools/Logger.py에서 지원하면 사용)
+        # logger options (Engine/logger.py에서 지원하면 사용)
         logger_point_format: str = "tuple_str",
         logger_sort_points: bool = False,
     ):
         self.map_name = map_name
         self.results_dir = results_dir
 
-        # ✅ 단일 소스 of truth (외부에서 dataclass를 주입)
-        self.ga_init = ga_init
-        self.ga_run = ga_run
+        # Backward-compatible aliases: older callers pass ga_init/ga_run.
+        self.optimizer_init = optimizer_init if optimizer_init is not None else ga_init
+        self.optimizer_run = optimizer_run if optimizer_run is not None else ga_run
         self.corner_cfg = corner_cfg
 
         self.logger_point_format = logger_point_format
@@ -53,21 +49,24 @@ class Experiment:
 
     def _validate_configs(self) -> None:
         missing = []
-        if self.ga_init is None:
-            missing.append("ga_init")
-        if self.ga_run is None:
-            missing.append("ga_run")
+        if self.optimizer_init is None:
+            missing.append("optimizer_init")
+        if self.optimizer_run is None:
+            missing.append("optimizer_run")
         if self.corner_cfg is None:
             missing.append("corner_cfg")
         if missing:
             raise ValueError(
                 f"Experiment configs missing: {missing}. "
-                f"Pass dataclass instances (GAInitConfig/GARunConfig/CornerConfig) from experiment.py."
+                f"Pass dataclass instances for optimizer_init, optimizer_run, and corner_cfg."
             )
 
-        # dataclass가 아니어도 동작은 가능하지만 meta(asdict)가 깨질 수 있음
         # meta 기록을 위해 dataclass 권장
-        for name, cfg in [("ga_init", self.ga_init), ("ga_run", self.ga_run), ("corner_cfg", self.corner_cfg)]:
+        for name, cfg in [
+            ("optimizer_init", self.optimizer_init),
+            ("optimizer_run", self.optimizer_run),
+            ("corner_cfg", self.corner_cfg),
+        ]:
             if not is_dataclass(cfg):
                 raise TypeError(
                     f"{name} must be a dataclass instance (got {type(cfg)}). "
@@ -87,8 +86,8 @@ class Experiment:
             "map_name": self.map_name,
             "created_at": datetime.now().isoformat(),
             "system": {"cpu": cpu},
-            "ga_init": asdict(self.ga_init),
-            "ga_run": asdict(self.ga_run),
+            "optimizer_init": asdict(self.optimizer_init),
+            "optimizer_run": asdict(self.optimizer_run),
             "corner": {**asdict(self.corner_cfg), "n_corner_candidates": int(corner_candidate_len)},
         }
 
@@ -114,56 +113,33 @@ class Experiment:
             sort_points=self.logger_sort_points,
         )
 
-        # 3) SensorGA 생성 (ga_init 참조)
-        gi = self.ga_init
-        ga = SensorGA(
+        # 3) Inner optimizer 생성
+        oi = self.optimizer_init
+        algorithm = str(
+            getattr(oi, "algorithm", getattr(oi, "optimizer", "ga"))
+        ).lower()
+        optimizer = make_inner_optimizer(
+            algorithm=algorithm,
             installable_map=self.installable_layer,
             jobsite_map=self.jobsite_layer,
-            coverage=gi.coverage,
-            generations=gi.generations,
             corner_positions=corner_candidate,
-            initial_size=gi.initial_size,
-            selection_size=gi.selection_size,
-            child_chromo_size=gi.child_chromo_size,
-            min_sensors=gi.min_sensors,
-            max_sensors=gi.max_sensors,
-            init_min_sensors=getattr(gi, "init_min_sensors", None),
-            init_max_sensors=getattr(gi, "init_max_sensors", None),
-        )
-
-        # 4) GA 실행 (ga_run 참조) + logger 전달
-        gr = self.ga_run
-        optimized_result = ga.run(
-            selection_method=gr.selection_method,
-            tournament_size=gr.tournament_size,
-            mutation_rate=gr.mutation_rate,
-            verbose=gr.verbose,
-            profile=gr.profile,
-            profile_every=gr.profile_every,
-            profile_fitness_breakdown=gr.profile_fitness_breakdown,
-            early_stop=gr.early_stop,
-            early_stop_coverage=gr.early_stop_coverage,
-            early_stop_patience=gr.early_stop_patience,
-            return_best_only=gr.return_best_only,
-            ordering_top_k=getattr(gr, "ordering_top_k", 0),
-            mutation_kwargs=getattr(gr, "mutation_kwargs", None),
-            parallel_workers=getattr(
-                gr,
-                "parallel_workers",
-                min(40, max(2, (os.cpu_count() or 2) - 1)),
-            ),
+            init_cfg=self.optimizer_init,
+            run_cfg=self.optimizer_run,
             logger=logger,
         )
+
+        # 4) Inner optimizer 실행. 알고리즘별 인자는 strategy가 책임진다.
+        optimized_result = optimizer.run()
 
         # 5) 최종 결과 정리(기존 반환 형태 유지)
         final_points = list(optimized_result) + list(corner_candidate)
 
         # 6) JSON 저장
         out_path = logger.finalize(
-            best_solution=getattr(ga, "best_solution", optimized_result),
-            corner_points=getattr(ga, "corner_points", corner_candidate),
-            fitness=float(getattr(ga, "best_fitness", float("nan"))),
-            coverage=float(getattr(ga, "best_coverage", float("nan"))),
+            best_solution=optimizer.best_solution or optimized_result,
+            corner_points=optimizer.corner_points,
+            fitness=optimizer.best_fitness,
+            coverage=optimizer.best_coverage,
             extra={
                 "final": {
                     "n_final_points": int(len(final_points)),
@@ -174,4 +150,3 @@ class Experiment:
         )
 
         return final_points, out_path
-

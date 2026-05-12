@@ -174,7 +174,7 @@ class FitnessFunc:
                 if cached is not None:
                     return cached
 
-            sensor = Sensor(self.mapTensor)
+            sensor = Sensor(self.mapTensor, device=self.device)
             if points:
                 self._deploy_many(sensor, points)
 
