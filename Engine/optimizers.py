@@ -5,6 +5,7 @@ from abc import ABC, abstractmethod
 from typing import Any, List, Tuple, Union
 
 from InnerDeployment.GeneticAlgorithm.main import SensorGA
+from InnerDeployment.Greedy.main import SensorGreedy
 from InnerDeployment.PSO.main import SensorPSO
 
 Gene = Tuple[int, int]
@@ -157,6 +158,36 @@ class PSOOptimizerStrategy(InnerOptimizerStrategy):
         )
 
 
+class GreedyOptimizerStrategy(InnerOptimizerStrategy):
+    def build(self) -> SensorGreedy:
+        gi = self.init_cfg
+        self.optimizer = SensorGreedy(
+            installable_map=self.installable_map,
+            jobsite_map=self.jobsite_map,
+            coverage=gi.coverage,
+            corner_positions=self.corner_positions,
+            min_sensors=getattr(gi, "min_sensors", 0),
+            max_sensors=getattr(gi, "max_sensors", None),
+            candidate_stride=getattr(gi, "candidate_stride", 1),
+            fitness_kwargs=getattr(gi, "fitness_kwargs", None),
+        )
+        return self.optimizer
+
+    def run(self) -> Chromosome:
+        if self.optimizer is None:
+            self.build()
+        gr = self.run_cfg
+        return self.optimizer.run(
+            target_coverage=getattr(gr, "target_coverage", 100.0),
+            max_sensors=getattr(gr, "max_sensors", getattr(self.init_cfg, "max_sensors", None)),
+            return_best_only=getattr(gr, "return_best_only", True),
+            verbose=getattr(gr, "verbose", True),
+            profile=getattr(gr, "profile", False),
+            profile_every=getattr(gr, "profile_every", 1),
+            logger=self.logger,
+        )
+
+
 def make_inner_optimizer(
     *,
     algorithm: str,
@@ -168,7 +199,12 @@ def make_inner_optimizer(
     logger,
 ) -> InnerOptimizerStrategy:
     key = str(algorithm or "ga").lower()
-    cls = PSOOptimizerStrategy if key in {"pso", "swarm", "particle_swarm"} else GAOptimizerStrategy
+    if key in {"pso", "swarm", "particle_swarm"}:
+        cls = PSOOptimizerStrategy
+    elif key in {"greedy", "greedy_search", "recursive_greedy"}:
+        cls = GreedyOptimizerStrategy
+    else:
+        cls = GAOptimizerStrategy
     return cls(
         installable_map=installable_map,
         jobsite_map=jobsite_map,

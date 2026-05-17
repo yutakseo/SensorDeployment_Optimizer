@@ -37,6 +37,7 @@ if __name__ == "__main__":
 
     @dataclass
     class GAInitConfig:
+        algorithm: str = "ga"  # "ga", "pso", or "greedy"
         coverage: int = 45
         generations: int = 100
         initial_size: int = 100
@@ -52,6 +53,7 @@ if __name__ == "__main__":
         selection_method: str = "elite"
         tournament_size: int = 3
         mutation_rate: float = 0.7
+        target_coverage: float = 100.0
         early_stop: bool = False
         early_stop_coverage: float = 90.0
         early_stop_patience: int = 5
