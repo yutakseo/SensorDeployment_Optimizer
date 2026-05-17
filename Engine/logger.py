@@ -66,7 +66,13 @@ def _sanitize_dirname(name: str) -> str:
     return name if name else "unknown_map"
 
 
-def _next_result_path(base_dir: str, map_name: str, ts: datetime) -> Tuple[str, str, str]:
+def _next_result_path(
+    base_dir: str,
+    map_name: str,
+    ts: datetime,
+    *,
+    group_by_map: bool = True,
+) -> Tuple[str, str, str]:
     """
     저장 규칙:
       root: /workspace/__RESULTS__
@@ -78,8 +84,7 @@ def _next_result_path(base_dir: str, map_name: str, ts: datetime) -> Tuple[str, 
     """
     _ensure_dir(base_dir)
 
-    safe_map = _sanitize_dirname(map_name)
-    map_dir = os.path.join(base_dir, safe_map)
+    map_dir = os.path.join(base_dir, _sanitize_dirname(map_name)) if group_by_map else base_dir
     _ensure_dir(map_dir)
 
     file_stem = ts.strftime("%Y%m%d_%H%M%S")
@@ -158,6 +163,7 @@ class GAJsonLogger:
         meta: Optional[Dict[str, Any]] = None,
         point_format: str = "tuple_str",
         sort_points: bool = False,
+        group_by_map: bool = True,
     ):
         self.t0 = _kst_now()
         self.map_name = map_name
@@ -167,8 +173,13 @@ class GAJsonLogger:
         self.point_format = point_format
         self.sort_points = bool(sort_points)
 
+        self.group_by_map = bool(group_by_map)
+
         self.map_dir, self.run_name, self.out_path = _next_result_path(
-            self.base_dir, self.map_name, self.t0
+            self.base_dir,
+            self.map_name,
+            self.t0,
+            group_by_map=self.group_by_map,
         )
 
         self.generations: List[GenStats] = []

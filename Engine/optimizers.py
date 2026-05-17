@@ -81,6 +81,10 @@ class GAOptimizerStrategy(InnerOptimizerStrategy):
         if self.optimizer is None:
             self.build()
         gr = self.run_cfg
+        parallel_workers = getattr(gr, "parallel_workers", None)
+        if parallel_workers is None:
+            parallel_workers = min(40, max(2, (os.cpu_count() or 2) - 1))
+
         return self.optimizer.run(
             selection_method=gr.selection_method,
             tournament_size=gr.tournament_size,
@@ -95,11 +99,7 @@ class GAOptimizerStrategy(InnerOptimizerStrategy):
             return_best_only=gr.return_best_only,
             ordering_top_k=getattr(gr, "ordering_top_k", 0),
             mutation_kwargs=getattr(gr, "mutation_kwargs", None),
-            parallel_workers=getattr(
-                gr,
-                "parallel_workers",
-                min(40, max(2, (os.cpu_count() or 2) - 1)),
-            ),
+            parallel_workers=parallel_workers,
             logger=self.logger,
         )
 

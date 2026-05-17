@@ -212,12 +212,15 @@ class SensorPSO:
         sensors_max: int,
         best_inner_sensors: int,
         corner_sensor_count: int,
+        elapsed_sec: Optional[float] = None,
     ) -> None:
+        time_part = f" / time={elapsed_sec:.3f}s" if elapsed_sec is not None else ""
         print(
             f"[PSO {gen_idx:03d}/{self.generations:03d}] "
             f"sensors: (min={sensors_min}, avg={sensors_avg:.1f}, max={sensors_max}) / "
             f"coverage: {best_coverage:.2f}% (target={target_coverage:.2f}%) / "
             f"best_inner={best_inner_sensors} (corner={corner_sensor_count})"
+            f"{time_part}"
         )
 
     def run(
@@ -322,6 +325,7 @@ class SensorPSO:
                     best_coverage=float(gbest_coverage),
                 )
 
+            gen_dt = time.perf_counter() - gen_t0
             if verbose:
                 self._log_generation(
                     gen_idx,
@@ -332,6 +336,7 @@ class SensorPSO:
                     sensors_max=sensors_max,
                     best_inner_sensors=len(gbest_chromosome),
                     corner_sensor_count=len(self.corner_positions),
+                    elapsed_sec=gen_dt,
                 )
 
             if early_stop and float(gbest_coverage) >= float(early_stop_coverage):
@@ -351,9 +356,6 @@ class SensorPSO:
             else:
                 stable_count = 0
                 last_best_total = None
-
-            if profile and (gen_idx % int(profile_every) == 0):
-                print(f"[PSO Gen {gen_idx:03d}] time={time.perf_counter() - gen_t0:.3f}s")
 
         self.best_solution = self._dedupe_chromosome(gbest_chromosome)
         self.best_fitness = float(gbest_score)

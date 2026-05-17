@@ -288,12 +288,15 @@ class SensorGA:
         sensors_max: int,
         best_total_sensors: int,
         best_inner_sensors: int,
+        elapsed_sec: Optional[float] = None,
     ) -> None:
+        time_part = f" / time={elapsed_sec:.3f}s" if elapsed_sec is not None else ""
         print(
             f"[Gen {gen_idx:03d}/{self.generations:03d}] "
             f"sensors: (min={sensors_min}, avg={sensors_avg:.1f}, max={sensors_max}) / "
             f"coverage: {best_coverage:.2f}% (target={target_coverage:.2f}%) / "
             f"best_inner={best_inner_sensors} (corner={corner_sensor_count})"
+            f"{time_part}"
         )
 
     def _log_profile(
@@ -750,21 +753,19 @@ class SensorGA:
                     avg_fit_norm = float(best_fit_norm)
                     worst_fit_norm = float(best_fit_norm)
 
-                if verbose:
-                    self._log_generation(
-                        gen_idx,
-                        best_fitness_norm=float(best_fit_norm),
-                        avg_fitness_norm=float(avg_fit_norm),
-                        worst_fitness_norm=float(worst_fit_norm),
-                        best_coverage=float(best_cov),
-                        target_coverage=float(tau),
-                        corner_sensor_count=corner_cnt,
-                        sensors_min=sensors_min,
-                        sensors_avg=float(sum(inner_counts_log) / len(inner_counts_log)) if inner_counts_log else 0.0,
-                        sensors_max=sensors_max,
-                        best_total_sensors=int(best_total),
-                        best_inner_sensors=int(len(best_inner)),
-                    )
+                generation_log = dict(
+                    best_fitness_norm=float(best_fit_norm),
+                    avg_fitness_norm=float(avg_fit_norm),
+                    worst_fitness_norm=float(worst_fit_norm),
+                    best_coverage=float(best_cov),
+                    target_coverage=float(tau),
+                    corner_sensor_count=corner_cnt,
+                    sensors_min=sensors_min,
+                    sensors_avg=float(sum(inner_counts_log) / len(inner_counts_log)) if inner_counts_log else 0.0,
+                    sensors_max=sensors_max,
+                    best_total_sensors=int(best_total),
+                    best_inner_sensors=int(len(best_inner)),
+                )
 
                 if logger is not None:
                     logger.log_generation(
@@ -793,6 +794,11 @@ class SensorGA:
 
                     if stable_count >= int(early_stop_patience):
                         if verbose:
+                            self._log_generation(
+                                gen_idx,
+                                elapsed_sec=time.perf_counter() - gen_t0,
+                                **generation_log,
+                            )
                             print(
                                 f"[EarlyStop] Gen={gen_idx:03d} | "
                                 f"Coverage(best)={best_cov:.2f}% >= {early_stop_coverage:.2f}% and "
@@ -811,6 +817,12 @@ class SensorGA:
                         tournament_size=tournament_size,
                     )
                 if len(parents) < 2:
+                    if verbose:
+                        self._log_generation(
+                            gen_idx,
+                            elapsed_sec=time.perf_counter() - gen_t0,
+                            **generation_log,
+                        )
                     break
 
                 k = max(0, min(int(elitism_k), self.child_size))
@@ -874,7 +886,11 @@ class SensorGA:
                         init_s, warm_s = mp_startup
                         print(f"[MP Warmup] pool_init={init_s:.3f}s | warmup={warm_s:.3f}s")
                     gen_dt = time.perf_counter() - gen_t0
-                    print(f"[Gen {gen_idx:03d}] time={gen_dt:.3f}s")
+                    self._log_generation(
+                        gen_idx,
+                        elapsed_sec=gen_dt,
+                        **generation_log,
+                    )
 
         finally:
             if pool is not None:
