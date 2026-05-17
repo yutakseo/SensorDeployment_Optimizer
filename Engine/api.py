@@ -81,6 +81,26 @@ class PSORunConfig:
     profile_every: int = 1
 
 
+@dataclass
+class GreedyConfig:
+    algorithm: str = "greedy"
+    coverage: int = 45
+    min_sensors: int = 0
+    max_sensors: int = 140
+    candidate_stride: int = 1
+    fitness_kwargs: Optional[dict] = None
+
+
+@dataclass
+class GreedyRunConfig:
+    target_coverage: float = 100.0
+    max_sensors: Optional[int] = None
+    return_best_only: bool = True
+    verbose: bool = True
+    profile: bool = False
+    profile_every: int = 1
+
+
 def _with_overrides(cfg: Any, overrides: Optional[Dict[str, Any]]) -> Any:
     if not overrides:
         return cfg
@@ -123,6 +143,13 @@ def make_optimizer_configs(
             init_max_sensors=int(high),
         )
         run_cfg = GARunConfig()
+    elif key in {"greedy", "greedy_search", "recursive_greedy"}:
+        init_cfg = GreedyConfig(
+            coverage=int(coverage),
+            min_sensors=0,
+            max_sensors=int(high),
+        )
+        run_cfg = GreedyRunConfig(max_sensors=int(high))
     else:
         raise ValueError(f"Unsupported optimizer algorithm: {algorithm}")
 

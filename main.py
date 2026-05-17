@@ -55,6 +55,10 @@ OPTIMIZER_PARAMS = {
         "min_sensors": 0,
         "generations": 1000,
     },
+    "greedy": {
+        "min_sensors": 0,
+        "candidate_stride": 1,
+    },
 }
 
 OPTIMIZER_RUN_PARAMS = {
@@ -79,6 +83,13 @@ OPTIMIZER_RUN_PARAMS = {
         "early_stop": False,
         "early_stop_coverage": 90.0,
         "early_stop_patience": 10,
+        "return_best_only": True,
+        "verbose": True,
+        "profile": True,
+        "profile_every": 1,
+    },
+    "greedy": {
+        "target_coverage": 100.0,
         "return_best_only": True,
         "verbose": True,
         "profile": True,

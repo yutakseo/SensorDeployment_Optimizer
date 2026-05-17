@@ -59,7 +59,7 @@ def configure_inner_optimizer(
     """Create GA or PSO config objects from one algorithm switch."""
     key = str(algorithm).lower()
     if key not in optimizer_params or key not in optimizer_run_params:
-        raise ValueError(f"Unsupported algorithm={algorithm!r}. Use 'ga' or 'pso'.")
+        raise ValueError(f"Unsupported algorithm={algorithm!r}. Use 'ga', 'pso', or 'greedy'.")
 
     selected_optimizer_params = optimizer_params[key]
     generations = selected_optimizer_params.get(
