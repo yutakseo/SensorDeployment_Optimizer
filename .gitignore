@@ -33,3 +33,6 @@ tmp/
 
 
 __MAPS__/*
+!__MAPS__/gangjin/
+!__MAPS__/sejong/
+!__MAPS__/seocho/
