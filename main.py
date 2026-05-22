@@ -57,7 +57,7 @@ OPTIMIZER_PARAMS = {
     },
     "greedy": {
         "min_sensors": 0,
-        "candidate_stride": 1,
+        "candidate_stride": 5,
     },
 }
 
@@ -120,7 +120,7 @@ FINAL_PLOT_PARAMS = {
 if __name__ == "__main__":
     for sensor_range in SENSOR_RANGES:
         for map_name in MAP_NAMES:
-            results_dir = f"{RESULTS_ROOT}/{ALGORITHM}/{map_name}/{sensor_range[0]}-{sensor_range[1]}"
+            results_dir = f"{RESULTS_ROOT}{ALGORITHM}/{map_name}/{sensor_range[0]}-{sensor_range[1]}"
             for _ in range(ITERATIONS):
                 final_points, out_path = run_pipeline(
                     map_name=map_name,
