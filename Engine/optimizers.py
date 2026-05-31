@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-import os
 from abc import ABC, abstractmethod
 from typing import Any, List, Tuple, Union
 
-from InnerDeployment.GeneticAlgorithm.main import SensorGA
+from InnerDeployment.GeneticAlgorithm.main import SensorGA, default_parallel_workers
 from InnerDeployment.Greedy.main import SensorGreedy
 from InnerDeployment.PSO.main import SensorPSO
 
@@ -84,7 +83,7 @@ class GAOptimizerStrategy(InnerOptimizerStrategy):
         gr = self.run_cfg
         parallel_workers = getattr(gr, "parallel_workers", None)
         if parallel_workers is None:
-            parallel_workers = min(40, max(2, (os.cpu_count() or 2) - 1))
+            parallel_workers = default_parallel_workers()
 
         return self.optimizer.run(
             selection_method=gr.selection_method,

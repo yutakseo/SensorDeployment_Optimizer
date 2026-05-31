@@ -27,6 +27,23 @@ Gene = Tuple[int, int]
 Chromosome = List[Gene]
 Generation = List[Chromosome]
 
+
+def default_parallel_workers() -> int:
+    """Keep notebook runs responsive when CUDA workers must use spawn."""
+    return min(4, max(1, (os.cpu_count() or 2) - 1))
+
+
+def _shutdown_pool(pool: Optional[ProcessPoolExecutor], *, force: bool = False) -> None:
+    if pool is None:
+        return
+    if force:
+        # Running futures cannot be cancelled. Terminate workers on interruption.
+        for process in list((getattr(pool, "_processes", None) or {}).values()):
+            if process.is_alive():
+                process.terminate()
+    pool.shutdown(wait=True, cancel_futures=True)
+
+
 _W_INSTALLABLE_MAP = None
 _W_JOBSITE_MAP = None
 _W_CORNER_POSITIONS: List[Gene] = []
@@ -610,7 +627,7 @@ class SensorGA:
         elitism_k: int = 2,
         log_alpha: float = 10.0,
         log_eval_exact: bool = True,
-        parallel_workers: int = max(2, (os.cpu_count() or 2) - 1),
+        parallel_workers: int = default_parallel_workers(),
         ordering_top_k: int = 0,   # prefix 최소화 비활성화(자연스러운 축소)
     ) -> Union[Generation, Chromosome]:
         total_t0 = time.perf_counter()
@@ -644,33 +661,38 @@ class SensorGA:
         pool = None
         mp_startup = None
 
-        if parallel_workers and parallel_workers > 1 and self.child_size > 0:
-            use_spawn = bool(torch is not None and torch.cuda.is_available())
-            ctx = mp.get_context("spawn" if use_spawn else "fork") if hasattr(mp, "get_context") else mp
-            t0 = time.perf_counter()
-            pool = ProcessPoolExecutor(
-                max_workers=int(parallel_workers),
-                mp_context=ctx,
-                initializer=_worker_init,
-                initargs=(
-                    self.installable_map,
-                    self.jobsite_map,
-                    self.corner_positions,
-                    self.coverage,
-                    self._mutation_allowed,
-                    combined_kw,
-                    min_total,
-                    max_total,
-                    self.min_sensors,
-                    worker_device,
-                ),
-            )
-            t_init = time.perf_counter() - t0
-            t0 = time.perf_counter()
-            warm_chunks = [([], 0.0)] * int(parallel_workers)
-            list(pool.map(_reproduce_many, warm_chunks))
-            t_warm = time.perf_counter() - t0
-            mp_startup = (t_init, t_warm)
+        try:
+            if parallel_workers and parallel_workers > 1 and self.child_size > 0:
+                use_spawn = bool(torch is not None and torch.cuda.is_available())
+                ctx = mp.get_context("spawn" if use_spawn else "fork") if hasattr(mp, "get_context") else mp
+                t0 = time.perf_counter()
+                pool = ProcessPoolExecutor(
+                    max_workers=int(parallel_workers),
+                    mp_context=ctx,
+                    initializer=_worker_init,
+                    initargs=(
+                        self.installable_map,
+                        self.jobsite_map,
+                        self.corner_positions,
+                        self.coverage,
+                        self._mutation_allowed,
+                        combined_kw,
+                        min_total,
+                        max_total,
+                        self.min_sensors,
+                        worker_device,
+                    ),
+                )
+                t_init = time.perf_counter() - t0
+                t0 = time.perf_counter()
+                warm_chunks = [([], 0.0)] * int(parallel_workers)
+                list(pool.map(_reproduce_many, warm_chunks))
+                t_warm = time.perf_counter() - t0
+                mp_startup = (t_init, t_warm)
+        except BaseException:
+            _shutdown_pool(pool, force=True)
+            pool = None
+            raise
 
         try:
             for gen_idx in range(1, self.generations + 1):
@@ -892,9 +914,12 @@ class SensorGA:
                         **generation_log,
                     )
 
+        except BaseException:
+            _shutdown_pool(pool, force=True)
+            pool = None
+            raise
         finally:
-            if pool is not None:
-                pool.shutdown(wait=True, cancel_futures=True)
+            _shutdown_pool(pool)
 
         total_dt = time.perf_counter() - total_t0
         if verbose:
