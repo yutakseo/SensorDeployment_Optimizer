@@ -6,7 +6,7 @@ from typing import List, Tuple, Optional, Dict, Any
 
 import numpy as np
 
-from .fitnessfunction import FitnessFunc
+from ..fitnessfunction import FitnessFunc
 from .utils import to_bool_map, to_int_pairs
 
 Gene = Tuple[int, int]

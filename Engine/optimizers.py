@@ -136,8 +136,8 @@ class PSOOptimizerStrategy(InnerOptimizerStrategy):
         gr = self.run_cfg
         return self.optimizer.run(
             inertia=getattr(gr, "inertia", 0.72),
-            cognitive=getattr(gr, "cognitive", 1.49),
-            social=getattr(gr, "social", 1.49),
+            cognitive=getattr(gr, "cognitive", 2.0),
+            social=getattr(gr, "social", 2.0),
             velocity_clip=getattr(gr, "velocity_clip", None),
             count_add_rate=getattr(gr, "count_add_rate", 0.40),
             count_del_rate=getattr(gr, "count_del_rate", 0.30),

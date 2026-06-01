@@ -13,7 +13,7 @@ from typing import Dict, List, Optional, Tuple, Union
 import numpy as np
 
 from .crossover import crossover as crossover_op
-from .fitnessfunction import FitnessFunc
+from ..fitnessfunction import FitnessFunc
 from .initializer import initialize_population
 from .mutation import mutation as mutation_op
 from .selection import elite, roulette, sus, tournament

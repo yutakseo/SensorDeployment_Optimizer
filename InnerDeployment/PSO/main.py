@@ -6,9 +6,12 @@ from typing import List, Optional, Tuple, Union
 
 import numpy as np
 
-from InnerDeployment.GeneticAlgorithm.fitnessfunction import FitnessFunc
+from ..fitnessfunction import FitnessFunc
+from ..utils import to_int_pairs
 from InnerDeployment.GeneticAlgorithm.initializer import initialize_population
-from InnerDeployment.GeneticAlgorithm.utils import to_int_pairs
+from .acceleration import calculate_acceleration
+from .initializer import initialize_swarm
+from .position import update_positions
 
 try:
     import torch
@@ -100,25 +103,12 @@ class SensorPSO:
         self.best_coverage: float = float("nan")
         self.corner_points: List[Gene] = list(self.corner_positions)
 
-        self._positions, self._velocities, self._active_counts = self._init_swarm(self.population)
-
-    def _init_swarm(self, chromosomes: Generation):
-        n = max(1, len(chromosomes))
-        positions = np.zeros((n, self.max_sensors, 2), dtype=np.float32)
-        velocities = np.random.uniform(-1.0, 1.0, size=positions.shape).astype(np.float32)
-        active_counts = np.zeros(n, dtype=np.int32)
-
-        for i, chromo in enumerate(chromosomes):
-            pts = self._dedupe_chromosome(chromo)
-            count = max(self.min_sensors, min(self.max_sensors, len(pts)))
-            active_counts[i] = count
-
-            fill = list(pts[:count])
-            while len(fill) < self.max_sensors:
-                fill.append(random.choice(self._installable_points))
-            positions[i] = np.asarray(fill[: self.max_sensors], dtype=np.float32)
-
-        return positions, velocities, active_counts
+        self._positions, self._velocities, self._active_counts = initialize_swarm(
+            self.population,
+            max_sensors=self.max_sensors,
+            min_sensors=self.min_sensors,
+            installable_points=self._installable_points,
+        )
 
     def _dedupe_chromosome(self, chromosome: Chromosome) -> Chromosome:
         seen = set()
@@ -227,8 +217,8 @@ class SensorPSO:
         self,
         *,
         inertia: float = 0.72,
-        cognitive: float = 1.49,
-        social: float = 1.49,
+        cognitive: float = 2.0,
+        social: float = 2.0,
         velocity_clip: Optional[float] = None,
         count_add_rate: float = 0.40,
         count_del_rate: float = 0.30,
@@ -292,19 +282,23 @@ class SensorPSO:
                 p_del=float(count_del_rate) * float(count_change_rate),
             )
 
-            r1 = np.random.random(size=self._positions.shape).astype(np.float32)
-            r2 = np.random.random(size=self._positions.shape).astype(np.float32)
-            self._velocities = (
-                float(inertia) * self._velocities
-                + float(cognitive) * r1 * (pbest_pos - self._positions)
-                + float(social) * r2 * (gbest_pos[None, :, :] - self._positions)
+            acceleration = calculate_acceleration(
+                self._positions,
+                pbest_pos,
+                gbest_pos,
+                cognitive=cognitive,
+                social=social,
             )
+            self._velocities = float(inertia) * self._velocities + acceleration
             if velocity_clip and velocity_clip > 0:
                 np.clip(self._velocities, -float(velocity_clip), float(velocity_clip), out=self._velocities)
 
-            self._positions += self._velocities
-            self._positions[:, :, 0] = np.clip(self._positions[:, :, 0], 0, self._width - 1)
-            self._positions[:, :, 1] = np.clip(self._positions[:, :, 1], 0, self._height - 1)
+            self._positions = update_positions(
+                self._positions,
+                self._velocities,
+                width=self._width,
+                height=self._height,
+            )
 
             sensors_min = int(min(len(c) for c in chromosomes)) if chromosomes else 0
             sensors_max = int(max(len(c) for c in chromosomes)) if chromosomes else 0

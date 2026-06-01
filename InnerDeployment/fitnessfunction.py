@@ -1,11 +1,11 @@
-# InnerDeployment/GeneticAlgorithm/fitnessfunction.py
+# InnerDeployment/fitnessfunction.py
 from __future__ import annotations
 
 import inspect
 import random
 import time
 from contextlib import contextmanager
-from typing import Dict, Iterable, List, Optional, Tuple
+from typing import Dict, Iterable, List, Optional, Sequence, Tuple
 
 import numpy as np
 import torch

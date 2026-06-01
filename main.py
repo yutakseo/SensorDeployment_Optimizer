@@ -77,8 +77,8 @@ OPTIMIZER_RUN_PARAMS = {
     },
     "pso": {
         "inertia": 0.72,
-        "cognitive": 1.49,
-        "social": 1.49,
+        "cognitive": 2.0,
+        "social": 2.0,
         "count_change_rate": 0.7,
         "early_stop": False,
         "early_stop_coverage": 90.0,

@@ -66,8 +66,8 @@ class PSOConfig:
 @dataclass
 class PSORunConfig:
     inertia: float = 0.72
-    cognitive: float = 1.49
-    social: float = 1.49
+    cognitive: float = 2.0
+    social: float = 2.0
     velocity_clip: Optional[float] = None
     count_add_rate: float = 0.40
     count_del_rate: float = 0.30
