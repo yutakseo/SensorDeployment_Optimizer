@@ -59,6 +59,13 @@ OPTIMIZER_PARAMS = {
         "min_sensors": 0,
         "candidate_stride": 5,
     },
+    "drl": {
+        "min_sensors": 0,
+        "generations": 100,
+        "candidate_stride": 5,
+        "max_candidates": 512,
+        "fitness_kwargs": {"target_coverage": 90.0},
+    },
 }
 
 OPTIMIZER_RUN_PARAMS = {
@@ -90,6 +97,16 @@ OPTIMIZER_RUN_PARAMS = {
     },
     "greedy": {
         "target_coverage": 100.0,
+        "return_best_only": True,
+        "verbose": True,
+        "profile": True,
+        "profile_every": 1,
+    },
+    "drl": {
+        "epsilon_start": 1.0,
+        "epsilon_end": 0.05,
+        "epsilon_decay": 0.985,
+        "heuristic_warmup_episodes": 1,
         "return_best_only": True,
         "verbose": True,
         "profile": True,

@@ -261,11 +261,6 @@ class SensorGA:
 
         if "target_coverage" in self.fitness_kwargs and "target_coverage" not in self.mutation_kwargs:
             self.mutation_kwargs["target_coverage"] = float(self.fitness_kwargs["target_coverage"])
-        if "overlap_min_dist" in self.fitness_kwargs and "min_separation" not in self.mutation_kwargs:
-            ov = self.fitness_kwargs.get("overlap_min_dist")
-            if ov is not None:
-                self.mutation_kwargs["min_separation"] = max(15.0, float(ov))
-
         init_min = int(init_min_sensors) if init_min_sensors is not None else int(self.min_sensors)
         init_max = int(init_max_sensors) if init_max_sensors is not None else int(self.max_sensors)
 
@@ -551,8 +546,6 @@ class SensorGA:
         min_sep = 0.0
         if "min_separation" in self.mutation_kwargs:
             min_sep = float(self.mutation_kwargs.get("min_separation") or 0.0)
-        elif "overlap_min_dist" in self.fitness_kwargs and self.fitness_kwargs.get("overlap_min_dist") is not None:
-            min_sep = float(self.fitness_kwargs["overlap_min_dist"])
 
         if min_sep <= 0:
             return chromosome

@@ -38,7 +38,7 @@ def mutation(
     prefix_minimize: bool = True,
     replace_duplicates: bool = True,
     empty_fill_ratio: float = 0.0,
-    min_separation: float = 15.0,
+    min_separation: float = 0.0,
     device: Optional[object] = None,
 ) -> Chromosome:
     """
@@ -46,6 +46,10 @@ def mutation(
       - adaptive operator choice (add/del/move) based on feasibility
       - optional prefix minimization to keep the shortest feasible prefix
       - optional duplicate removal, min-distance pruning, and empty-area refill
+
+    Distance pruning is disabled by default. Overlap should normally be
+    handled as a soft fitness penalty so mutation can explore nearby points.
+    Set min_separation explicitly only when hard pruning is desired.
     """
 
     def _make_eval() -> FitnessFunc:

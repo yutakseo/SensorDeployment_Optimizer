@@ -5,6 +5,8 @@ from .masks import layer_map
 from .pipeline import run_pipeline
 from .api import (
     CornerConfig,
+    DRLConfig,
+    DRLRunConfig,
     GAConfig,
     GARunConfig,
     GreedyConfig,
@@ -18,6 +20,8 @@ from .api import (
 
 __all__ = [
     "CornerConfig",
+    "DRLConfig",
+    "DRLRunConfig",
     "Experiment",
     "GAConfig",
     "GARunConfig",

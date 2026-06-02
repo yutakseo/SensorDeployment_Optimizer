@@ -6,6 +6,7 @@ from typing import Any, List, Tuple, Union
 from InnerDeployment.GeneticAlgorithm.main import SensorGA, default_parallel_workers
 from InnerDeployment.Greedy.main import SensorGreedy
 from InnerDeployment.PSO.main import SensorPSO
+from InnerDeployment.DRL.main import SensorDRL
 
 Gene = Tuple[int, int]
 Chromosome = List[Gene]
@@ -187,6 +188,55 @@ class GreedyOptimizerStrategy(InnerOptimizerStrategy):
         )
 
 
+class DRLOptimizerStrategy(InnerOptimizerStrategy):
+    def build(self) -> SensorDRL:
+        gi = self.init_cfg
+        self.optimizer = SensorDRL(
+            installable_map=self.installable_map,
+            jobsite_map=self.jobsite_map,
+            coverage=gi.coverage,
+            generations=gi.generations,
+            corner_positions=self.corner_positions,
+            min_sensors=getattr(gi, "min_sensors", 0),
+            max_sensors=getattr(gi, "max_sensors", 140),
+            candidate_stride=getattr(gi, "candidate_stride", 5),
+            max_candidates=getattr(gi, "max_candidates", 512),
+            hidden_dim=getattr(gi, "hidden_dim", 128),
+            replay_capacity=getattr(gi, "replay_capacity", 5000),
+            batch_size=getattr(gi, "batch_size", 64),
+            learning_rate=getattr(gi, "learning_rate", 1e-3),
+            gamma=getattr(gi, "gamma", 0.95),
+            target_sync_interval=getattr(gi, "target_sync_interval", 100),
+            warmup_steps=getattr(gi, "warmup_steps", 64),
+            train_steps_per_action=getattr(gi, "train_steps_per_action", 1),
+            backup_actions=getattr(gi, "backup_actions", 64),
+            reward_coverage=getattr(gi, "reward_coverage", 1.0),
+            sensor_penalty=getattr(gi, "sensor_penalty", 0.2),
+            target_bonus=getattr(gi, "target_bonus", 10.0),
+            deficit_penalty=getattr(gi, "deficit_penalty", 1.0),
+            seed=getattr(gi, "seed", 42),
+            device=getattr(gi, "device", None),
+            fitness_kwargs=getattr(gi, "fitness_kwargs", None),
+        )
+        return self.optimizer
+
+    def run(self) -> Chromosome:
+        if self.optimizer is None:
+            self.build()
+        gr = self.run_cfg
+        return self.optimizer.run(
+            epsilon_start=getattr(gr, "epsilon_start", 1.0),
+            epsilon_end=getattr(gr, "epsilon_end", 0.05),
+            epsilon_decay=getattr(gr, "epsilon_decay", 0.985),
+            heuristic_warmup_episodes=getattr(gr, "heuristic_warmup_episodes", 1),
+            return_best_only=getattr(gr, "return_best_only", True),
+            verbose=getattr(gr, "verbose", True),
+            profile=getattr(gr, "profile", True),
+            profile_every=getattr(gr, "profile_every", 1),
+            logger=self.logger,
+        )
+
+
 def make_inner_optimizer(
     *,
     algorithm: str,
@@ -202,6 +252,8 @@ def make_inner_optimizer(
         cls = PSOOptimizerStrategy
     elif key in {"greedy", "greedy_search", "recursive_greedy"}:
         cls = GreedyOptimizerStrategy
+    elif key in {"drl", "dqn", "deep_q_learning"}:
+        cls = DRLOptimizerStrategy
     else:
         cls = GAOptimizerStrategy
     return cls(

@@ -56,10 +56,10 @@ def configure_inner_optimizer(
     optimizer_params: Dict[str, Dict[str, Any]],
     optimizer_run_params: Dict[str, Dict[str, Any]],
 ):
-    """Create GA or PSO config objects from one algorithm switch."""
+    """Create inner-optimizer config objects from one algorithm switch."""
     key = str(algorithm).lower()
     if key not in optimizer_params or key not in optimizer_run_params:
-        raise ValueError(f"Unsupported algorithm={algorithm!r}. Use 'ga', 'pso', or 'greedy'.")
+        raise ValueError(f"Unsupported algorithm={algorithm!r}. Use 'ga', 'pso', 'greedy', or 'drl'.")
 
     selected_optimizer_params = optimizer_params[key]
     generations = selected_optimizer_params.get(
@@ -124,7 +124,7 @@ def optimize_inner_sensors(
     optimizer_run,
     logger: GAJsonLogger,
 ) -> Tuple[List[Point], Any]:
-    """GA or PSO -> inner sensor positions."""
+    """Inner optimizer -> inner sensor positions."""
     optimizer = make_inner_optimizer(
         algorithm=algorithm,
         installable_map=installable_layer,
@@ -231,7 +231,7 @@ def run_pipeline(
         harris_params=harris_params,
     )
 
-    # 3) GA or PSO inner sensor placement
+    # 3) Inner sensor placement
     optimizer_init, optimizer_run = configure_inner_optimizer(
         algorithm=algorithm,
         sensor_range=sensor_range,

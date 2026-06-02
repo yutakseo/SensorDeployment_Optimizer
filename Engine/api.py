@@ -101,6 +101,45 @@ class GreedyRunConfig:
     profile_every: int = 1
 
 
+@dataclass
+class DRLConfig:
+    algorithm: str = "drl"
+    coverage: int = 45
+    generations: int = 100
+    min_sensors: int = 0
+    max_sensors: int = 140
+    candidate_stride: int = 5
+    max_candidates: Optional[int] = 512
+    hidden_dim: int = 128
+    replay_capacity: int = 5000
+    batch_size: int = 64
+    learning_rate: float = 1e-3
+    gamma: float = 0.95
+    target_sync_interval: int = 100
+    warmup_steps: int = 64
+    train_steps_per_action: int = 1
+    backup_actions: int = 64
+    reward_coverage: float = 1.0
+    sensor_penalty: float = 0.2
+    target_bonus: float = 10.0
+    deficit_penalty: float = 1.0
+    seed: int = 42
+    device: Optional[str] = None
+    fitness_kwargs: Optional[dict] = None
+
+
+@dataclass
+class DRLRunConfig:
+    epsilon_start: float = 1.0
+    epsilon_end: float = 0.05
+    epsilon_decay: float = 0.985
+    heuristic_warmup_episodes: int = 1
+    return_best_only: bool = True
+    verbose: bool = True
+    profile: bool = True
+    profile_every: int = 1
+
+
 def _with_overrides(cfg: Any, overrides: Optional[Dict[str, Any]]) -> Any:
     if not overrides:
         return cfg
@@ -150,6 +189,14 @@ def make_optimizer_configs(
             max_sensors=int(high),
         )
         run_cfg = GreedyRunConfig(max_sensors=int(high))
+    elif key in {"drl", "dqn", "deep_q_learning"}:
+        init_cfg = DRLConfig(
+            coverage=int(coverage),
+            generations=int(generations),
+            min_sensors=0,
+            max_sensors=int(high),
+        )
+        run_cfg = DRLRunConfig()
     else:
         raise ValueError(f"Unsupported optimizer algorithm: {algorithm}")
 

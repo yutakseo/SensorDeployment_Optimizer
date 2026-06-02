@@ -56,6 +56,10 @@ class SensorPSO:
         self.max_sensors = max(self.min_sensors, int(max_sensors))
 
         self.fitness_kwargs = dict(fitness_kwargs or {})
+        self.min_separation = max(
+            0.0,
+            float(self.fitness_kwargs.pop("pso_min_separation", self.coverage / 5.0)),
+        )
         if (
             "device" not in self.fitness_kwargs
             and torch is not None
@@ -64,19 +68,29 @@ class SensorPSO:
             self.fitness_kwargs["device"] = "cuda"
 
         yx = np.argwhere(self.installable_map > 0)
-        self._installable_points: List[Gene] = [(int(x), int(y)) for (y, x) in yx]
+        self._corner_set = set(self.corner_positions)
+        self._installable_points: List[Gene] = [
+            (int(x), int(y))
+            for (y, x) in yx
+            if (int(x), int(y)) not in self._corner_set
+        ]
         if not self._installable_points:
-            raise ValueError("installable_map has no installable cells.")
+            raise ValueError("installable_map has no installable cells for inner sensors.")
 
         self._height, self._width = self.installable_map.shape
         self._point_array = np.asarray(self._installable_points, dtype=np.float32)
+        self._point_index = {point: index for index, point in enumerate(self._installable_points)}
         self._installable_set = set(self._installable_points)
         self._nearest_y = None
         self._nearest_x = None
         try:
             from scipy.ndimage import distance_transform_edt
 
-            invalid = self.installable_map == 0
+            inner_candidate_map = self.installable_map.copy()
+            for x, y in self._corner_set:
+                if 0 <= x < self._width and 0 <= y < self._height:
+                    inner_candidate_map[y, x] = 0
+            invalid = inner_candidate_map == 0
             _, indices = distance_transform_edt(invalid, return_indices=True)
             self._nearest_y = indices[0]
             self._nearest_x = indices[1]
@@ -115,7 +129,7 @@ class SensorPSO:
         out: Chromosome = []
         for p in chromosome:
             key = (int(p[0]), int(p[1]))
-            if key in seen:
+            if key in seen or key in self._corner_set:
                 continue
             if key not in self._installable_set:
                 continue
@@ -140,15 +154,60 @@ class SensorPSO:
         x2, y2 = self._point_array[idx]
         return int(x2), int(y2)
 
+    def _mark_nearby_points(self, forbidden: np.ndarray, point: Gene) -> None:
+        if self.min_separation <= 0:
+            return
+        x, y = point
+        dx = self._point_array[:, 0] - float(x)
+        dy = self._point_array[:, 1] - float(y)
+        forbidden |= (dx * dx + dy * dy) < self.min_separation**2
+
+    def _nearest_available_point(
+        self,
+        x: float,
+        y: float,
+        *,
+        seen: set,
+        forbidden: np.ndarray,
+    ) -> Optional[Gene]:
+        available = np.ones(len(self._point_array), dtype=bool)
+        for point in seen:
+            index = self._point_index.get(point)
+            if index is not None:
+                available[index] = False
+        if not np.any(available):
+            return None
+
+        delta = self._point_array - np.asarray([x, y], dtype=np.float32)
+        dist = np.einsum("ij,ij->i", delta, delta)
+        separated = available & ~forbidden
+        candidates = separated if np.any(separated) else available
+        index = int(np.argmin(np.where(candidates, dist, np.inf)))
+        return self._installable_points[index]
+
     def _particle_to_chromosome(self, pos: np.ndarray, active_count: int) -> Chromosome:
         count = max(self.min_sensors, min(self.max_sensors, int(active_count)))
         out: Chromosome = []
-        seen = set()
-        for x, y in pos[:count]:
+        seen = set(self._corner_set)
+        forbidden = np.zeros(len(self._point_array), dtype=bool)
+        for point in self.corner_positions:
+            self._mark_nearby_points(forbidden, point)
+        for slot, (x, y) in enumerate(pos[:count]):
             p = self._snap_point(float(x), float(y))
-            if p in seen:
-                continue
+            point_index = self._point_index.get(p)
+            if p in seen or (point_index is not None and forbidden[point_index]):
+                replacement = self._nearest_available_point(
+                    float(x),
+                    float(y),
+                    seen=seen,
+                    forbidden=forbidden,
+                )
+                if replacement is None:
+                    continue
+                p = replacement
+            pos[slot] = p
             seen.add(p)
+            self._mark_nearby_points(forbidden, p)
             out.append(p)
 
         tries = 0
@@ -158,6 +217,7 @@ class SensorPSO:
             if p in seen:
                 continue
             seen.add(p)
+            self._mark_nearby_points(forbidden, p)
             out.append(p)
         return out[: self.max_sensors]
 
@@ -169,6 +229,7 @@ class SensorPSO:
 
         for i in range(len(self._positions)):
             chromo = self._particle_to_chromosome(self._positions[i], int(self._active_counts[i]))
+            self._active_counts[i] = len(chromo)
             fit, cov, total = evaluator.evaluate(chromo)
             chromosomes.append(chromo)
             fitness_scores.append(float(fit))
@@ -176,6 +237,39 @@ class SensorPSO:
             totals.append(int(total))
 
         return chromosomes, fitness_scores, coverages, totals
+
+    def _prune_solution(
+        self,
+        evaluator: FitnessFunc,
+        chromosome: Chromosome,
+        *,
+        target_coverage: float,
+    ) -> Tuple[Chromosome, float, float]:
+        solution = self._dedupe_chromosome(chromosome)
+        fitness, coverage, _ = evaluator.evaluate(solution)
+        if coverage < target_coverage:
+            return solution, float(fitness), float(coverage)
+
+        while solution:
+            best_candidate: Optional[Chromosome] = None
+            best_fitness = float("-inf")
+            best_coverage = float("-inf")
+            for index in range(len(solution)):
+                candidate = solution[:index] + solution[index + 1 :]
+                candidate_fitness, candidate_coverage, _ = evaluator.evaluate(candidate)
+                if candidate_coverage < target_coverage:
+                    continue
+                if candidate_fitness > best_fitness:
+                    best_candidate = candidate
+                    best_fitness = float(candidate_fitness)
+                    best_coverage = float(candidate_coverage)
+            if best_candidate is None:
+                break
+            solution = best_candidate
+            fitness = best_fitness
+            coverage = best_coverage
+
+        return solution, float(fitness), float(coverage)
 
     def _adjust_active_counts(
         self,
@@ -351,9 +445,11 @@ class SensorPSO:
                 stable_count = 0
                 last_best_total = None
 
-        self.best_solution = self._dedupe_chromosome(gbest_chromosome)
-        self.best_fitness = float(gbest_score)
-        self.best_coverage = float(gbest_coverage)
+        self.best_solution, self.best_fitness, self.best_coverage = self._prune_solution(
+            evaluator,
+            gbest_chromosome,
+            target_coverage=tau,
+        )
         self.corner_points = list(self.corner_positions)
         self.population = [
             self._particle_to_chromosome(self._positions[i], int(self._active_counts[i]))
