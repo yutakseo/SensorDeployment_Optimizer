@@ -119,10 +119,6 @@ class DRLConfig:
     warmup_steps: int = 64
     train_steps_per_action: int = 1
     backup_actions: int = 64
-    reward_coverage: float = 1.0
-    sensor_penalty: float = 0.2
-    target_bonus: float = 10.0
-    deficit_penalty: float = 1.0
     seed: int = 42
     device: Optional[str] = None
     fitness_kwargs: Optional[dict] = None

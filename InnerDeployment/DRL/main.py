@@ -79,10 +79,7 @@ class SensorPlacementEnv:
         target_coverage: float,
         candidate_stride: int,
         max_candidates: Optional[int],
-        reward_coverage: float,
-        sensor_penalty: float,
-        target_bonus: float,
-        deficit_penalty: float,
+        evaluator: FitnessFunc,
     ):
         self.installable_map = np.asarray(installable_map) > 0
         self.jobsite_map = np.asarray(jobsite_map) > 0
@@ -95,10 +92,7 @@ class SensorPlacementEnv:
         self.min_sensors = max(0, int(min_sensors))
         self.max_sensors = max(self.min_sensors, int(max_sensors))
         self.target_coverage = max(0.0, min(100.0, float(target_coverage)))
-        self.reward_coverage = float(reward_coverage)
-        self.sensor_penalty = float(sensor_penalty)
-        self.target_bonus = float(target_bonus)
-        self.deficit_penalty = float(deficit_penalty)
+        self.evaluator = evaluator
         self.target_flat = self.jobsite_map.reshape(-1)
         self.target_area = max(1, int(np.count_nonzero(self.target_flat)))
         self.offsets = self._circle_offsets(self.coverage_cells)
@@ -219,6 +213,7 @@ class SensorPlacementEnv:
             raise ValueError(f"Invalid or already selected DRL action: {action}")
 
         previous = self.coverage_percent
+        previous_fitness = self.evaluator.fitness_from_coverage(self.solution, previous)
         self.selected[action] = True
         self.solution.append(self.candidates[action])
         self.covered[self.candidate_indices[action]] = True
@@ -231,13 +226,9 @@ class SensorPlacementEnv:
         exhausted = len(self.solution) >= self.max_sensors or not np.any(~self.selected)
         done = bool(reached_target or exhausted)
         reward = (
-            self.reward_coverage * (self.coverage_percent - previous)
-            - self.sensor_penalty
+            self.evaluator.fitness_from_coverage(self.solution, self.coverage_percent)
+            - previous_fitness
         )
-        if reached_target:
-            reward += self.target_bonus
-        elif exhausted:
-            reward -= self.deficit_penalty * max(0.0, self.target_coverage - self.coverage_percent)
         return float(reward), done
 
 
@@ -284,6 +275,15 @@ class SensorDRL:
         self.max_sensors = max(self.min_sensors, int(max_sensors))
         self.fitness_kwargs = dict(fitness_kwargs or {})
         target = float(self.fitness_kwargs.get("target_coverage", 90.0))
+        # Kept in the constructor for backward compatibility. Step rewards now
+        # come from the shared FitnessFunc objective.
+        del reward_coverage, sensor_penalty, target_bonus, deficit_penalty
+        self.evaluator = FitnessFunc(
+            jobsite_map=jobsite_map,
+            corner_positions=self.corner_positions,
+            coverage=self.coverage,
+            **self.fitness_kwargs,
+        )
 
         self.env = SensorPlacementEnv(
             installable_map=installable_map,
@@ -295,10 +295,7 @@ class SensorDRL:
             target_coverage=target,
             candidate_stride=candidate_stride,
             max_candidates=max_candidates,
-            reward_coverage=reward_coverage,
-            sensor_penalty=sensor_penalty,
-            target_bonus=target_bonus,
-            deficit_penalty=deficit_penalty,
+            evaluator=self.evaluator,
         )
         self.q_network = CandidateQNetwork(self.env.FEATURE_DIM, hidden_dim).to(self.device)
         self.target_network = CandidateQNetwork(self.env.FEATURE_DIM, hidden_dim).to(self.device)
@@ -419,20 +416,6 @@ class SensorDRL:
             fitness, coverage, solution = max(candidates, key=lambda item: item[0])
         return solution, float(fitness), float(coverage)
 
-    def _fitness_from_coverage(
-        self,
-        evaluator: FitnessFunc,
-        solution: Chromosome,
-        coverage: float,
-    ) -> float:
-        deficit = max(0.0, float(evaluator.target_coverage) - float(coverage))
-        return float(
-            evaluator.coverage_weight * min(float(coverage), float(evaluator.target_coverage))
-            - evaluator.sensor_weight * (len(solution) + len(self.corner_positions))
-            - evaluator.deficit_penalty * deficit
-            - evaluator._overlap_cost(solution)
-        )
-
     def run(
         self,
         *,
@@ -448,12 +431,7 @@ class SensorDRL:
     ) -> Chromosome:
         del return_best_only
         t0 = time.perf_counter()
-        evaluator = FitnessFunc(
-            jobsite_map=self.env.jobsite_map,
-            corner_positions=self.corner_positions,
-            coverage=self.coverage,
-            **self.fitness_kwargs,
-        )
+        evaluator = self.evaluator
         target = float(evaluator.target_coverage)
         epsilon = float(epsilon_start)
         candidate_solutions: List[Chromosome] = []
@@ -467,7 +445,7 @@ class SensorDRL:
             )
             candidate_solutions.append(solution)
             coverage = float(self.env.coverage_percent)
-            fitness = self._fitness_from_coverage(evaluator, solution, coverage)
+            fitness = evaluator.fitness_from_coverage(solution, coverage)
             if fitness > self.best_fitness:
                 self.best_solution = list(solution)
                 self.best_fitness = float(fitness)

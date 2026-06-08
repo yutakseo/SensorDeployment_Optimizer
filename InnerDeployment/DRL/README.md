@@ -40,6 +40,5 @@ Main tuning parameters:
 - `max_candidates`: maximum candidate action count after mixing high-gain and
   spatially distributed candidates.
 - `hidden_dim`, `learning_rate`, `gamma`: Q-network training parameters.
-- `sensor_penalty`, `target_bonus`, `deficit_penalty`: reward shaping weights.
 - `fitness_kwargs`: final selection and pruning objective passed to
-  `FitnessFunc`.
+  `FitnessFunc`. The DQN step reward is the change in this common fitness.

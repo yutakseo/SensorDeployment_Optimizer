@@ -1,4 +1,6 @@
 from __future__ import annotations
+import os
+
 from Engine import run_pipeline
 
 
@@ -19,7 +21,7 @@ SENSOR_RANGES = [
     #(100, 120),
     #(120, 140),
 ]
-ITERATIONS = 1
+ITERATIONS = 10
 
 # 1) Map loader / layer parameters
 MAP_LAYER_PARAMS = {
@@ -41,7 +43,8 @@ HARRIS_PARAMS = {
 COMMON_OPTIMIZER_PARAMS = {
     "coverage": 45,
 }
-ALGORITHM = "pso"
+GA_CPU_WORKERS = min(16, max(1, (os.cpu_count() or 2) - 1))
+ALGORITHMS = ("pso", "ga", "greedy", "drl")
 OPTIMIZER_PARAMS = {
     "ga": {
         "initial_size": 100,
@@ -81,6 +84,7 @@ OPTIMIZER_RUN_PARAMS = {
         "profile": True,
         "profile_every": 1,
         "profile_fitness_breakdown": True,
+        "parallel_workers": GA_CPU_WORKERS,
     },
     "pso": {
         "inertia": 0.72,
@@ -135,24 +139,25 @@ FINAL_PLOT_PARAMS = {
 
 
 if __name__ == "__main__":
-    for sensor_range in SENSOR_RANGES:
-        for map_name in MAP_NAMES:
-            results_dir = f"{RESULTS_ROOT}/{ALGORITHM}/{map_name}/{sensor_range[0]}-{sensor_range[1]}"
-            for _ in range(ITERATIONS):
-                final_points, out_path = run_pipeline(
-                    map_name=map_name,
-                    algorithm=ALGORITHM,
-                    sensor_range=sensor_range,
-                    results_dir=results_dir,
-                    map_layer_params=MAP_LAYER_PARAMS,
-                    harris_params=HARRIS_PARAMS,
-                    common_optimizer_params=COMMON_OPTIMIZER_PARAMS,
-                    optimizer_params=OPTIMIZER_PARAMS,
-                    optimizer_run_params=OPTIMIZER_RUN_PARAMS,
-                    logger_params=LOGGER_PARAMS,
-                    final_plot_params=FINAL_PLOT_PARAMS,
-                )
-                print(
-                    f"[Done] map={map_name} algorithm={ALGORITHM} "
-                    f"range={sensor_range} sensors={len(final_points)} result={out_path}"
-                )
+    for algorithm in ALGORITHMS:
+        for sensor_range in SENSOR_RANGES:
+            for map_name in MAP_NAMES:
+                results_dir = f"{RESULTS_ROOT}/{algorithm}/{map_name}/{sensor_range[0]}-{sensor_range[1]}"
+                for _ in range(ITERATIONS):
+                    final_points, out_path = run_pipeline(
+                        map_name=map_name,
+                        algorithm=algorithm,
+                        sensor_range=sensor_range,
+                        results_dir=results_dir,
+                        map_layer_params=MAP_LAYER_PARAMS,
+                        harris_params=HARRIS_PARAMS,
+                        common_optimizer_params=COMMON_OPTIMIZER_PARAMS,
+                        optimizer_params=OPTIMIZER_PARAMS,
+                        optimizer_run_params=OPTIMIZER_RUN_PARAMS,
+                        logger_params=LOGGER_PARAMS,
+                        final_plot_params=FINAL_PLOT_PARAMS,
+                    )
+                    print(
+                        f"[Done] map={map_name} algorithm={algorithm} "
+                        f"range={sensor_range} sensors={len(final_points)} result={out_path}"
+                    )

@@ -224,11 +224,14 @@ class FitnessFunc:
     def fitness_score(self, inner_positions: List[Gene]) -> float:
         return self.computeCoverage(inner_positions)
 
-    def fitness_min_sensors(self, inner_positions: List[Gene]) -> float:
-        cov = self.computeCoverage(inner_positions)
+    def fitness_from_coverage(
+        self,
+        inner_positions: List[Gene],
+        coverage: float,
+    ) -> float:
         n = self._n_total(inner_positions)
         tau = float(self.target_coverage)
-        cov_f = float(cov)
+        cov_f = float(coverage)
         n_f = float(n)
 
         deficit = max(0.0, tau - cov_f)
@@ -241,10 +244,14 @@ class FitnessFunc:
         )
         return float(score)
 
+    def fitness_min_sensors(self, inner_positions: List[Gene]) -> float:
+        cov = self.computeCoverage(inner_positions)
+        return self.fitness_from_coverage(inner_positions, cov)
+
     def evaluate(self, inner_positions: List[Gene]):
         cov = self.computeCoverage(inner_positions)
         n = self._n_total(inner_positions)
-        fit = self.fitness_min_sensors(inner_positions)
+        fit = self.fitness_from_coverage(inner_positions, cov)
         return float(fit), float(cov), int(n)
 
     def rankSensor(self, points: List[Gene]):

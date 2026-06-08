@@ -29,8 +29,8 @@ Generation = List[Chromosome]
 
 
 def default_parallel_workers() -> int:
-    """Keep notebook runs responsive when CUDA workers must use spawn."""
-    return min(4, max(1, (os.cpu_count() or 2) - 1))
+    """Use CPU parallelism without oversubscribing typical experiment hosts."""
+    return min(16, max(1, (os.cpu_count() or 2) - 1))
 
 
 def _shutdown_pool(pool: Optional[ProcessPoolExecutor], *, force: bool = False) -> None:
@@ -54,6 +54,7 @@ _W_MIN_TOTAL = None
 _W_MAX_TOTAL = None
 _W_MIN_SENSORS = 0
 _W_INSTALLABLE_POINTS: List[Gene] = []
+_W_EVALUATOR: Optional[FitnessFunc] = None
 
 
 def _worker_init(
@@ -67,11 +68,12 @@ def _worker_init(
     max_total,
     min_sensors: int,
     worker_device: Optional[str] = None,
+    fitness_kwargs: Optional[dict] = None,
 ):
-    # Default to GPU in workers only when explicitly allowed.
+    # CPU worker pools keep one evaluator per process and reuse its caches.
     global _W_INSTALLABLE_MAP, _W_JOBSITE_MAP, _W_CORNER_POSITIONS, _W_COVERAGE
     global _W_MUTATION_ALLOWED, _W_MUTATION_KW, _W_MIN_TOTAL, _W_MAX_TOTAL, _W_MIN_SENSORS
-    global _W_INSTALLABLE_POINTS
+    global _W_INSTALLABLE_POINTS, _W_EVALUATOR
 
     _W_INSTALLABLE_MAP = installable_map
     _W_JOBSITE_MAP = jobsite_map
@@ -89,6 +91,21 @@ def _worker_init(
     _W_INSTALLABLE_POINTS = [
         (int(x), int(y)) for (y, x) in np.argwhere(np.asarray(installable_map) > 0)
     ]
+    if torch is not None:
+        torch.set_num_threads(1)
+        try:
+            torch.set_num_interop_threads(1)
+        except RuntimeError:
+            pass
+    evaluator_kw = dict(fitness_kwargs or {})
+    if worker_device is not None:
+        evaluator_kw["device"] = worker_device
+    _W_EVALUATOR = FitnessFunc(
+        jobsite_map=jobsite_map,
+        corner_positions=_W_CORNER_POSITIONS,
+        coverage=_W_COVERAGE,
+        **evaluator_kw,
+    )
 
 
 def _repair_min_sensors_worker(chromosome: Chromosome) -> Chromosome:
@@ -159,6 +176,12 @@ def _reproduce_many(args):
     for p1, p2 in pairs:
         out.append(_reproduce_one((p1, p2, mutation_rate)))
     return out
+
+
+def _evaluate_many(generation: Generation):
+    if _W_EVALUATOR is None:
+        raise RuntimeError("GA worker evaluator is not initialized.")
+    return [_W_EVALUATOR.evaluate(to_int_pairs(chromosome)) for chromosome in generation]
 
 
 @contextmanager
@@ -384,24 +407,45 @@ class SensorGA:
         profile_acc: Optional[Dict[str, float]] = None,
         profile_breakdown: bool = False,
         ordering_top_k: int = 1,
+        pool: Optional[ProcessPoolExecutor] = None,
+        parallel_workers: int = 1,
     ) -> Tuple[Generation, List[float], List[Chromosome]]:
-        evaluator = FitnessFunc(
-            jobsite_map=self.jobsite_map,
-            corner_positions=self.corner_positions,
-            coverage=self.coverage,
-            profile_acc=profile_acc if profile_breakdown else None,
-            profile_cuda_sync=True,
-            **self.fitness_kwargs,
-        )
-
         ordering_top_k = max(0, int(ordering_top_k))
+        evaluator = None
+        if pool is None or ordering_top_k > 0:
+            evaluator = FitnessFunc(
+                jobsite_map=self.jobsite_map,
+                corner_positions=self.corner_positions,
+                coverage=self.coverage,
+                profile_acc=profile_acc if profile_breakdown else None,
+                profile_cuda_sync=True,
+                **self.fitness_kwargs,
+            )
 
         # 1) 빠른 1차 점수(근사): ordering 없이 genotype 그대로 평가
-        approx_scored: List[Tuple[float, Chromosome]] = []
+        genotypes: Generation = []
         for genotype in generation:
             geno = self._dedupe_chromosome(to_int_pairs(genotype))
-            fit = float(evaluator.fitness_min_sensors(geno))  # 근사(빠름)
-            approx_scored.append((fit, geno))
+            genotypes.append(geno)
+
+        if pool is not None and int(parallel_workers) > 1 and genotypes:
+            chunk = max(1, len(genotypes) // (int(parallel_workers) * 2))
+            chunks = [genotypes[i : i + chunk] for i in range(0, len(genotypes), chunk)]
+            evaluated = [
+                result
+                for batch in pool.map(_evaluate_many, chunks)
+                for result in batch
+            ]
+            approx_scored = [
+                (float(result[0]), geno)
+                for geno, result in zip(genotypes, evaluated)
+            ]
+        else:
+            assert evaluator is not None
+            approx_scored = [
+                (float(evaluator.fitness_min_sensors(geno)), geno)
+                for geno in genotypes
+            ]
 
         approx_scored.sort(key=lambda x: x[0], reverse=True)
 
@@ -415,6 +459,7 @@ class SensorGA:
 
         k = min(ordering_top_k, len(approx_scored))
         for i in range(k):
+            assert evaluator is not None
             geno = approx_scored[i][1]
 
             if profile_breakdown:
@@ -643,10 +688,7 @@ class SensorGA:
         if mutation_kwargs:
             combined_kw.update(mutation_kwargs)
 
-        worker_device: Optional[str] = None
-        if torch is not None and torch.cuda.is_available() and int(parallel_workers) > 1:
-            # Avoid CUDA OOM by preventing N workers from each allocating GPU tensors.
-            worker_device = "cpu"
+        worker_device: Optional[str] = "cpu" if int(parallel_workers) > 1 else None
 
         max_total = len(self.corner_positions) + int(self.max_sensors)
         min_total = len(self.corner_positions) + int(self.min_sensors)
@@ -674,6 +716,7 @@ class SensorGA:
                         max_total,
                         self.min_sensors,
                         worker_device,
+                        self.fitness_kwargs,
                     ),
                 )
                 t_init = time.perf_counter() - t0
@@ -698,6 +741,8 @@ class SensorGA:
                         profile_acc=prof if profile else None,
                         profile_breakdown=bool(profile and profile_fitness_breakdown),
                         ordering_top_k=int(ordering_top_k),
+                        pool=pool,
+                        parallel_workers=int(parallel_workers),
                     )
                 if not fitness_scores:
                     break
@@ -716,9 +761,19 @@ class SensorGA:
 
                 cov_tot: List[Tuple[float, int]] = []
                 if log_eval_exact:
-                    for inner in phenotypes:
-                        _, cov_i, tot_i = log_eval.evaluate(inner)
-                        cov_tot.append((float(cov_i), int(tot_i)))
+                    if pool is not None and int(parallel_workers) > 1 and phenotypes:
+                        chunk = max(1, len(phenotypes) // (int(parallel_workers) * 2))
+                        chunks = [phenotypes[i : i + chunk] for i in range(0, len(phenotypes), chunk)]
+                        evaluated = [
+                            result
+                            for batch in pool.map(_evaluate_many, chunks)
+                            for result in batch
+                        ]
+                        cov_tot = [(float(result[1]), int(result[2])) for result in evaluated]
+                    else:
+                        for inner in phenotypes:
+                            _, cov_i, tot_i = log_eval.evaluate(inner)
+                            cov_tot.append((float(cov_i), int(tot_i)))
                 else:
                     _, cov_best, tot_best = log_eval.evaluate(best_inner)
                     cov_tot = [(float(cov_best), int(tot_best))]
@@ -866,6 +921,7 @@ class SensorGA:
                                         max_total,
                                         self.min_sensors,
                                         worker_device,
+                                        self.fitness_kwargs,
                                     ),
                                 )
                             with _timer("reproduction_pool_warmup", prof):
