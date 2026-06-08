@@ -7,6 +7,7 @@ from typing import List, Tuple, Optional, Dict, Any
 import numpy as np
 
 from ..fitnessfunction import FitnessFunc
+from ..utils import filter_min_separation, is_far_enough, min_separation_cells
 from .utils import to_bool_map, to_int_pairs
 
 Gene = Tuple[int, int]
@@ -38,7 +39,7 @@ def mutation(
     prefix_minimize: bool = True,
     replace_duplicates: bool = True,
     empty_fill_ratio: float = 0.0,
-    min_separation: float = 0.0,
+    min_separation: Optional[float] = None,
     device: Optional[object] = None,
 ) -> Chromosome:
     """
@@ -47,9 +48,8 @@ def mutation(
       - optional prefix minimization to keep the shortest feasible prefix
       - optional duplicate removal, min-distance pruning, and empty-area refill
 
-    Distance pruning is disabled by default. Overlap should normally be
-    handled as a soft fitness penalty so mutation can explore nearby points.
-    Set min_separation explicitly only when hard pruning is desired.
+    min_separation is measured in map cells. By default it uses one sensor
+    radius (coverage / 5), which prevents heavily overlapped sensor centers.
     """
 
     def _make_eval() -> FitnessFunc:
@@ -134,7 +134,7 @@ def mutation(
 
     def _pick_add(exist_set, inner_: Chromosome) -> Optional[Gene]:
         ev = _ensure_eval()
-        min_sep = float(min_separation)
+        min_sep = effective_min_separation
 
         def _far_enough(x: int, y: int) -> bool:
             if min_sep <= 0:
@@ -187,29 +187,23 @@ def mutation(
     inner = to_int_pairs(chromosome)
     corners = to_int_pairs(corner_positions)
     installable = to_bool_map(installable_map)
+    effective_min_separation = min_separation_cells(min_separation, int(coverage))
 
     def _dedupe_and_fill(points: Chromosome) -> Chromosome:
-        if (not replace_duplicates) and empty_fill_ratio <= 0 and float(min_separation) <= 0.0:
+        if (not replace_duplicates) and empty_fill_ratio <= 0 and effective_min_separation <= 0.0:
             return points
-        seen = set()
-        dup_count = 0
-        out: Chromosome = []
-        for p in points:
-            key = (int(p[0]), int(p[1]))
-            if key in seen:
-                dup_count += 1
-                continue
-            seen.add(key)
-            out.append(key)
-
-        out, removed_close = _filter_by_min_sep(out)
-        if (dup_count == 0) and (removed_close == 0) and (empty_fill_ratio <= 0):
+        out, removed_count = filter_min_separation(
+            points,
+            base=corners,
+            min_separation=effective_min_separation,
+        )
+        if (removed_count == 0) and (empty_fill_ratio <= 0):
             return out
 
         total_existing = set(out)
         total_existing.update(corners)
 
-        add_count = dup_count + removed_close
+        add_count = removed_count
         if empty_fill_ratio > 0:
             add_count += int(max(0, len(out)) * float(empty_fill_ratio))
 
@@ -225,6 +219,8 @@ def mutation(
             y, x = yx[random.randrange(len(yx))]
             g = (int(x), int(y))
             if g in total_existing:
+                continue
+            if not is_far_enough(g, total_existing, effective_min_separation):
                 continue
             out.append(g)
             total_existing.add(g)

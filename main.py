@@ -7,19 +7,19 @@ from Engine import run_pipeline
 RESULTS_ROOT = "__RESULTS__"
 MAP_NAMES = [
     "gangjin.full",
-   # "gangjin.up",
-   # "gangjin.down",
-   # "sejong.full",
-   # "seocho.full",
-   # "seocho.up",
-   # "seocho.down",
+    "gangjin.up",
+    "gangjin.down",
+    "sejong.full",
+    "seocho.full",
+    "seocho.up",
+    "seocho.down",
 ]
 SENSOR_RANGES = [
     (40, 60),
-    #(60, 80),
-    #(80, 100),
-    #(100, 120),
-    #(120, 140),
+    (60, 80),
+    (80, 100),
+    (100, 120),
+    (120, 140),
 ]
 ITERATIONS = 10
 
@@ -52,6 +52,7 @@ OPTIMIZER_PARAMS = {
         "child_chromo_size": 100,
         "min_sensors": 0,
         "generations": 1000,
+        "mutation_kwargs": {"min_separation": COMMON_OPTIMIZER_PARAMS["coverage"] / 5},
     },
     "pso": {
         "swarm_size": 100,
@@ -61,13 +62,15 @@ OPTIMIZER_PARAMS = {
     "greedy": {
         "min_sensors": 0,
         "candidate_stride": 5,
+        "min_separation": COMMON_OPTIMIZER_PARAMS["coverage"] / 5,
     },
     "drl": {
         "min_sensors": 0,
         "generations": 100,
         "candidate_stride": 5,
         "max_candidates": 512,
-        "fitness_kwargs": {"target_coverage": 90.0},
+        "min_separation": COMMON_OPTIMIZER_PARAMS["coverage"] / 5,
+        "fitness_kwargs": {"target_coverage": 100.0},
     },
 }
 

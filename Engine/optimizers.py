@@ -169,6 +169,7 @@ class GreedyOptimizerStrategy(InnerOptimizerStrategy):
             min_sensors=getattr(gi, "min_sensors", 0),
             max_sensors=getattr(gi, "max_sensors", None),
             candidate_stride=getattr(gi, "candidate_stride", 1),
+            min_separation=getattr(gi, "min_separation", None),
             fitness_kwargs=getattr(gi, "fitness_kwargs", None),
         )
         return self.optimizer
@@ -201,6 +202,7 @@ class DRLOptimizerStrategy(InnerOptimizerStrategy):
             max_sensors=getattr(gi, "max_sensors", 140),
             candidate_stride=getattr(gi, "candidate_stride", 5),
             max_candidates=getattr(gi, "max_candidates", 512),
+            min_separation=getattr(gi, "min_separation", None),
             hidden_dim=getattr(gi, "hidden_dim", 128),
             replay_capacity=getattr(gi, "replay_capacity", 5000),
             batch_size=getattr(gi, "batch_size", 64),

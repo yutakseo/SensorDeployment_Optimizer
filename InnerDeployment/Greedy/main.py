@@ -7,6 +7,7 @@ from typing import Dict, Iterable, List, Optional, Sequence, Tuple
 import numpy as np
 
 from ..fitnessfunction import FitnessFunc
+from ..utils import is_far_enough, min_separation_cells
 
 try:
     from scipy import ndimage
@@ -40,6 +41,7 @@ class SensorGreedy:
         min_sensors: int = 0,
         max_sensors: Optional[int] = None,
         candidate_stride: int = 1,
+        min_separation: Optional[float] = None,
         fitness_kwargs: Optional[Dict] = None,
     ):
         self.installable_map = (np.asarray(installable_map) > 0)
@@ -57,6 +59,7 @@ class SensorGreedy:
         self.min_sensors = max(0, int(min_sensors))
         self.max_sensors = None if max_sensors is None else max(0, int(max_sensors))
         self.candidate_stride = max(1, int(candidate_stride))
+        self.min_separation = min_separation_cells(min_separation, self.coverage)
         self.fitness_kwargs = dict(fitness_kwargs or {})
 
         self.best_solution: Chromosome = []
@@ -150,6 +153,8 @@ class SensorGreedy:
             point = (int(x), int(y))
             if point in selected:
                 continue
+            if not is_far_enough(point, selected, self.min_separation):
+                continue
             gain = int(gain_map[y, x])
             candidate_coverage = coverage + 100.0 * gain / max(1, self._target_area)
             score = evaluator.fitness_from_coverage(solution + [point], candidate_coverage)
@@ -178,6 +183,8 @@ class SensorGreedy:
         for y, x in zip(ys.tolist(), xs.tolist()):
             point = (int(x), int(y))
             if point in selected:
+                continue
+            if not is_far_enough(point, selected, self.min_separation):
                 continue
             indices = self._covered_indices(point)
             gain = int(np.count_nonzero(~covered[indices]))

@@ -68,7 +68,7 @@ class FitnessFunc:
         corner_positions: List[Gene],
         coverage: int,  # sensor radius for Sensor.deploy
         *,
-        target_coverage: float = 90.0,
+        target_coverage: float = 100.0,
         big_reward: float = 1_000_000.0,
         coverage_weight: float = 1.0,
         sensor_weight: float = 1.0,

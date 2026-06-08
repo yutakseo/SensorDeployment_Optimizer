@@ -14,6 +14,7 @@ import numpy as np
 
 from .crossover import crossover as crossover_op
 from ..fitnessfunction import FitnessFunc
+from ..utils import filter_min_separation, is_far_enough, min_separation_cells
 from .initializer import initialize_population
 from .mutation import mutation as mutation_op
 from .selection import elite, roulette, sus, tournament
@@ -117,13 +118,16 @@ def _repair_min_sensors_worker(chromosome: Chromosome) -> Chromosome:
     needed = int(_W_MIN_SENSORS) - len(chromosome)
     exist = set(to_int_pairs(chromosome))
     exist.update(_W_CORNER_POSITIONS)
+    min_sep = min_separation_cells(_W_MUTATION_KW.get("min_separation"), _W_COVERAGE)
 
     out = list(chromosome)
     tries = 0
-    while needed > 0 and tries < needed * 10:
+    while needed > 0 and tries < needed * 50:
         tries += 1
         x, y = random.choice(_W_INSTALLABLE_POINTS)
         if (x, y) in exist:
+            continue
+        if not is_far_enough((x, y), exist, min_sep):
             continue
         out.append((x, y))
         exist.add((x, y))
@@ -132,14 +136,12 @@ def _repair_min_sensors_worker(chromosome: Chromosome) -> Chromosome:
 
 
 def _dedupe_worker(chromosome: Chromosome) -> Chromosome:
-    seen = set()
-    out: Chromosome = []
-    for p in chromosome:
-        key = (int(p[0]), int(p[1]))
-        if key in seen:
-            continue
-        seen.add(key)
-        out.append(key)
+    min_sep = min_separation_cells(_W_MUTATION_KW.get("min_separation"), _W_COVERAGE)
+    out, _ = filter_min_separation(
+        chromosome,
+        base=_W_CORNER_POSITIONS,
+        min_separation=min_sep,
+    )
     return out
 
 
@@ -280,7 +282,8 @@ class SensorGA:
             and torch.cuda.is_available()
         ):
             self.fitness_kwargs["device"] = "cuda"
-        self.mutation_kwargs = mutation_kwargs or {}
+        self.mutation_kwargs = dict(mutation_kwargs or {})
+        self.mutation_kwargs.setdefault("min_separation", float(self.coverage) / 5.0)
 
         if "target_coverage" in self.fitness_kwargs and "target_coverage" not in self.mutation_kwargs:
             self.mutation_kwargs["target_coverage"] = float(self.fitness_kwargs["target_coverage"])
@@ -295,7 +298,7 @@ class SensorGA:
             min_sensors=init_min,
             max_sensors=init_max,
         )
-        self.init_population = [self._dedupe_chromosome(c) for c in self.init_population]
+        self.init_population = [self._repair_min_sensors(self._dedupe_chromosome(c)) for c in self.init_population]
         self.population: Generation = self.init_population
 
         self._mutation_allowed = set(inspect.signature(mutation_op).parameters.keys())
@@ -563,13 +566,16 @@ class SensorGA:
         needed = int(self.min_sensors) - len(chromosome)
         exist = set(to_int_pairs(chromosome))
         exist.update(self.corner_positions)
+        min_sep = min_separation_cells(self.mutation_kwargs.get("min_separation"), self.coverage)
 
         out = list(chromosome)
         tries = 0
-        while needed > 0 and tries < needed * 10:
+        while needed > 0 and tries < needed * 50:
             tries += 1
             x, y = random.choice(self._installable_points)
             if (x, y) in exist:
+                continue
+            if not is_far_enough((x, y), exist, min_sep):
                 continue
             out.append((x, y))
             exist.add((x, y))
@@ -577,20 +583,17 @@ class SensorGA:
         return out
 
     def _dedupe_chromosome(self, chromosome: Chromosome) -> Chromosome:
-        seen = set()
-        out: Chromosome = []
-        for p in chromosome:
-            key = (int(p[0]), int(p[1]))
-            if key in seen:
-                continue
-            seen.add(key)
-            out.append(key)
+        min_sep = min_separation_cells(self.mutation_kwargs.get("min_separation"), self.coverage)
+        out, _ = filter_min_separation(
+            chromosome,
+            base=self.corner_positions,
+            min_separation=min_sep,
+        )
         return out
 
     def _postprocess_best(self, chromosome: Chromosome) -> Chromosome:
         min_sep = 0.0
-        if "min_separation" in self.mutation_kwargs:
-            min_sep = float(self.mutation_kwargs.get("min_separation") or 0.0)
+        min_sep = min_separation_cells(self.mutation_kwargs.get("min_separation"), self.coverage)
 
         if min_sep <= 0:
             return chromosome
@@ -636,6 +639,8 @@ class SensorGA:
             y, x = candidates[random.randrange(len(candidates))]
             g = (int(x), int(y))
             if g in exist:
+                continue
+            if not is_far_enough(g, exist, min_sep):
                 continue
             kept.append(g)
             exist.add(g)

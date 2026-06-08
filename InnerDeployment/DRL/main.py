@@ -11,7 +11,7 @@ import torch
 import torch.nn as nn
 
 from ..fitnessfunction import FitnessFunc
-from ..utils import to_int_pairs
+from ..utils import filter_min_separation, is_far_enough, min_separation_cells, to_int_pairs
 
 Gene = Tuple[int, int]
 Chromosome = List[Gene]
@@ -79,6 +79,7 @@ class SensorPlacementEnv:
         target_coverage: float,
         candidate_stride: int,
         max_candidates: Optional[int],
+        min_separation: Optional[float],
         evaluator: FitnessFunc,
     ):
         self.installable_map = np.asarray(installable_map) > 0
@@ -92,6 +93,7 @@ class SensorPlacementEnv:
         self.min_sensors = max(0, int(min_sensors))
         self.max_sensors = max(self.min_sensors, int(max_sensors))
         self.target_coverage = max(0.0, min(100.0, float(target_coverage)))
+        self.min_separation = min_separation_cells(min_separation, int(coverage))
         self.evaluator = evaluator
         self.target_flat = self.jobsite_map.reshape(-1)
         self.target_area = max(1, int(np.count_nonzero(self.target_flat)))
@@ -105,7 +107,11 @@ class SensorPlacementEnv:
         ys, xs = np.where(mask)
         ys = ys[::stride]
         xs = xs[::stride]
-        points = [(int(x), int(y)) for y, x in zip(ys.tolist(), xs.tolist())]
+        points = [
+            (int(x), int(y))
+            for y, x in zip(ys.tolist(), xs.tolist())
+            if is_far_enough((int(x), int(y)), self.corner_positions, self.min_separation)
+        ]
         indices = [self._covered_indices(point) for point in points]
 
         if max_candidates is not None and len(points) > int(max_candidates):
@@ -166,7 +172,20 @@ class SensorPlacementEnv:
         return self.action_features()
 
     def available_indices(self) -> np.ndarray:
-        return np.flatnonzero(~self.selected)
+        available = np.flatnonzero(~self.selected)
+        if available.size == 0 or self.min_separation <= 0:
+            return available
+        existing = self.corner_positions + self.solution
+        if not existing:
+            return available
+        return np.asarray(
+            [
+                int(i)
+                for i in available.tolist()
+                if is_far_enough(self.candidates[int(i)], existing, self.min_separation)
+            ],
+            dtype=np.int64,
+        )
 
     def marginal_gains(self, available: Optional[np.ndarray] = None) -> np.ndarray:
         actions = self.available_indices() if available is None else available
@@ -223,7 +242,7 @@ class SensorPlacementEnv:
             self.coverage_percent >= self.target_coverage
             and len(self.solution) >= self.min_sensors
         )
-        exhausted = len(self.solution) >= self.max_sensors or not np.any(~self.selected)
+        exhausted = len(self.solution) >= self.max_sensors or self.available_indices().size == 0
         done = bool(reached_target or exhausted)
         reward = (
             self.evaluator.fitness_from_coverage(self.solution, self.coverage_percent)
@@ -259,6 +278,7 @@ class SensorDRL:
         sensor_penalty: float = 0.2,
         target_bonus: float = 10.0,
         deficit_penalty: float = 1.0,
+        min_separation: Optional[float] = None,
         seed: int = 42,
         device: Optional[str] = None,
         fitness_kwargs: Optional[dict] = None,
@@ -273,6 +293,7 @@ class SensorDRL:
         self.coverage = int(coverage)
         self.min_sensors = max(0, int(min_sensors))
         self.max_sensors = max(self.min_sensors, int(max_sensors))
+        self.min_separation = min_separation_cells(min_separation, self.coverage)
         self.fitness_kwargs = dict(fitness_kwargs or {})
         target = float(self.fitness_kwargs.get("target_coverage", 90.0))
         # Kept in the constructor for backward compatibility. Step rewards now
@@ -295,6 +316,7 @@ class SensorDRL:
             target_coverage=target,
             candidate_stride=candidate_stride,
             max_candidates=max_candidates,
+            min_separation=self.min_separation,
             evaluator=self.evaluator,
         )
         self.q_network = CandidateQNetwork(self.env.FEATURE_DIM, hidden_dim).to(self.device)
@@ -400,7 +422,11 @@ class SensorDRL:
         *,
         target_coverage: float,
     ) -> Tuple[Chromosome, float, float]:
-        solution = list(dict.fromkeys(to_int_pairs(chromosome)))
+        solution, _ = filter_min_separation(
+            to_int_pairs(chromosome),
+            base=self.corner_positions,
+            min_separation=self.min_separation,
+        )
         fitness, coverage, _ = evaluator.evaluate(solution)
         if coverage < target_coverage:
             return solution, float(fitness), float(coverage)

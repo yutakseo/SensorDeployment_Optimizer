@@ -88,6 +88,7 @@ class GreedyConfig:
     min_sensors: int = 0
     max_sensors: int = 140
     candidate_stride: int = 1
+    min_separation: Optional[float] = None
     fitness_kwargs: Optional[dict] = None
 
 
@@ -110,6 +111,7 @@ class DRLConfig:
     max_sensors: int = 140
     candidate_stride: int = 5
     max_candidates: Optional[int] = 512
+    min_separation: Optional[float] = None
     hidden_dim: int = 128
     replay_capacity: int = 5000
     batch_size: int = 64
