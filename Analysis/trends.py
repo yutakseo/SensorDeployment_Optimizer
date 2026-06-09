@@ -4,7 +4,7 @@ import json
 import math
 from os import PathLike
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple, TypeAlias
+from typing import Any, Dict, Iterable, List, Literal, Optional, Sequence, Tuple, TypeAlias
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -23,6 +23,9 @@ from Engine.map_loader import MapLoader
 from InnerDeployment.geometry import circle_offsets
 
 PathInput: TypeAlias = str | PathLike[str]
+BandMode: TypeAlias = Literal["auto", "seed", "all"]
+ALL_RUNS_LABEL = "all"
+GREEDY_ALGORITHM = "greedy"
 
 
 def loadJson(path: Path) -> Dict[str, Any]:
@@ -401,17 +404,65 @@ def coverSummary(
     algorithm: str = "ga",
     map_name: str = "gangjin.down",
     seed_bands: Optional[Iterable[str]] = None,
+    band_mode: BandMode = "auto",
     target_values: Sequence[int] = (2, 3),
 ) -> Dict[str, Dict[str, float]]:
-    """seed band별 최종 커버리지/중첩 커버리지 평균과 표준편차 계산."""
+    """최종 커버리지/중첩 커버리지 평균과 표준편차 계산."""
     map_data = MapLoader().load(map_name)
-    bands = list(seed_bands) if seed_bands is not None else listBands(
+    if shouldMergeBands(algorithm=algorithm, band_mode=band_mode):
+        return summarizeRuns(
+            rows=loadOverlapRows(
+                results_root=results_root,
+                algorithm=algorithm,
+                map_name=map_name,
+                map_data=map_data,
+                target_values=target_values,
+            ),
+            label=ALL_RUNS_LABEL,
+        )
+
+    bands = bandList(
+        results_root=results_root,
+        algorithm=algorithm,
+        map_name=map_name,
+        seed_bands=seed_bands,
+    )
+    return summarizeBands(
+        results_root=results_root,
+        algorithm=algorithm,
+        map_name=map_name,
+        bands=bands,
+        map_data=map_data,
+        target_values=target_values,
+    )
+
+
+def shouldMergeBands(*, algorithm: str, band_mode: BandMode) -> bool:
+    if band_mode == "all":
+        return True
+    if band_mode == "seed":
+        return False
+    return algorithm.lower() == GREEDY_ALGORITHM
+
+
+def bandList(
+    *,
+    results_root: str,
+    algorithm: str,
+    map_name: str,
+    seed_bands: Optional[Iterable[str]],
+) -> List[str]:
+    if seed_bands is not None:
+        return list(seed_bands)
+    return listBands(
         results_root=results_root,
         algorithm=algorithm,
         map_name=map_name,
     )
-    summary: Dict[str, Dict[str, float]] = {}
-    keys = [
+
+
+def summaryKeys() -> List[str]:
+    return [
         "n_sensors",
         "coverage_percent",
         "overlap_percent_of_target",
@@ -419,28 +470,73 @@ def coverSummary(
         "redundant_hit_percent",
         "logged_final_coverage",
     ]
+
+
+def summarizeRows(rows: Sequence[Dict[str, float]]) -> Dict[str, float]:
+    stats: Dict[str, float] = {"runs": float(len(rows))}
+    for key in summaryKeys():
+        vals = [row[key] for row in rows if not math.isnan(float(row[key]))]
+        stats[f"{key}_mean"] = meanVal(vals, default=float("nan"))
+        stats[f"{key}_std"] = stdVal(vals, sample=True, default=0.0)
+    return stats
+
+
+def summarizeRuns(
+    *,
+    rows: Sequence[Dict[str, float]],
+    label: str,
+) -> Dict[str, Dict[str, float]]:
+    if not rows:
+        return {}
+    return {label: summarizeRows(rows)}
+
+
+def loadOverlapRows(
+    *,
+    results_root: str,
+    algorithm: str,
+    map_name: str,
+    map_data: Any,
+    target_values: Sequence[int],
+    seed_band: Optional[str] = None,
+) -> List[Dict[str, float]]:
+    try:
+        runs = loadRuns(
+            results_root=results_root,
+            algorithm=algorithm,
+            map_name=map_name,
+            seed_band=seed_band,
+        )
+    except FileNotFoundError:
+        return []
+    return [
+        coverOverlap(run, map_data=map_data, target_values=target_values)
+        for _, run in runs
+    ]
+
+
+def summarizeBands(
+    *,
+    results_root: str,
+    algorithm: str,
+    map_name: str,
+    bands: Sequence[str],
+    map_data: Any,
+    target_values: Sequence[int],
+) -> Dict[str, Dict[str, float]]:
+    summary: Dict[str, Dict[str, float]] = {}
     for band in sorted(bands, key=bandKey):
-        try:
-            runs = loadRuns(
-                results_root=results_root,
-                algorithm=algorithm,
-                map_name=map_name,
-                seed_band=band,
-            )
-        except FileNotFoundError:
-            continue
-        rows = [
-            coverOverlap(run, map_data=map_data, target_values=target_values)
-            for _, run in runs
-        ]
+        rows = loadOverlapRows(
+            results_root=results_root,
+            algorithm=algorithm,
+            map_name=map_name,
+            seed_band=band,
+            map_data=map_data,
+            target_values=target_values,
+        )
         if not rows:
             continue
-        stats: Dict[str, float] = {"runs": float(len(rows))}
-        for key in keys:
-            vals = [row[key] for row in rows if not math.isnan(float(row[key]))]
-            stats[f"{key}_mean"] = meanVal(vals, default=float("nan"))
-            stats[f"{key}_std"] = stdVal(vals, sample=True, default=0.0)
-        summary[band] = stats
+        summary[band] = summarizeRows(rows)
     return summary
 
 
@@ -450,6 +546,7 @@ def plotOverlap(
     algorithm: str = "ga",
     map_name: str = "gangjin.down",
     seed_bands: Optional[Iterable[str]] = None,
+    band_mode: BandMode = "auto",
     target_values: Sequence[int] = (2, 3),
     figsize: Tuple[float, float] = (8.0, 4.8),
     dpi: int = 300,
@@ -462,6 +559,7 @@ def plotOverlap(
         algorithm=algorithm,
         map_name=map_name,
         seed_bands=seed_bands,
+        band_mode=band_mode,
         target_values=target_values,
     )
     if not summary:
@@ -486,7 +584,8 @@ def plotOverlap(
         label="Overlapped area within covered (%)",
     )
     ax.set_title(f"{algorithm.upper()} final coverage and overlap: {map_name}")
-    ax.set_xlabel("Initial sensor seed band")
+    x_label = "Run group" if bands == [ALL_RUNS_LABEL] else "Initial sensor seed band"
+    ax.set_xlabel(x_label)
     ax.set_ylabel("Percent (%)")
     ax.set_xticks(x)
     ax.set_xticklabels(bands)
@@ -517,6 +616,7 @@ def saveReport(
     metric: str = "best",
     threshold: float = 0.5,
     target_values: Sequence[int] = (2, 3),
+    band_mode: BandMode = "auto",
     dpi: int = 300,
     show: bool = False,
 ) -> Dict[str, Any]:
@@ -524,19 +624,17 @@ def saveReport(
     논문용 분석 산출물을 한 번에 저장.
 
     저장 파일:
-      - output_dir/sensor_convergence_<algorithm>_<map>.png
-      - output_dir/coverage_overlap_<algorithm>_<map>.png
-      - summary_dir/coverage_overlap_<algorithm>_<map>.json
+      - output_dir/sensor_convergence.png
+      - output_dir/coverage_overlap.png
+      - summary_dir/coverage_overlap.json
     """
     out_dir = Path(output_dir)
     json_dir = Path(summary_dir) if summary_dir is not None else out_dir
     out_dir.mkdir(parents=True, exist_ok=True)
     json_dir.mkdir(parents=True, exist_ok=True)
-    safe_map = str(map_name).replace("/", "_").replace(".", "_")
-    stem = f"{algorithm}_{safe_map}"
-    convergence_path = out_dir / f"sensor_convergence_{stem}.png"
-    coverage_path = out_dir / f"coverage_overlap_{stem}.png"
-    summary_path = json_dir / f"coverage_overlap_{stem}.json"
+    convergence_path = out_dir / "sensor_convergence.png"
+    coverage_path = out_dir / "coverage_overlap.png"
+    summary_path = json_dir / "coverage_overlap.json"
 
     convergence = plotConverge(
         results_root=results_root,
@@ -555,6 +653,7 @@ def saveReport(
         algorithm=algorithm,
         map_name=map_name,
         seed_bands=seed_bands,
+        band_mode=band_mode,
         target_values=target_values,
         save_path=str(coverage_path),
         dpi=dpi,
