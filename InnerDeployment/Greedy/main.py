@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import gc
 import sys
 import time
 from typing import Dict, List, Optional, Tuple
@@ -308,3 +309,14 @@ class SensorGreedy:
             )
 
         return list(result)
+
+    def close(self) -> None:
+        """Release cached masks and map arrays after result serialization."""
+        self.installable_map = np.empty((0, 0), dtype=bool)
+        self.jobsite_map = np.empty((0, 0), dtype=bool)
+        self._target_flat = np.empty((0,), dtype=bool)
+        self._offsets = np.empty((0, 2), dtype=np.int32)
+        self._kernel = np.empty((0, 0), dtype=np.uint8)
+        self._candidate_mask = np.empty((0, 0), dtype=bool)
+        self.fitness_kwargs.clear()
+        gc.collect()

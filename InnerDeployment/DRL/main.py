@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import gc
 import random
 import time
 from collections import deque
@@ -38,6 +39,9 @@ class ReplayBuffer:
 
     def __len__(self) -> int:
         return len(self._items)
+
+    def clear(self) -> None:
+        self._items.clear()
 
 
 class CandidateQNetwork(nn.Module):
@@ -503,3 +507,21 @@ class SensorDRL:
                 f"coverage={self.best_coverage:.2f}% / time={time.perf_counter() - t0:.3f}s"
             )
         return list(self.best_solution)
+
+    def close(self) -> None:
+        """Release replay data, network tensors, and evaluator caches."""
+        device = self.device
+        self.replay.clear()
+        if self.optimizer is not None:
+            self.optimizer.state.clear()
+        self.optimizer = None
+        self.loss_fn = None
+        self.q_network = None
+        self.target_network = None
+        if self.evaluator is not None and hasattr(self.evaluator, "close"):
+            self.evaluator.close()
+        self.evaluator = None
+        self.env = None
+        gc.collect()
+        if str(device).startswith("cuda") and torch.cuda.is_available():
+            torch.cuda.empty_cache()

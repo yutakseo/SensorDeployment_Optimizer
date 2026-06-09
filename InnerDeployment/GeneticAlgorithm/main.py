@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import inspect
+import gc
 import os
 import random
 import time
@@ -37,6 +38,13 @@ def default_parallel_workers() -> int:
 def _shutdown_pool(pool: Optional[ProcessPoolExecutor], *, force: bool = False) -> None:
     if pool is None:
         return
+    if not force:
+        try:
+            workers = len(getattr(pool, "_processes", None) or {})
+            if workers > 0:
+                list(pool.map(_clear_worker_state, range(workers)))
+        except BaseException:
+            force = True
     if force:
         # Running futures cannot be cancelled. Terminate workers on interruption.
         for process in list((getattr(pool, "_processes", None) or {}).values()):
@@ -56,6 +64,35 @@ _W_MAX_TOTAL = None
 _W_MIN_SENSORS = 0
 _W_INSTALLABLE_POINTS: List[Gene] = []
 _W_EVALUATOR: Optional[FitnessFunc] = None
+
+
+def _clear_torch_cache(device: Optional[object] = None) -> None:
+    if torch is None or not torch.cuda.is_available():
+        return
+    if device is None or str(device).startswith("cuda"):
+        torch.cuda.empty_cache()
+
+
+def _clear_worker_state(_: object = None) -> None:
+    global _W_INSTALLABLE_MAP, _W_JOBSITE_MAP, _W_CORNER_POSITIONS, _W_COVERAGE
+    global _W_MUTATION_ALLOWED, _W_MUTATION_KW, _W_MIN_TOTAL, _W_MAX_TOTAL, _W_MIN_SENSORS
+    global _W_INSTALLABLE_POINTS, _W_EVALUATOR
+
+    if _W_EVALUATOR is not None and hasattr(_W_EVALUATOR, "close"):
+        _W_EVALUATOR.close()
+    _W_INSTALLABLE_MAP = None
+    _W_JOBSITE_MAP = None
+    _W_CORNER_POSITIONS = []
+    _W_COVERAGE = 0
+    _W_MUTATION_ALLOWED = set()
+    _W_MUTATION_KW = {}
+    _W_MIN_TOTAL = None
+    _W_MAX_TOTAL = None
+    _W_MIN_SENSORS = 0
+    _W_INSTALLABLE_POINTS = []
+    _W_EVALUATOR = None
+    gc.collect()
+    _clear_torch_cache()
 
 
 def _worker_init(
@@ -1000,3 +1037,16 @@ class SensorGA:
         if return_best_only:
             return self.best_solution
         return self.population
+
+    def close(self) -> None:
+        """Release large arrays and cached populations after result serialization."""
+        device = self.fitness_kwargs.get("device")
+        self.init_population = []
+        self.population = []
+        self._installable_points = []
+        self.installable_map = np.empty((0, 0), dtype=np.uint8)
+        self.jobsite_map = np.empty((0, 0), dtype=np.uint8)
+        self.fitness_kwargs.clear()
+        self.mutation_kwargs.clear()
+        gc.collect()
+        _clear_torch_cache(device)

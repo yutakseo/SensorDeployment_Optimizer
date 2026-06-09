@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import gc
 from dataclasses import asdict
 from datetime import datetime
 from typing import Any, Dict, List, Sequence, Tuple
@@ -17,6 +18,22 @@ from OuterDeployment.HarrisCorner import HarrisCorner
 
 Point = Tuple[int, int]
 SensorRange = Tuple[int, int]
+
+
+def _clear_runtime_memory() -> None:
+    gc.collect()
+    try:
+        import torch
+    except ImportError:
+        return
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+
+
+def _close_optimizer(optimizer) -> None:
+    if optimizer is not None and hasattr(optimizer, "close"):
+        optimizer.close()
+    _clear_runtime_memory()
 
 
 def load_map_layers(
@@ -218,66 +235,70 @@ def run_pipeline(
     logger_params: Dict[str, Any],
     final_plot_params: Dict[str, Any],
 ) -> Tuple[List[Point], str]:
-    # 1) MapLoader
-    map_data, installable_layer, _, jobsite_layer = load_map_layers(
-        map_name,
-        **map_layer_params,
-    )
+    optimizer = None
+    try:
+        # 1) MapLoader
+        map_data, installable_layer, _, jobsite_layer = load_map_layers(
+            map_name,
+            **map_layer_params,
+        )
 
-    # 2) Harris outer sensor placement
-    corner_points = place_outer_sensors(
-        jobsite_layer=jobsite_layer,
-        installable_layer=installable_layer,
-        harris_params=harris_params,
-    )
+        # 2) Harris outer sensor placement
+        corner_points = place_outer_sensors(
+            jobsite_layer=jobsite_layer,
+            installable_layer=installable_layer,
+            harris_params=harris_params,
+        )
 
-    # 3) Inner sensor placement
-    optimizer_init, optimizer_run = configure_inner_optimizer(
-        algorithm=algorithm,
-        sensor_range=sensor_range,
-        common_params=common_optimizer_params,
-        optimizer_params=optimizer_params,
-        optimizer_run_params=optimizer_run_params,
-    )
-    logger = build_logger(
-        map_name=map_name,
-        results_dir=results_dir,
-        optimizer_init=optimizer_init,
-        optimizer_run=optimizer_run,
-        harris_params=harris_params,
-        corner_count=len(corner_points),
-        logger_params=logger_params,
-    )
-    inner_points, optimizer = optimize_inner_sensors(
-        algorithm=algorithm,
-        installable_layer=installable_layer,
-        jobsite_layer=jobsite_layer,
-        corner_positions=corner_points,
-        optimizer_init=optimizer_init,
-        optimizer_run=optimizer_run,
-        logger=logger,
-    )
+        # 3) Inner sensor placement
+        optimizer_init, optimizer_run = configure_inner_optimizer(
+            algorithm=algorithm,
+            sensor_range=sensor_range,
+            common_params=common_optimizer_params,
+            optimizer_params=optimizer_params,
+            optimizer_run_params=optimizer_run_params,
+        )
+        logger = build_logger(
+            map_name=map_name,
+            results_dir=results_dir,
+            optimizer_init=optimizer_init,
+            optimizer_run=optimizer_run,
+            harris_params=harris_params,
+            corner_count=len(corner_points),
+            logger_params=logger_params,
+        )
+        inner_points, optimizer = optimize_inner_sensors(
+            algorithm=algorithm,
+            installable_layer=installable_layer,
+            jobsite_layer=jobsite_layer,
+            corner_positions=corner_points,
+            optimizer_init=optimizer_init,
+            optimizer_run=optimizer_run,
+            logger=logger,
+        )
 
-    # 4) Final plot + result log
-    final_points = inner_points + corner_points
-    plot_params = {
-        **final_plot_params,
-        "radius": final_plot_params.get(
-            "radius",
-            common_optimizer_params.get("coverage", 45),
-        ),
-    }
-    final_plot_path = plot_final_sensor_placement(
-        map_data=map_data,
-        logger=logger,
-        final_points=final_points,
-        plot_params=plot_params,
-    )
-    out_path = save_result(
-        logger=logger,
-        optimizer=optimizer,
-        inner_points=inner_points,
-        corner_points=corner_points,
-        final_plot_path=final_plot_path,
-    )
-    return final_points, out_path
+        # 4) Final plot + result log
+        final_points = inner_points + corner_points
+        plot_params = {
+            **final_plot_params,
+            "radius": final_plot_params.get(
+                "radius",
+                common_optimizer_params.get("coverage", 45),
+            ),
+        }
+        final_plot_path = plot_final_sensor_placement(
+            map_data=map_data,
+            logger=logger,
+            final_points=final_points,
+            plot_params=plot_params,
+        )
+        out_path = save_result(
+            logger=logger,
+            optimizer=optimizer,
+            inner_points=inner_points,
+            corner_points=corner_points,
+            final_plot_path=final_plot_path,
+        )
+        return final_points, out_path
+    finally:
+        _close_optimizer(optimizer)

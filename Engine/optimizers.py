@@ -56,6 +56,14 @@ class InnerOptimizerStrategy(ABC):
     def best_coverage(self) -> float:
         return float(getattr(self.optimizer, "best_coverage", float("nan")))
 
+    def close(self) -> None:
+        if self.optimizer is not None and hasattr(self.optimizer, "close"):
+            self.optimizer.close()
+        self.optimizer = None
+        self.installable_map = None
+        self.jobsite_map = None
+        self.corner_positions = []
+
 
 class GAOptimizerStrategy(InnerOptimizerStrategy):
     def build(self) -> SensorGA:

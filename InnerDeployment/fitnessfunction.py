@@ -1,6 +1,7 @@
 # InnerDeployment/fitnessfunction.py
 from __future__ import annotations
 
+import gc
 import inspect
 import random
 import time
@@ -326,3 +327,14 @@ class FitnessFunc:
             if 0 <= y < grid.shape[0] and 0 <= x < grid.shape[1]:
                 grid[y, x] = 1
         return grid
+
+    def close(self) -> None:
+        """Release cached masks and torch tensors held by this evaluator."""
+        device = getattr(self, "device", None)
+        self.cornerMask = None
+        self.singleMask.clear()
+        self.model = None
+        self.mapTensor = None
+        gc.collect()
+        if device is not None and str(device).startswith("cuda") and torch.cuda.is_available():
+            torch.cuda.empty_cache()

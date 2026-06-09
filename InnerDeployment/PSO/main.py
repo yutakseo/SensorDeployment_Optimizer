@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import gc
 import random
 import time
 from typing import List, Optional, Tuple, Union
@@ -22,6 +23,13 @@ except Exception:  # pragma: no cover - optional dependency at import time
 Gene = Tuple[int, int]
 Chromosome = List[Gene]
 Generation = List[Chromosome]
+
+
+def _clear_torch_cache(device: Optional[object] = None) -> None:
+    if torch is None or not torch.cuda.is_available():
+        return
+    if device is None or str(device).startswith("cuda"):
+        torch.cuda.empty_cache()
 
 
 class SensorPSO:
@@ -449,3 +457,23 @@ class SensorPSO:
         if return_best_only:
             return self.best_solution
         return self.population
+
+    def close(self) -> None:
+        """Release arrays held by the swarm after result serialization."""
+        device = self.fitness_kwargs.get("device")
+        self.init_population = []
+        self.population = []
+        self._installable_points = []
+        self._point_array = np.empty((0, 2), dtype=np.float32)
+        self._point_index = {}
+        self._installable_set = set()
+        self._nearest_y = None
+        self._nearest_x = None
+        self._positions = np.empty((0, 0, 2), dtype=np.float32)
+        self._velocities = np.empty((0, 0, 2), dtype=np.float32)
+        self._active_counts = np.empty((0,), dtype=np.int32)
+        self.installable_map = np.empty((0, 0), dtype=np.uint8)
+        self.jobsite_map = np.empty((0, 0), dtype=np.uint8)
+        self.fitness_kwargs.clear()
+        gc.collect()
+        _clear_torch_cache(device)
