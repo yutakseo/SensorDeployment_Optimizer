@@ -21,7 +21,9 @@ SENSOR_RANGES = [
     (100, 120),
     (120, 140),
 ]
-ITERATIONS = 10
+RANGE_ALGORITHMS = {"ga", "pso"}
+DEFAULT_SENSOR_RANGE = (0, 140)
+ITERATIONS = 100
 
 # 1) Map loader / layer parameters
 MAP_LAYER_PARAMS = {
@@ -66,7 +68,7 @@ OPTIMIZER_PARAMS = {
     },
     "drl": {
         "min_sensors": 0,
-        "generations": 100,
+        "generations": 1000,
         "candidate_stride": 5,
         "max_candidates": 512,
         "min_separation": COMMON_OPTIMIZER_PARAMS["coverage"] / 5,
@@ -143,9 +145,19 @@ FINAL_PLOT_PARAMS = {
 
 if __name__ == "__main__":
     for algorithm in ALGORITHMS:
-        for sensor_range in SENSOR_RANGES:
+        algorithm_key = str(algorithm).lower()
+        sensor_ranges = (
+            SENSOR_RANGES
+            if algorithm_key in RANGE_ALGORITHMS
+            else [DEFAULT_SENSOR_RANGE]
+        )
+        for sensor_range in sensor_ranges:
+            range_label = f"{sensor_range[0]}-{sensor_range[1]}"
             for map_name in MAP_NAMES:
-                results_dir = f"{RESULTS_ROOT}/{algorithm}/{map_name}/{sensor_range[0]}-{sensor_range[1]}"
+                if algorithm_key in RANGE_ALGORITHMS:
+                    results_dir = f"{RESULTS_ROOT}/{algorithm}/{map_name}/{range_label}"
+                else:
+                    results_dir = f"{RESULTS_ROOT}/{algorithm}/{map_name}"
                 for _ in range(ITERATIONS):
                     final_points, out_path = run_pipeline(
                         map_name=map_name,
@@ -160,7 +172,12 @@ if __name__ == "__main__":
                         logger_params=LOGGER_PARAMS,
                         final_plot_params=FINAL_PLOT_PARAMS,
                     )
+                    range_text = (
+                        f"range={sensor_range}"
+                        if algorithm_key in RANGE_ALGORITHMS
+                        else "range=excluded"
+                    )
                     print(
                         f"[Done] map={map_name} algorithm={algorithm} "
-                        f"range={sensor_range} sensors={len(final_points)} result={out_path}"
+                        f"{range_text} sensors={len(final_points)} result={out_path}"
                     )
