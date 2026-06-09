@@ -2,8 +2,9 @@ from __future__ import annotations
 
 import json
 import math
+from os import PathLike
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
+from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple, TypeAlias
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -20,6 +21,8 @@ from Analysis.result_io import (
 )
 from Engine.map_loader import MapLoader
 from InnerDeployment.geometry import circle_offsets
+
+PathInput: TypeAlias = str | PathLike[str]
 
 
 def loadJson(path: Path) -> Dict[str, Any]:
@@ -507,7 +510,8 @@ def saveReport(
     results_root: str = "__RESULTS__",
     algorithm: str = "ga",
     map_name: str = "gangjin.down",
-    output_dir: str = "__RESULTS__/_analysis",
+    output_dir: PathInput = "__RESULTS__/_analysis",
+    summary_dir: Optional[PathInput] = None,
     seed_bands: Optional[Iterable[str]] = None,
     include_corners: bool = True,
     metric: str = "best",
@@ -520,17 +524,19 @@ def saveReport(
     논문용 분석 산출물을 한 번에 저장.
 
     저장 파일:
-      - sensor_convergence_<algorithm>_<map>.png
-      - coverage_overlap_<algorithm>_<map>.png
-      - coverage_overlap_<algorithm>_<map>.json
+      - output_dir/sensor_convergence_<algorithm>_<map>.png
+      - output_dir/coverage_overlap_<algorithm>_<map>.png
+      - summary_dir/coverage_overlap_<algorithm>_<map>.json
     """
     out_dir = Path(output_dir)
+    json_dir = Path(summary_dir) if summary_dir is not None else out_dir
     out_dir.mkdir(parents=True, exist_ok=True)
+    json_dir.mkdir(parents=True, exist_ok=True)
     safe_map = str(map_name).replace("/", "_").replace(".", "_")
     stem = f"{algorithm}_{safe_map}"
     convergence_path = out_dir / f"sensor_convergence_{stem}.png"
     coverage_path = out_dir / f"coverage_overlap_{stem}.png"
-    summary_path = out_dir / f"coverage_overlap_{stem}.json"
+    summary_path = json_dir / f"coverage_overlap_{stem}.json"
 
     convergence = plotConverge(
         results_root=results_root,
@@ -724,4 +730,3 @@ def analyzeChange(
                 )
 
     return {"convergence_gen": convergence_gen, "by_band": by_band}
-
