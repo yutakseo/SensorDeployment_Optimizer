@@ -247,7 +247,13 @@ def plotConverge(
     초기 seed 센서수 band별 세대 수렴 그래프를 생성하고 선택적으로 저장.
 
     Returns:
-        {"trend": band별 mean/std, "convergence": analyzeChange 결과}
+        {
+            "trend": {
+                "info": band별 mean/std,
+                "convergence": analyzeChange 결과,
+            },
+            "convergence": analyzeChange 결과,  # backward compatible
+        }
     """
     info = _buildTrend(
         results_root=results_root,
@@ -305,7 +311,10 @@ def plotConverge(
     plt.close(fig)
 
     convergence = analyzeChange(info, threshold=threshold, verbose=False)
-    return {"trend": info, "convergence": convergence}
+    return {
+        "trend": {"info": info, "convergence": convergence},
+        "convergence": convergence,
+    }
 
 
 def _coverMap(
