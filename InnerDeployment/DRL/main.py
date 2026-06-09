@@ -11,6 +11,7 @@ import torch
 import torch.nn as nn
 
 from ..fitnessfunction import FitnessFunc
+from ..geometry import candidate_points, circle_offsets, covered_indices
 from ..utils import filter_min_separation, is_far_enough, min_separation_cells, to_int_pairs
 
 Gene = Tuple[int, int]
@@ -97,21 +98,15 @@ class SensorPlacementEnv:
         self.evaluator = evaluator
         self.target_flat = self.jobsite_map.reshape(-1)
         self.target_area = max(1, int(np.count_nonzero(self.target_flat)))
-        self.offsets = self._circle_offsets(self.coverage_cells)
+        self.offsets = circle_offsets(self.coverage_cells)
 
-        stride = max(1, int(candidate_stride))
-        mask = self.installable_map.copy()
-        for x, y in self.corner_positions:
-            if 0 <= x < self.width and 0 <= y < self.height:
-                mask[y, x] = False
-        ys, xs = np.where(mask)
-        ys = ys[::stride]
-        xs = xs[::stride]
-        points = [
-            (int(x), int(y))
-            for y, x in zip(ys.tolist(), xs.tolist())
-            if is_far_enough((int(x), int(y)), self.corner_positions, self.min_separation)
-        ]
+        points = candidate_points(
+            self.installable_map,
+            excluded=self.corner_positions,
+            stride=candidate_stride,
+            base=self.corner_positions,
+            min_separation=self.min_separation,
+        )
         indices = [self._covered_indices(point) for point in points]
 
         if max_candidates is not None and len(points) > int(max_candidates):
@@ -142,22 +137,14 @@ class SensorPlacementEnv:
         self.solution: Chromosome = []
         self.coverage_percent = 0.0
 
-    @staticmethod
-    def _circle_offsets(radius: int) -> np.ndarray:
-        offsets = []
-        for dy in range(-radius, radius + 1):
-            for dx in range(-radius, radius + 1):
-                if dx * dx + dy * dy <= radius * radius:
-                    offsets.append((dy, dx))
-        return np.asarray(offsets, dtype=np.int32)
-
     def _covered_indices(self, point: Gene) -> np.ndarray:
-        x, y = point
-        yy = int(y) + self.offsets[:, 0]
-        xx = int(x) + self.offsets[:, 1]
-        valid = (yy >= 0) & (yy < self.height) & (xx >= 0) & (xx < self.width)
-        lin = (yy[valid] * self.width + xx[valid]).astype(np.int64, copy=False)
-        return lin[self.target_flat[lin]]
+        return covered_indices(
+            point,
+            offsets=self.offsets,
+            target_flat=self.target_flat,
+            width=self.width,
+            height=self.height,
+        )
 
     def _coverage(self) -> float:
         return float(100.0 * np.count_nonzero(self.covered & self.target_flat) / self.target_area)

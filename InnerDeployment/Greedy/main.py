@@ -2,12 +2,13 @@ from __future__ import annotations
 
 import sys
 import time
-from typing import Dict, Iterable, List, Optional, Sequence, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
 from ..fitnessfunction import FitnessFunc
-from ..utils import is_far_enough, min_separation_cells
+from ..geometry import circle_kernel, circle_offsets, covered_indices, candidate_mask
+from ..utils import is_far_enough, min_separation_cells, to_int_pairs
 
 try:
     from scipy import ndimage
@@ -16,10 +17,6 @@ except ImportError:  # pragma: no cover - container requirements include scipy.
 
 Gene = Tuple[int, int]
 Chromosome = List[Gene]
-
-
-def to_int_pairs(points: Iterable[Sequence[int]]) -> List[Gene]:
-    return [(int(p[0]), int(p[1])) for p in points]
 
 
 class SensorGreedy:
@@ -70,49 +67,25 @@ class SensorGreedy:
         self._height, self._width = self.jobsite_map.shape
         self._target_flat = self.jobsite_map.reshape(-1)
         self._target_area = int(self._target_flat.sum())
-        self._offsets = self._circle_offsets(self.coverage_cells)
-        self._kernel = self._circle_kernel(self.coverage_cells)
+        self._offsets = circle_offsets(self.coverage_cells)
+        self._kernel = circle_kernel(self.coverage_cells)
         self._candidate_mask = self._build_candidate_mask()
 
-    @staticmethod
-    def _circle_offsets(radius: int) -> np.ndarray:
-        offsets = []
-        for dy in range(-radius, radius + 1):
-            for dx in range(-radius, radius + 1):
-                if (dx * dx + dy * dy) <= (radius * radius):
-                    offsets.append((dy, dx))
-        return np.asarray(offsets, dtype=np.int32)
-
-    @staticmethod
-    def _circle_kernel(radius: int) -> np.ndarray:
-        d = 2 * radius + 1
-        yy, xx = np.ogrid[:d, :d]
-        dist2 = (yy - radius) ** 2 + (xx - radius) ** 2
-        return (dist2 <= radius * radius).astype(np.uint16)
-
     def _build_candidate_mask(self) -> np.ndarray:
-        mask = self.installable_map.copy()
-        for x, y in self.corner_positions:
-            if 0 <= y < self._height and 0 <= x < self._width:
-                mask[y, x] = False
-
-        if self.candidate_stride > 1:
-            ys, xs = np.where(mask)
-            sampled = np.zeros_like(mask, dtype=bool)
-            sampled[ys[:: self.candidate_stride], xs[:: self.candidate_stride]] = True
-            mask = sampled
-
-        return mask
+        return candidate_mask(
+            self.installable_map,
+            excluded=self.corner_positions,
+            stride=self.candidate_stride,
+        )
 
     def _covered_indices(self, point: Gene) -> np.ndarray:
-        x, y = int(point[0]), int(point[1])
-        yy = y + self._offsets[:, 0]
-        xx = x + self._offsets[:, 1]
-        valid = (yy >= 0) & (yy < self._height) & (xx >= 0) & (xx < self._width)
-        if not np.any(valid):
-            return np.empty(0, dtype=np.int64)
-        lin = (yy[valid] * self._width + xx[valid]).astype(np.int64, copy=False)
-        return lin[self._target_flat[lin]]
+        return covered_indices(
+            point,
+            offsets=self._offsets,
+            target_flat=self._target_flat,
+            width=self._width,
+            height=self._height,
+        )
 
     def _initial_covered(self) -> np.ndarray:
         covered = np.zeros(self._height * self._width, dtype=bool)

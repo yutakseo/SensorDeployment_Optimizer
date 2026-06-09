@@ -7,6 +7,7 @@ from typing import List, Optional, Tuple, Union
 import numpy as np
 
 from ..fitnessfunction import FitnessFunc
+from ..geometry import candidate_points, nearest_installable_indices, snap_to_installable
 from ..utils import to_int_pairs
 from InnerDeployment.GeneticAlgorithm.initializer import initialize_population
 from .acceleration import calculate_acceleration
@@ -67,13 +68,11 @@ class SensorPSO:
         ):
             self.fitness_kwargs["device"] = "cuda"
 
-        yx = np.argwhere(self.installable_map > 0)
         self._corner_set = set(self.corner_positions)
-        self._installable_points: List[Gene] = [
-            (int(x), int(y))
-            for (y, x) in yx
-            if (int(x), int(y)) not in self._corner_set
-        ]
+        self._installable_points = candidate_points(
+            self.installable_map,
+            excluded=self.corner_positions,
+        )
         if not self._installable_points:
             raise ValueError("installable_map has no installable cells for inner sensors.")
 
@@ -83,19 +82,12 @@ class SensorPSO:
         self._installable_set = set(self._installable_points)
         self._nearest_y = None
         self._nearest_x = None
-        try:
-            from scipy.ndimage import distance_transform_edt
-
-            inner_candidate_map = self.installable_map.copy()
-            for x, y in self._corner_set:
-                if 0 <= x < self._width and 0 <= y < self._height:
-                    inner_candidate_map[y, x] = 0
-            invalid = inner_candidate_map == 0
-            _, indices = distance_transform_edt(invalid, return_indices=True)
-            self._nearest_y = indices[0]
-            self._nearest_x = indices[1]
-        except Exception:
-            pass
+        nearest = nearest_installable_indices(
+            self.installable_map,
+            excluded=self.corner_positions,
+        )
+        if nearest is not None:
+            self._nearest_y, self._nearest_x = nearest
 
         init_min = int(initial_min_sensors) if initial_min_sensors is not None else self.min_sensors
         init_max = int(initial_max_sensors) if initial_max_sensors is not None else self.max_sensors
@@ -138,21 +130,16 @@ class SensorPSO:
         return out
 
     def _snap_point(self, x: float, y: float) -> Gene:
-        xi = int(round(float(x)))
-        yi = int(round(float(y)))
-        xi = max(0, min(self._width - 1, xi))
-        yi = max(0, min(self._height - 1, yi))
-        if (xi, yi) in self._installable_set:
-            return xi, yi
-
-        if self._nearest_y is not None and self._nearest_x is not None:
-            return int(self._nearest_x[yi, xi]), int(self._nearest_y[yi, xi])
-
-        # Invalid cells are projected to the nearest installable point.
-        d = self._point_array - np.asarray([xi, yi], dtype=np.float32)
-        idx = int(np.argmin(np.einsum("ij,ij->i", d, d)))
-        x2, y2 = self._point_array[idx]
-        return int(x2), int(y2)
+        return snap_to_installable(
+            x,
+            y,
+            width=self._width,
+            height=self._height,
+            installable_set=self._installable_set,
+            point_array=self._point_array,
+            nearest_y=self._nearest_y,
+            nearest_x=self._nearest_x,
+        )
 
     def _mark_nearby_points(self, forbidden: np.ndarray, point: Gene) -> None:
         if self.min_separation <= 0:
