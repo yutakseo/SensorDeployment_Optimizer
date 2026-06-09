@@ -276,7 +276,7 @@ def plotConverge(
             label=f"{band} (n={data['runs']})",
             linestyle=style,
             marker=marker,
-            markersize=4,
+            markersize=1.8,
             markevery=max(len(x) // 12, 1),
             linewidth=1.6,
         )
@@ -286,6 +286,8 @@ def plotConverge(
             high = [m + s for m, s in zip(y, std)]
             ax.fill_between(x, low, high, alpha=0.12)
 
+    ax.set_xlim(0, max(x) + 1)
+    ax.set_ylim(bottom=0)
     ax.set_title(title or f"{algorithm.upper()} sensor-count convergence: {map_name}")
     ax.set_xlabel("Generation")
     ylabel = "Sensors (inner + corner)" if include_corners else "Inner sensors"
@@ -455,7 +457,7 @@ def plotOverlap(
 
     bands = sorted(summary, key=bandKey)
     x = np.arange(len(bands))
-    width = 0.36
+    width = 0.2
     cov = [summary[b]["coverage_percent_mean"] for b in bands]
     cov_std = [summary[b]["coverage_percent_std"] for b in bands]
     overlap = [summary[b]["overlap_percent_of_covered_mean"] for b in bands]
@@ -606,8 +608,8 @@ def plotAvgTrend(
             label=band,
             linestyle=linestyle,
             marker=marker,
-            markersize=4,
-            markevery=max(len(x) // 10, 1),  # 마커 과밀 방지
+            markersize=1.8,
+            markevery=min(len(x) // 10, 1),  # 마커 과밀 방지
             linewidth=1.5,
         )
 
@@ -623,6 +625,8 @@ def plotAvgTrend(
             "std": std_list,
         }
 
+    plt.xlim(0, max(x) + 1)
+    plt.ylim(bottom=0)
     plt.xlabel("Generation")
     plt.ylabel("Number of Sensors")
     plt.title(title or f"Convergence of Sensors")

@@ -305,6 +305,8 @@ class Analyzer:
             x,
             best_counts,
             marker="o",
+            markersize=1.8,
+            markevery=max(len(x) // 20, 1),
             linewidth=2,
             label=("Best sensor count (inner+corner)" if include_corners else "Best sensor count (inner only)"),
         )
@@ -331,6 +333,9 @@ class Analyzer:
         plt.title(title)
         plt.xlabel("Generation")
         plt.ylabel("Number of sensors")
+
+        plt.xlim(0, max(x) + 1)
+        plt.ylim(bottom=0)
 
         self._apply_xticks(x, xtick_step=xtick_step)
 
@@ -398,6 +403,9 @@ class Analyzer:
         plt.xlabel("Generation")
         plt.ylabel("Coverage (%)")
 
+        plt.xlim(0, max(x) + 1)
+        plt.ylim(bottom=ylim[0] if ylim is not None else 0)
+
         self._apply_xticks(x, xtick_step=xtick_step)
 
         plt.grid(True, linewidth=0.5, alpha=0.5)
@@ -463,9 +471,25 @@ class Analyzer:
         )
 
         if plot_avg:
-            plt.plot(x, favg, marker="o", linewidth=2, label="Fitness avg")
+            plt.plot(
+                x,
+                favg,
+                marker="o",
+                markersize=1.8,
+                markevery=max(len(x) // 20, 1),
+                linewidth=2,
+                label="Fitness avg",
+            )
         if plot_best:
-            plt.plot(x, fbest, marker="o", linewidth=2, label="Best fitness")
+            plt.plot(
+                x,
+                fbest,
+                marker="o",
+                markersize=1.8,
+                markevery=max(len(x) // 20, 1),
+                linewidth=2,
+                label="Best fitness",
+            )
 
         if title is None:
             run_name = self.run.get("run_name", "unknown_run")
@@ -474,6 +498,10 @@ class Analyzer:
         plt.title(title)
         plt.xlabel("Generation")
         plt.ylabel("Fitness")
+
+        plt.xlim(0, max(x) + 1)
+        if ylim is None and min(fmin + fmax + favg + fbest, default=0) >= 0:
+            plt.ylim(bottom=0)
 
         self._apply_xticks(x, xtick_step=xtick_step)
 
