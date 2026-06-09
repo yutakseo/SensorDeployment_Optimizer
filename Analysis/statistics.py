@@ -4,6 +4,8 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from Analysis.result_io import finalPoints, loadRuns as loadRunList, meanVal, stdVal
 
+TARGET_GENERATION = 100
+
 
 def loadRuns(root_dir: str) -> List[Dict[str, Any]]:
     """Load valid run JSON payloads from a result directory."""
@@ -12,16 +14,42 @@ def loadRuns(root_dir: str) -> List[Dict[str, Any]]:
 
 def getGen100(run: Dict[str, Any]) -> Dict[str, Any]:
     generations = run.get("generations", [])
-    if not isinstance(generations, list) or len(generations) < 100:
+    if not isinstance(generations, list) or len(generations) < TARGET_GENERATION:
         raise ValueError(f"run has insufficient generations: {len(generations)}")
 
-    generation = generations[99]
-    if not isinstance(generation, dict) or generation.get("gen") != 100:
+    generation = generations[TARGET_GENERATION - 1]
+    if not isinstance(generation, dict) or generation.get("gen") != TARGET_GENERATION:
         for item in generations:
-            if isinstance(item, dict) and item.get("gen") == 100:
+            if isinstance(item, dict) and item.get("gen") == TARGET_GENERATION:
                 return item
-        raise ValueError("cannot find gen=100 in generations.")
+        raise ValueError(f"cannot find gen={TARGET_GENERATION} in generations.")
     return generation
+
+
+def getCoverage(run: Dict[str, Any]) -> Optional[float]:
+    generations = run.get("generations", [])
+    if isinstance(generations, list):
+        for item in generations:
+            if not isinstance(item, dict) or item.get("gen") != TARGET_GENERATION:
+                continue
+            coverage = item.get("best_coverage", None)
+            if isinstance(coverage, (int, float)):
+                return float(coverage)
+            break
+
+    final_data = run.get("final", {})
+    if isinstance(final_data, dict):
+        coverage = final_data.get("coverage", None)
+        if isinstance(coverage, (int, float)):
+            return float(coverage)
+
+    if isinstance(generations, list) and generations:
+        last_generation = generations[-1]
+        if isinstance(last_generation, dict):
+            coverage = last_generation.get("best_coverage", None)
+            if isinstance(coverage, (int, float)):
+                return float(coverage)
+    return None
 
 
 def getCornerCnt(run: Dict[str, Any]) -> int:
@@ -151,15 +179,9 @@ def calcStats(
     ga_sec_list: List[float] = []
 
     for run in runs:
-        generation_100 = getGen100(run)
-
-        cov = generation_100.get("best_coverage", None)
-        if isinstance(cov, (int, float)):
-            cov_list.append(float(cov))
-        else:
-            fin_cov = run.get("final", {}).get("coverage", None)
-            if isinstance(fin_cov, (int, float)):
-                cov_list.append(float(fin_cov))
+        coverage = getCoverage(run)
+        if coverage is not None:
+            cov_list.append(coverage)
 
         corner_list.append(float(getCornerCnt(run)))
         total_list.append(float(getTotalCnt(run)))
@@ -286,7 +308,7 @@ def printStats(root_dir: str) -> None:
         print("  → experiment.py로 해당 맵 실험을 먼저 실행하세요.")
         return
     print(f"total runs: {run_cnt}")
-    print(f"[gen=100] coverage mean ± std: {cov_mean:.4f} ± {cov_std:.4f}")
+    print(f"[coverage] mean ± std: {cov_mean:.4f} ± {cov_std:.4f}")
     print(f"[final] corner sensors mean ± std: {corner_mean:.2f} ± {corner_std:.2f}")
     print(f"[final] total sensors mean ± std: {total_mean:.2f} ± {total_std:.2f}")
     print(f"[time] corner mean ± std (sec): {corner_sec_mean:.3f} ± {corner_sec_std:.3f}")
