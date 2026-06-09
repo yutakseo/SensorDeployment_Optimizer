@@ -33,7 +33,7 @@ def _parse_one(p: Any) -> Point | None:
     return None
 
 
-def as_points(points: Any) -> List[Point]:
+def asPoints(points: Any) -> List[Point]:
     """
     다양한 형식의 포인트 목록을 [(x, y), ...] 로 통일합니다.
 
@@ -60,7 +60,7 @@ def distance(p: Point, q: Point) -> float:
     return math.hypot(q[0] - p[0], q[1] - p[1])
 
 
-def pairwise_distances(points: List[Point]) -> List[float]:
+def pairDists(points: List[Point]) -> List[float]:
     """
     포인트 집합에서 모든 쌍(i < j)에 대한 거리 리스트를 반환합니다.
 
@@ -80,7 +80,7 @@ def pairwise_distances(points: List[Point]) -> List[float]:
     return dists
 
 
-def mean_cluster_distance(points: Any) -> float:
+def meanCluster(points: Any) -> float:
     """
     포인트 집합의 평균 군집거리(모든 쌍별 거리의 평균)를 반환합니다.
 
@@ -90,14 +90,14 @@ def mean_cluster_distance(points: Any) -> float:
     Returns:
         평균 쌍별 거리. 포인트가 2개 미만이면 0.0.
     """
-    pts = as_points(points)
-    dists = pairwise_distances(pts)
+    pts = asPoints(points)
+    dists = pairDists(pts)
     if not dists:
         return 0.0
     return sum(dists) / len(dists)
 
 
-def nearest_neighbor_distances(points: List[Point]) -> List[float]:
+def nearDists(points: List[Point]) -> List[float]:
     """
     각 포인트에서 가장 가까운 다른 포인트까지의 거리 리스트를 반환합니다.
 
@@ -124,7 +124,7 @@ def nearest_neighbor_distances(points: List[Point]) -> List[float]:
     return result
 
 
-def mean_nearest_neighbor_distance(points: Any) -> float:
+def meanNearest(points: Any) -> float:
     """
     각 포인트에서 가장 가까운 센서(다른 포인트)까지의 거리들의 평균을 반환합니다.
 
@@ -136,14 +136,14 @@ def mean_nearest_neighbor_distance(points: Any) -> float:
     Returns:
         평균 최근접 이웃 거리. 포인트가 2개 미만이면 0.0.
     """
-    pts = as_points(points)
-    nn_dists = nearest_neighbor_distances(pts)
+    pts = asPoints(points)
+    nn_dists = nearDists(pts)
     if not nn_dists:
         return 0.0
     return sum(nn_dists) / len(nn_dists)
 
 
-def mean_nearest_neighbor_stats_m(
+def nearestStats(
     points: Any,
     grid_m: float = 5.0,
 ) -> dict:
@@ -154,8 +154,8 @@ def mean_nearest_neighbor_stats_m(
     Returns:
         {"mean_m", "std_m", "min_m", "max_m", "n_points"} 또는 n_points<2일 때 mean_m=0 등.
     """
-    pts = as_points(points)
-    nn_dists = nearest_neighbor_distances(pts)
+    pts = asPoints(points)
+    nn_dists = nearDists(pts)
     n = len(nn_dists)
     if n == 0:
         return {"mean_m": 0.0, "std_m": 0.0, "min_m": 0.0, "max_m": 0.0, "n_points": len(pts)}
@@ -173,7 +173,7 @@ def mean_nearest_neighbor_stats_m(
     }
 
 
-def cluster_distance_stats(points: Any) -> dict:
+def clusterStats(points: Any) -> dict:
     """
     포인트 집합에 대한 군집거리 통계를 반환합니다.
 
@@ -190,8 +190,8 @@ def cluster_distance_stats(points: Any) -> dict:
             "n_pairs": int,
         }
     """
-    pts = as_points(points)
-    dists = pairwise_distances(pts)
+    pts = asPoints(points)
+    dists = pairDists(pts)
     n_points = len(pts)
     n_pairs = len(dists)
 
@@ -220,3 +220,4 @@ def cluster_distance_stats(points: Any) -> dict:
         "n_points": n_points,
         "n_pairs": n_pairs,
     }
+

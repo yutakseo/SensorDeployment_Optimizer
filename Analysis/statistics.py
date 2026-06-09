@@ -1,57 +1,35 @@
 from __future__ import annotations
 
-import json
-from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
+
+from Analysis.result_io import finalPoints, loadRuns as loadRunList, meanVal, stdVal
 
 
 def loadRuns(root_dir: str) -> List[Dict[str, Any]]:
-    root_path = Path(root_dir)
-    if not root_path.exists():
-        raise FileNotFoundError(f"not found: {root_path}")
-
-    run_list: List[Dict[str, Any]] = []
-    file_list = sorted(root_path.rglob("*.json"))
-
-    if len(file_list) == 0:
-        raise FileNotFoundError(f"no json files under: {root_path}")
-
-    for file_path in file_list:
-        try:
-            with open(file_path, "r", encoding="utf-8") as f:
-                run = json.load(f)
-
-            if isinstance(run, dict) and "generations" in run and "final" in run:
-                run_list.append(run)
-        except Exception:
-            continue
-
-    if len(run_list) == 0:
-        raise ValueError("no valid run json (must contain 'generations' and 'final').")
-
-    return run_list
+    """Load valid run JSON payloads from a result directory."""
+    return loadRunList(root_dir)
 
 
 def getGen100(run: Dict[str, Any]) -> Dict[str, Any]:
-    gen_list = run.get("generations", [])
-    if not isinstance(gen_list, list) or len(gen_list) < 100:
-        raise ValueError(f"run has insufficient generations: {len(gen_list)}")
+    generations = run.get("generations", [])
+    if not isinstance(generations, list) or len(generations) < 100:
+        raise ValueError(f"run has insufficient generations: {len(generations)}")
 
-    gen_data = gen_list[99]
-    if not isinstance(gen_data, dict) or gen_data.get("gen") != 100:
-        for item in gen_list:
+    generation = generations[99]
+    if not isinstance(generation, dict) or generation.get("gen") != 100:
+        for item in generations:
             if isinstance(item, dict) and item.get("gen") == 100:
                 return item
         raise ValueError("cannot find gen=100 in generations.")
-    return gen_data
+    return generation
 
 
 def getCornerCnt(run: Dict[str, Any]) -> int:
     final_data = run.get("final", {})
-    corner_list = final_data.get("corner_points", [])
+    corner_points = final_data.get("corner_points", [])
 
-    if isinstance(corner_list, list):
-        return int(len(corner_list))
+    if isinstance(corner_points, list):
+        return int(len(corner_points))
 
     extra_data = run.get("extra", {}).get("final", {})
     n_corner = extra_data.get("n_corner", 0)
@@ -110,7 +88,7 @@ def getCornerSec(run: Dict[str, Any]) -> Optional[float]:
     return None
 
 
-def getGaSec(run: Dict[str, Any]) -> Optional[float]:
+def getOptSec(run: Dict[str, Any]) -> Optional[float]:
     """
     Optimizer time (sec).
     우선순위:
@@ -139,20 +117,16 @@ def getGaSec(run: Dict[str, Any]) -> Optional[float]:
     return None
 
 
-def calcMean(vals: List[float]) -> float:
-    if len(vals) == 0:
-        return 0.0
-    return float(sum(vals) / len(vals))
+def calcMean(values: List[float]) -> float:
+    return meanVal(values, default=0.0)
 
 
-def calcStd(vals: List[float], mean: float) -> float:
+def calcStd(values: List[float], mean_value: float) -> float:
     """
     population std (divide by N)
     """
-    if len(vals) == 0:
-        return 0.0
-    var = sum((v - mean) ** 2 for v in vals) / len(vals)
-    return float(var ** 0.5)
+    del mean_value
+    return stdVal(values, sample=False, default=0.0)
 
 
 def calcStats(
@@ -167,8 +141,8 @@ def calcStats(
       corner_sec_mean, corner_sec_std,
       ga_sec_mean, ga_sec_std
     """
-    run_list = loadRuns(root_dir)
-    run_cnt = len(run_list)
+    runs = loadRuns(root_dir)
+    run_count = len(runs)
 
     cov_list: List[float] = []
     corner_list: List[float] = []
@@ -176,10 +150,10 @@ def calcStats(
     corner_sec_list: List[float] = []
     ga_sec_list: List[float] = []
 
-    for run in run_list:
-        gen100 = getGen100(run)
+    for run in runs:
+        generation_100 = getGen100(run)
 
-        cov = gen100.get("best_coverage", None)
+        cov = generation_100.get("best_coverage", None)
         if isinstance(cov, (int, float)):
             cov_list.append(float(cov))
         else:
@@ -194,9 +168,9 @@ def calcStats(
         if isinstance(corner_sec, (int, float)):
             corner_sec_list.append(float(corner_sec))
 
-        ga_sec = getGaSec(run)
-        if isinstance(ga_sec, (int, float)):
-            ga_sec_list.append(float(ga_sec))
+        optimizer_sec = getOptSec(run)
+        if isinstance(optimizer_sec, (int, float)):
+            ga_sec_list.append(float(optimizer_sec))
 
     cov_mean = calcMean(cov_list)
     corner_mean = calcMean(corner_list)
@@ -213,7 +187,7 @@ def calcStats(
     ga_sec_std = calcStd(ga_sec_list, ga_sec_mean)
 
     return (
-        run_cnt,
+        run_count,
         cov_mean,
         cov_std,
         corner_mean,
@@ -227,15 +201,12 @@ def calcStats(
     )
 
 
-def get_final_points(run: Dict[str, Any]) -> List[Any]:
+def getFinalPoints(run: Dict[str, Any]) -> List[Any]:
     """run 한 개에서 최종 포인트 목록(best_solution + corner_points) 반환."""
-    final = run.get("final", {})
-    best = final.get("best_solution", [])
-    corners = final.get("corner_points", [])
-    return list(best) + list(corners)
+    return finalPoints(run)
 
 
-def report_mean_cluster_distance(
+def reportCluster(
     root_dir: str,
     map_name: str,
     grid_m: float = 5.0,
@@ -246,20 +217,20 @@ def report_mean_cluster_distance(
     run별로 구한 뒤, 그 평균·표준편차를 실제 거리(m)로 출력합니다.
     grid_m: 1그리드당 미터 (기본 5m).
     """
-    from Analysis.distance_metrics import mean_nearest_neighbor_distance
+    from Analysis.distance_metrics import meanNearest
 
     try:
-        run_list = loadRuns(root_dir)
+        runs = loadRuns(root_dir)
     except FileNotFoundError as e:
         if verbose:
             print(f"[{map_name}] 결과 디렉터리가 없습니다: {e}")
             print("  → experiment.py로 해당 맵 실험을 먼저 실행하세요.")
         return None
     dist_list: List[float] = []
-    for run in run_list:
-        pts = get_final_points(run)
+    for run in runs:
+        pts = getFinalPoints(run)
         if len(pts) >= 2:
-            dist_list.append(mean_nearest_neighbor_distance(pts))
+            dist_list.append(meanNearest(pts))
 
     if not dist_list:
         if verbose:
@@ -295,7 +266,7 @@ def report_mean_cluster_distance(
 
 
 def printStats(root_dir: str) -> None:
-    """calcStats 결과를 읽기 쉬운 형식으로 출력. 디렉터리가 없으면 안내만 출력."""
+    """Print calcStats output in a readable format."""
     try:
         (
             run_cnt,
@@ -320,3 +291,6 @@ def printStats(root_dir: str) -> None:
     print(f"[final] total sensors mean ± std: {total_mean:.2f} ± {total_std:.2f}")
     print(f"[time] corner mean ± std (sec): {corner_sec_mean:.3f} ± {corner_sec_std:.3f}")
     print(f"[time] optimizer mean ± std (sec): {ga_sec_mean:.3f} ± {ga_sec_std:.3f}")
+
+
+getGaSec = getOptSec

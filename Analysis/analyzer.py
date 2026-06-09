@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 
 import matplotlib.pyplot as plt
 
-from Analysis.distance_metrics import as_points, mean_nearest_neighbor_stats_m
+from Analysis.distance_metrics import asPoints, nearestStats
 from Analysis.visualization import VisualTool
 from Engine.map_loader import MapLoader
 
@@ -79,7 +79,7 @@ class Analyzer:
         self._loaded_from = str(json_path)
 
     @property
-    def loaded_from(self) -> Optional[str]:
+    def loadedFrom(self) -> Optional[str]:
         return self._loaded_from
 
     # =========================
@@ -91,13 +91,13 @@ class Analyzer:
 
         files = list(root.glob("*.json"))
 
-        def sort_key(p: Path):
+        def sortKey(p: Path):
             s = p.stem
             if s.isdigit():
                 return (0, int(s))
             return (1, s)
 
-        self._json_files_cache = sorted(files, key=sort_key)
+        self._json_files_cache = sorted(files, key=sortKey)
         return self._json_files_cache
 
     def _resolve_json_path(self, root: Path, file_path: Union[int, PathLike]) -> Path:
@@ -254,7 +254,7 @@ class Analyzer:
                 return len(g[k])
         return fallback_corner_count
 
-    def plot_evolution_trend(
+    def plotEvolution(
         self,
         *,
         include_corners: bool = True,
@@ -363,7 +363,7 @@ class Analyzer:
             return float(g["best_fitness"])
         raise KeyError("Generation item has neither 'best_coverage' nor 'best_fitness'.")
 
-    def plot_coverage_trend(
+    def plotCoverage(
         self,
         *,
         title: Optional[str] = None,
@@ -425,7 +425,7 @@ class Analyzer:
 
         return None  # 기존 반환 유지
 
-    def plot_fitness_trend(
+    def plotFitness(
         self,
         *,
         title: Optional[str] = None,
@@ -502,7 +502,7 @@ class Analyzer:
 
         return None  # 기존 반환 유지
 
-    def plot_sensor_placement(
+    def plotPlacement(
         self,
         *,
         grid_m: float = 5.0,
@@ -521,9 +521,9 @@ class Analyzer:
         final = self.run.get("final", {})
         best = final.get("best_solution", [])
         corners = final.get("corner_points", [])
-        sensor_positions = as_points(best) + as_points(corners)
+        sensor_positions = asPoints(best) + asPoints(corners)
 
-        stats = mean_nearest_neighbor_stats_m(sensor_positions, grid_m=grid_m)
+        stats = nearestStats(sensor_positions, grid_m=grid_m)
         if stats["n_points"] >= 2:
             print("평균 군집거리 (가장 가까운 센서까지의 거리 평균):", round(stats["mean_m"], 3), "m")
             print("  (최소:", round(stats["min_m"], 2), "m | 최대:", round(stats["max_m"], 2), "m | 표준편차:", round(stats["std_m"], 2), "m)")
@@ -531,7 +531,7 @@ class Analyzer:
             print("평균 군집거리: 센서 2개 미만")
 
         vis = VisualTool(show=show, size=figsize, save=True, dpi=dpi, save_dir=save_dir)
-        vis.showMap_circle(
+        vis.showMapCircle(
             map_data=map_data,
             sensor_positions=sensor_positions,
             title=title,
@@ -540,3 +540,9 @@ class Analyzer:
             filename=filename,
         )
         print("Total sensors:", len(sensor_positions))
+
+
+Analyzer.plot_evolution_trend = Analyzer.plotEvolution
+Analyzer.plot_coverage_trend = Analyzer.plotCoverage
+Analyzer.plot_fitness_trend = Analyzer.plotFitness
+Analyzer.plot_sensor_placement = Analyzer.plotPlacement

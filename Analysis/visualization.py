@@ -114,7 +114,7 @@ class VisualTool:
                 raise ValueError(f"Invalid cmap list: {e}")
         return cmap
 
-    def set_output(self, subdir: Optional[str] = None, timestamped: bool = True) -> None:
+    def setOutput(self, subdir: Optional[str] = None, timestamped: bool = True) -> None:
         if subdir is None:
             base = os.path.join(self.root_dir, self.time)
         else:
@@ -256,7 +256,7 @@ class VisualTool:
 
         return True
 
-    def showMap_circle(
+    def showMapCircle(
         self,
         map_data: Union[np.ndarray, List],
         sensor_positions: Optional[
@@ -307,10 +307,10 @@ class VisualTool:
             ax.add_patch(border)
             ax.add_patch(center)
 
-        self.save_or_show(fig, filename, save_path)
+        self.saveOrShow(fig, filename, save_path)
         
         
-    def showMap_dot(
+    def showMapDot(
         self,
         map_data: Union[np.ndarray, List],
         sensor_positions: Optional[
@@ -345,7 +345,7 @@ class VisualTool:
 
             ax.add_patch(center)
 
-        self.save_or_show(fig, filename, save_path)
+        self.saveOrShow(fig, filename, save_path)
 
 
 
@@ -367,9 +367,9 @@ class VisualTool:
         fig, ax = plt.subplots(figsize=self.figsize, dpi=self.dpi)
         self._imshow(ax, map_data, cmap_custom, vmin=vmin, vmax=vmax, zone_style=zone_style)
         ax.set_title(title)
-        self.save_or_show(fig, filename, save_path)
+        self.saveOrShow(fig, filename, save_path)
 
-    def save_or_show(
+    def saveOrShow(
         self, fig: plt.Figure, filename: str, save_path: Optional[str] = None
     ) -> None:
         """
@@ -420,7 +420,7 @@ class VisualTool:
 
         plt.close(fig)
 
-    def map_check(
+    def mapCheck(
         self,
         map_data,
         title: Optional[str] = None,
@@ -441,7 +441,7 @@ class VisualTool:
 
         arr = self._normalize_image(map_data)
         if arr.ndim != 2:
-            raise ValueError(f"map_check expects 2D map. Got shape={arr.shape}")
+            raise ValueError(f"mapCheck expects 2D map. Got shape={arr.shape}")
 
         total_cells = int(arr.size)
         total_area_m2 = total_cells * CELL_AREA_M2
@@ -536,3 +536,4 @@ class VisualTool:
         }
 
         return stats if return_stats else None
+

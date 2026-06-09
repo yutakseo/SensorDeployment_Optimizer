@@ -190,7 +190,7 @@ def plot_final_sensor_placement(
         pad_inches=float(plot_params.get("pad_inches", 0.0)),
         facecolor=plot_params.get("facecolor", None),
     )
-    vis.showMap_circle(
+    vis.showMapCircle(
         map_data=map_data,
         sensor_positions=final_points,
         title=str(plot_params.get("title", "Final Sensor Locations after Optimization")),
