@@ -1,8 +1,10 @@
 import os
 from datetime import datetime
 import matplotlib.pyplot as plt
+from matplotlib.collections import PatchCollection
+from matplotlib.patches import Rectangle
 import numpy as np
-from typing import List, Tuple, Optional, Union
+from typing import List, Optional, Sequence, Tuple, Union
 
 RESULTS_DIR = "__RESULTS__"
 
@@ -128,7 +130,20 @@ class VisualTool:
         *,
         vmin: Optional[float] = None,
         vmax: Optional[float] = None,
+        zone_style: Optional[str] = None,
     ) -> None:
+        ax.set_axis_off()
+        ax.set_xticks([])
+        ax.set_yticks([])
+        ax.tick_params(
+            left=False,
+            bottom=False,
+            labelleft=False,
+            labelbottom=False,
+        )
+        if self._draw_zone_map(ax, map_data, zone_style=zone_style):
+            return
+
         # vmin/vmax를 고정해 정규화 흔들림(체감상 "jet처럼 보임") 방지
         if vmin is None:
             vmin = float(np.min(map_data))
@@ -144,6 +159,103 @@ class VisualTool:
             vmax=vmax,
         )
 
+    def _draw_zone_map(
+        self,
+        ax: plt.Axes,
+        map_data: np.ndarray,
+        *,
+        zone_style: Optional[str] = None,
+    ) -> bool:
+        if map_data.ndim != 2:
+            return False
+
+        style = str(zone_style or "auto").lower()
+        base_area = np.empty((0, 2), dtype=int)
+        if style in {"installable", "installable_layer"}:
+            installable = np.argwhere(map_data > 0)
+            restricted = np.empty((0, 2), dtype=int)
+        elif style in {"restricted", "restricted_layer", "road", "road_layer"}:
+            installable = np.empty((0, 2), dtype=int)
+            restricted = np.argwhere(map_data > 0)
+        elif style in {"jobsite", "jobsite_layer"}:
+            installable = np.argwhere(map_data > 0)
+            restricted = np.empty((0, 2), dtype=int)
+        else:
+            base_area = np.argwhere(map_data == 1)
+            installable = np.argwhere(map_data == 2)
+            restricted = np.argwhere(map_data == 3)
+
+        if style != "auto":
+            base_area = np.empty((0, 2), dtype=int)
+
+        if base_area.size == 0 and installable.size == 0 and restricted.size == 0:
+            return False
+
+        height, width = map_data.shape
+        ax.set_facecolor("white")
+        ax.set_xlim(-0.5, width - 0.5)
+        ax.set_ylim(height - 0.5, -0.5)
+        ax.set_aspect("equal")
+
+        if base_area.size:
+            patches = [
+                Rectangle((float(x) - 0.5, float(y) - 0.5), 1.0, 1.0)
+                for y, x in base_area
+            ]
+            ax.add_collection(
+                PatchCollection(
+                    patches,
+                    facecolor="0.35",
+                    edgecolor="0.35",
+                    linewidth=0.0,
+                    match_original=False,
+                )
+            )
+
+        if installable.size:
+            patches = [
+                Rectangle((float(x) - 0.5, float(y) - 0.5), 1.0, 1.0)
+                for y, x in installable
+            ]
+            ax.add_collection(
+                PatchCollection(
+                    patches,
+                    facecolor="white",
+                    edgecolor="0.35",
+                    linewidth=0.6,
+                    match_original=False,
+                )
+            )
+
+        if restricted.size:
+            patches = [
+                Rectangle((float(x) - 0.5, float(y) - 0.5), 1.0, 1.0)
+                for y, x in restricted
+            ]
+            ax.add_collection(
+                PatchCollection(
+                    patches,
+                    facecolor="white",
+                    edgecolor="0.25",
+                    linewidth=0.8,
+                    hatch="///",
+                    match_original=False,
+                )
+            )
+
+        ax.add_patch(
+            Rectangle(
+                (-0.5, -0.5),
+                float(width),
+                float(height),
+                facecolor="none",
+                edgecolor="black",
+                linewidth=1.2,
+            )
+        )
+
+        return True
+
     def showMap_circle(
         self,
         map_data: Union[np.ndarray, List],
@@ -158,13 +270,14 @@ class VisualTool:
         *,
         vmin: Optional[float] = None,
         vmax: Optional[float] = None,
+        zone_style: Optional[str] = None,
     ) -> None:
         map_data = self._normalize_image(map_data)
         sensor_positions = self._normalize_positions(sensor_positions)
         cmap_custom = self._resolve_cmap(cmap)
 
         fig, ax = plt.subplots(figsize=self.figsize, dpi=self.dpi)
-        self._imshow(ax, map_data, cmap_custom, vmin=vmin, vmax=vmax)
+        self._imshow(ax, map_data, cmap_custom, vmin=vmin, vmax=vmax, zone_style=zone_style)
         ax.set_title(title)
 
         for pos in sensor_positions:
@@ -211,13 +324,14 @@ class VisualTool:
         *,
         vmin: Optional[float] = None,
         vmax: Optional[float] = None,
+        zone_style: Optional[str] = None,
     ) -> None:
         map_data = self._normalize_image(map_data)
         sensor_positions = self._normalize_positions(sensor_positions)
         cmap_custom = self._resolve_cmap(cmap)
 
         fig, ax = plt.subplots(figsize=self.figsize, dpi=self.dpi)
-        self._imshow(ax, map_data, cmap_custom, vmin=vmin, vmax=vmax)
+        self._imshow(ax, map_data, cmap_custom, vmin=vmin, vmax=vmax, zone_style=zone_style)
         ax.set_title(title)
 
         for pos in sensor_positions:
@@ -245,12 +359,13 @@ class VisualTool:
         *,
         vmin: Optional[float] = None,
         vmax: Optional[float] = None,
+        zone_style: Optional[str] = None,
     ) -> None:
         map_data = self._normalize_image(map_data)
         cmap_custom = self._resolve_cmap(cmap)
 
         fig, ax = plt.subplots(figsize=self.figsize, dpi=self.dpi)
-        self._imshow(ax, map_data, cmap_custom, vmin=vmin, vmax=vmax)
+        self._imshow(ax, map_data, cmap_custom, vmin=vmin, vmax=vmax, zone_style=zone_style)
         ax.set_title(title)
         self.save_or_show(fig, filename, save_path)
 
@@ -268,6 +383,14 @@ class VisualTool:
         # 2) 저장 직전에만 타이틀 제거 + 축 제거
         for ax in fig.axes:
             ax.set_axis_off()
+            ax.set_xticks([])
+            ax.set_yticks([])
+            ax.tick_params(
+                left=False,
+                bottom=False,
+                labelleft=False,
+                labelbottom=False,
+            )
             ax.set_title("")
 
         fname = (
@@ -304,10 +427,12 @@ class VisualTool:
         return_stats: bool = False,
         *,
         target_value: int = 1,
+        target_values: Optional[Sequence[int]] = None,
         cmap: Union[str, list] = "jet",     # ✅ 호출자가 지정한 cmap 그대로 사용
         filename: str = "map_check",
         save_path: Optional[str] = None,
         show_original: bool = True,         # ✅ 원래 기능을 명시적으로 유지
+        zone_style: Optional[str] = None,
     ):
         GRID_M = 5.0
         CELL_AREA_M2 = GRID_M * GRID_M
@@ -323,7 +448,9 @@ class VisualTool:
         total_area_ha = total_area_m2 / HA_M2
         total_area_km2 = total_area_m2 / KM2_M2
 
-        target_cells = int(np.sum(arr == target_value))
+        targets = [int(v) for v in (target_values if target_values is not None else [target_value])]
+        target_mask = np.isin(arr, targets)
+        target_cells = int(np.sum(target_mask))
         target_area_m2 = target_cells * CELL_AREA_M2
         target_area_ha = target_area_m2 / HA_M2
         target_area_km2 = target_area_m2 / KM2_M2
@@ -344,7 +471,8 @@ class VisualTool:
             f"{total_area_km2:,.6f} km^2"
         )
         print("--------------------------------")
-        print(f"Target value      : {target_value}")
+        target_label = targets[0] if len(targets) == 1 else targets
+        print(f"Target value      : {target_label}")
         print(
             f"Target area       : "
             f"{target_area_m2:,.2f} m^2  |  "
@@ -364,12 +492,12 @@ class VisualTool:
             vis = arr
             vmin, vmax = float(np.min(arr)), float(np.max(arr))
         else:
-            vis = (arr == target_value).astype(np.uint8)
+            vis = target_mask.astype(np.uint8)
             vmin, vmax = 0.0, 1.0
 
         if title is None:
             title = (
-                f"Target={target_value} | "
+                f"Target={target_label} | "
                 f"{target_area_m2:,.1f} m² / "
                 f"{target_area_ha:.4f} ha / "
                 f"{target_area_km2:.6f} km²"
@@ -383,6 +511,7 @@ class VisualTool:
             save_path=save_path,
             vmin=vmin,
             vmax=vmax,
+            zone_style=zone_style,
         )
 
         stats = {
@@ -396,7 +525,7 @@ class VisualTool:
                 "area_km2": total_area_km2,
             },
             "target": {
-                "value": int(target_value),
+                "value": target_label,
                 "cells": target_cells,
                 "area_m2": target_area_m2,
                 "area_ha": target_area_ha,
