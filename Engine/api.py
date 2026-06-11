@@ -103,6 +103,33 @@ class GreedyRunConfig:
 
 
 @dataclass
+class CombinatorialConfig:
+    algorithm: str = "combinatorial"
+    coverage: int = 45
+    min_sensors: int = 0
+    max_sensors: int = 24
+    candidate_stride: int = 5
+    max_candidates: Optional[int] = 24
+    max_combinations: Optional[int] = 5_000_000
+    min_separation: Optional[float] = None
+    parallel_workers: Optional[int] = None
+    chunk_size: int = 4096
+    fitness_kwargs: Optional[dict] = None
+
+
+@dataclass
+class CombinatorialRunConfig:
+    target_coverage: float = 100.0
+    max_sensors: Optional[int] = None
+    return_best_only: bool = True
+    verbose: bool = True
+    profile: bool = True
+    profile_every: int = 100_000
+    parallel_workers: Optional[int] = None
+    chunk_size: Optional[int] = None
+
+
+@dataclass
 class DRLConfig:
     algorithm: str = "drl"
     coverage: int = 45
@@ -187,6 +214,13 @@ def make_optimizer_configs(
             max_sensors=int(high),
         )
         run_cfg = GreedyRunConfig(max_sensors=int(high))
+    elif key in {"combinatorial", "exact", "bruteforce", "brute_force"}:
+        init_cfg = CombinatorialConfig(
+            coverage=int(coverage),
+            min_sensors=0,
+            max_sensors=int(high),
+        )
+        run_cfg = CombinatorialRunConfig(max_sensors=int(high))
     elif key in {"drl", "dqn", "deep_q_learning"}:
         init_cfg = DRLConfig(
             coverage=int(coverage),

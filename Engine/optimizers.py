@@ -3,6 +3,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Any, List, Tuple, Union
 
+from InnerDeployment.Combinatorial.main import SensorCombinatorial
 from InnerDeployment.GeneticAlgorithm.main import SensorGA, default_parallel_workers
 from InnerDeployment.Greedy.main import SensorGreedy
 from InnerDeployment.PSO.main import SensorPSO
@@ -197,6 +198,43 @@ class GreedyOptimizerStrategy(InnerOptimizerStrategy):
         )
 
 
+class CombinatorialOptimizerStrategy(InnerOptimizerStrategy):
+    def build(self) -> SensorCombinatorial:
+        gi = self.init_cfg
+        self.optimizer = SensorCombinatorial(
+            installable_map=self.installable_map,
+            jobsite_map=self.jobsite_map,
+            coverage=gi.coverage,
+            corner_positions=self.corner_positions,
+            min_sensors=getattr(gi, "min_sensors", 0),
+            max_sensors=getattr(gi, "max_sensors", None),
+            candidate_stride=getattr(gi, "candidate_stride", 1),
+            max_candidates=getattr(gi, "max_candidates", 24),
+            max_combinations=getattr(gi, "max_combinations", 5_000_000),
+            min_separation=getattr(gi, "min_separation", None),
+            parallel_workers=getattr(gi, "parallel_workers", None),
+            chunk_size=getattr(gi, "chunk_size", 4096),
+            fitness_kwargs=getattr(gi, "fitness_kwargs", None),
+        )
+        return self.optimizer
+
+    def run(self) -> Chromosome:
+        if self.optimizer is None:
+            self.build()
+        gr = self.run_cfg
+        return self.optimizer.run(
+            target_coverage=getattr(gr, "target_coverage", 100.0),
+            max_sensors=getattr(gr, "max_sensors", getattr(self.init_cfg, "max_sensors", None)),
+            return_best_only=getattr(gr, "return_best_only", True),
+            verbose=getattr(gr, "verbose", True),
+            profile=getattr(gr, "profile", False),
+            profile_every=getattr(gr, "profile_every", 100_000),
+            parallel_workers=getattr(gr, "parallel_workers", None),
+            chunk_size=getattr(gr, "chunk_size", None),
+            logger=self.logger,
+        )
+
+
 class DRLOptimizerStrategy(InnerOptimizerStrategy):
     def build(self) -> SensorDRL:
         gi = self.init_cfg
@@ -258,6 +296,8 @@ def make_inner_optimizer(
         cls = PSOOptimizerStrategy
     elif key in {"greedy", "greedy_search", "recursive_greedy"}:
         cls = GreedyOptimizerStrategy
+    elif key in {"combinatorial", "exact", "bruteforce", "brute_force"}:
+        cls = CombinatorialOptimizerStrategy
     elif key in {"drl", "dqn", "deep_q_learning"}:
         cls = DRLOptimizerStrategy
     else:

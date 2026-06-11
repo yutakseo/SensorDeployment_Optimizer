@@ -66,6 +66,16 @@ OPTIMIZER_PARAMS = {
         "candidate_stride": 5,
         "min_separation": COMMON_OPTIMIZER_PARAMS["coverage"] / 5,
     },
+    "combinatorial": {
+        "min_sensors": 0,
+        "max_sensors": 24,
+        "candidate_stride": 10,
+        "max_candidates": 24,
+        "max_combinations": 5_000_000,
+        "min_separation": COMMON_OPTIMIZER_PARAMS["coverage"] / 5,
+        "parallel_workers": GA_CPU_WORKERS,
+        "chunk_size": 4096,
+    },
     "drl": {
         "min_sensors": 0,
         "generations": 1000,
@@ -110,6 +120,15 @@ OPTIMIZER_RUN_PARAMS = {
         "verbose": True,
         "profile": True,
         "profile_every": 1,
+    },
+    "combinatorial": {
+        "target_coverage": 100.0,
+        "return_best_only": True,
+        "verbose": True,
+        "profile": True,
+        "profile_every": 100_000,
+        "parallel_workers": GA_CPU_WORKERS,
+        "chunk_size": 4096,
     },
     "drl": {
         "epsilon_start": 1.0,
