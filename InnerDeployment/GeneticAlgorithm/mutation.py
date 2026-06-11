@@ -187,11 +187,26 @@ def mutation(
     inner = to_int_pairs(chromosome)
     corners = to_int_pairs(corner_positions)
     installable = to_bool_map(installable_map)
+    if installable.ndim != 2:
+        raise ValueError(f"installable_map must be 2D. Got shape={installable.shape}.")
     effective_min_separation = min_separation_cells(min_separation, int(coverage))
+
+    height, width = installable.shape
+
+    def _is_installable(point: Gene) -> bool:
+        x, y = int(point[0]), int(point[1])
+        return 0 <= x < width and 0 <= y < height and bool(installable[y, x])
+
+    inner = [
+        (int(x), int(y))
+        for x, y in inner
+        if _is_installable((x, y))
+    ]
 
     def _dedupe_and_fill(points: Chromosome) -> Chromosome:
         if (not replace_duplicates) and empty_fill_ratio <= 0 and effective_min_separation <= 0.0:
-            return points
+            return [(int(x), int(y)) for x, y in points if _is_installable((x, y))]
+        points = [(int(x), int(y)) for x, y in points if _is_installable((x, y))]
         out, removed_count = filter_min_separation(
             points,
             base=corners,

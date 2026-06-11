@@ -537,3 +537,7 @@ class VisualTool:
 
         return stats if return_stats else None
 
+
+VisualTool.showMap_circle = VisualTool.showMapCircle
+VisualTool.showMap_dot = VisualTool.showMapDot
+VisualTool.map_check = VisualTool.mapCheck

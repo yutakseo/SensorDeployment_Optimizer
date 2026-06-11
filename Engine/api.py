@@ -106,8 +106,6 @@ class GreedyRunConfig:
 class CombinatorialConfig:
     algorithm: str = "combinatorial"
     coverage: int = 45
-    min_sensors: int = 0
-    max_sensors: int = 24
     candidate_stride: int = 5
     max_candidates: Optional[int] = 24
     max_combinations: Optional[int] = 5_000_000
@@ -120,13 +118,13 @@ class CombinatorialConfig:
 @dataclass
 class CombinatorialRunConfig:
     target_coverage: float = 100.0
-    max_sensors: Optional[int] = None
     return_best_only: bool = True
     verbose: bool = True
     profile: bool = True
     profile_every: int = 100_000
     parallel_workers: Optional[int] = None
     chunk_size: Optional[int] = None
+    fitness_log_path: Optional[str] = None
 
 
 @dataclass
@@ -217,10 +215,8 @@ def make_optimizer_configs(
     elif key in {"combinatorial", "exact", "bruteforce", "brute_force"}:
         init_cfg = CombinatorialConfig(
             coverage=int(coverage),
-            min_sensors=0,
-            max_sensors=int(high),
         )
-        run_cfg = CombinatorialRunConfig(max_sensors=int(high))
+        run_cfg = CombinatorialRunConfig()
     elif key in {"drl", "dqn", "deep_q_learning"}:
         init_cfg = DRLConfig(
             coverage=int(coverage),

@@ -66,6 +66,23 @@ _W_INSTALLABLE_POINTS: List[Gene] = []
 _W_EVALUATOR: Optional[FitnessFunc] = None
 
 
+def _is_installable_point(point: Gene, installable_map) -> bool:
+    x, y = int(point[0]), int(point[1])
+    arr = np.asarray(installable_map)
+    if arr.ndim != 2:
+        return False
+    height, width = arr.shape
+    return 0 <= x < width and 0 <= y < height and bool(arr[y, x] > 0)
+
+
+def _filter_installable_points(points: Chromosome, installable_map) -> Chromosome:
+    return [
+        (int(x), int(y))
+        for x, y in to_int_pairs(points)
+        if _is_installable_point((int(x), int(y)), installable_map)
+    ]
+
+
 def _clear_torch_cache(device: Optional[object] = None) -> None:
     if torch is None or not torch.cuda.is_available():
         return
@@ -174,6 +191,7 @@ def _repair_min_sensors_worker(chromosome: Chromosome) -> Chromosome:
 
 def _dedupe_worker(chromosome: Chromosome) -> Chromosome:
     min_sep = min_separation_cells(_W_MUTATION_KW.get("min_separation"), _W_COVERAGE)
+    chromosome = _filter_installable_points(chromosome, _W_INSTALLABLE_MAP)
     out, _ = filter_min_separation(
         chromosome,
         base=_W_CORNER_POSITIONS,
@@ -297,9 +315,22 @@ class SensorGA:
     ):
         self.installable_map = (np.asarray(installable_map) > 0).astype(np.uint8)
         self.jobsite_map = np.asarray(jobsite_map)
+        if self.installable_map.ndim != 2:
+            raise ValueError(
+                f"installable_map must be 2D. Got shape={self.installable_map.shape}."
+            )
+        if self.jobsite_map.ndim != 2:
+            raise ValueError(f"jobsite_map must be 2D. Got shape={self.jobsite_map.shape}.")
+        if self.installable_map.shape != self.jobsite_map.shape:
+            raise ValueError(
+                "installable_map and jobsite_map must have the same shape. "
+                f"Got {self.installable_map.shape} and {self.jobsite_map.shape}."
+            )
         self._installable_points: List[Gene] = [
             (int(x), int(y)) for (y, x) in np.argwhere(self.installable_map > 0)
         ]
+        if not self._installable_points:
+            raise ValueError("installable_map has no installable cells for GA sensor placement.")
 
         self.coverage = int(coverage)
         self.generations = int(generations)
@@ -621,6 +652,7 @@ class SensorGA:
 
     def _dedupe_chromosome(self, chromosome: Chromosome) -> Chromosome:
         min_sep = min_separation_cells(self.mutation_kwargs.get("min_separation"), self.coverage)
+        chromosome = self._filter_installable(chromosome)
         out, _ = filter_min_separation(
             chromosome,
             base=self.corner_positions,
@@ -628,9 +660,13 @@ class SensorGA:
         )
         return out
 
+    def _filter_installable(self, chromosome: Chromosome) -> Chromosome:
+        return _filter_installable_points(chromosome, self.installable_map)
+
     def _postprocess_best(self, chromosome: Chromosome) -> Chromosome:
         min_sep = 0.0
         min_sep = min_separation_cells(self.mutation_kwargs.get("min_separation"), self.coverage)
+        chromosome = self._filter_installable(chromosome)
 
         if min_sep <= 0:
             return chromosome
@@ -730,7 +766,7 @@ class SensorGA:
         if mutation_kwargs:
             combined_kw.update(mutation_kwargs)
 
-        worker_device: Optional[str] = "cpu" if int(parallel_workers) > 1 else None
+        worker_device: Optional[str] = None
 
         max_total = len(self.corner_positions) + int(self.max_sensors)
         min_total = len(self.corner_positions) + int(self.min_sensors)

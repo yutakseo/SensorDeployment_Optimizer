@@ -46,7 +46,7 @@ COMMON_OPTIMIZER_PARAMS = {
     "coverage": 45,
 }
 GA_CPU_WORKERS = min(16, max(1, (os.cpu_count() or 2) - 1))
-ALGORITHMS = ("ga", "greedy", "drl", "pso" )
+ALGORITHMS = ("ga", "greedy", "drl", "pso")
 OPTIMIZER_PARAMS = {
     "ga": {
         "initial_size": 100,

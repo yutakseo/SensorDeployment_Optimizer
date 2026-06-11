@@ -1,4 +1,5 @@
 from .analyzer import Analyzer
+from .combinatorial import loadCombinatorialFitness, plotCombinatorialFitness3d
 from .result_io import (
     finalPoints,
     listBands,
@@ -21,11 +22,13 @@ __all__ = [
     "coverOverlap",
     "coverSummary",
     "finalPoints",
+    "loadCombinatorialFitness",
     "listBands",
     "loadAlgoRuns",
     "loadRecords",
     "loadRuns",
     "plotConverge",
+    "plotCombinatorialFitness3d",
     "plotOverlap",
     "printStats",
     "reportCluster",

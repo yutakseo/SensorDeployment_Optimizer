@@ -1,13 +1,15 @@
 from __future__ import annotations
 
 import gc
+import json
 import math
 import os
 import time
 from concurrent.futures import FIRST_COMPLETED, ProcessPoolExecutor, wait
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from itertools import combinations
-from typing import Dict, Iterable, List, Optional, Set, Tuple
+from pathlib import Path
+from typing import Any, Dict, Iterable, List, Optional, Set, Tuple
 
 import numpy as np
 
@@ -49,8 +51,22 @@ class FitnessParams:
 @dataclass(frozen=True, slots=True)
 class CombinationTask:
     chunk: List[Tuple[CandidateCover, ...]]
+    start_index: int
     corner_bits: int
     params: FitnessParams
+    trace_enabled: bool = False
+
+
+@dataclass(frozen=True, slots=True)
+class FitnessTrace:
+    index: int
+    sensor_count: int
+    positions: Tuple[Gene, ...]
+    center_x: Optional[float]
+    center_y: Optional[float]
+    coverage: Optional[float]
+    fitness: Optional[float]
+    feasible: bool
 
 
 @dataclass(frozen=True, slots=True)
@@ -59,6 +75,25 @@ class ChunkResult:
     best_fitness: float
     best_coverage: float
     best_solution: Chromosome
+    traces: Tuple[FitnessTrace, ...] = ()
+
+
+class CombinatorialFitnessLogger:
+    def __init__(self, path: str | os.PathLike[str], metadata: Dict[str, Any]):
+        self.path = Path(path)
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        self._file = self.path.open("w", encoding="utf-8")
+        self._write({"type": "meta", "metadata": metadata})
+
+    def _write(self, payload: Dict[str, Any]) -> None:
+        self._file.write(json.dumps(payload, ensure_ascii=False) + "\n")
+
+    def log(self, traces: Tuple[FitnessTrace, ...]) -> None:
+        for trace in traces:
+            self._write({"type": "fitness", **asdict(trace)})
+
+    def close(self) -> None:
+        self._file.close()
 
 
 def _shutdownPool(pool: Optional[ProcessPoolExecutor], *, force: bool = False) -> None:
@@ -124,16 +159,21 @@ def _scoreCombinationChunk(task: CombinationTask) -> ChunkResult:
     best_solution: Chromosome = []
     best_fitness = float("-inf")
     best_coverage = 0.0
+    traces: List[FitnessTrace] = []
 
-    for selected in task.chunk:
+    for offset, selected in enumerate(task.chunk):
         bits = task.corner_bits
         solution = [candidate.point for candidate in selected]
         if not _isSeparated(solution, task.params):
+            if task.trace_enabled:
+                traces.append(_makeTrace(task.start_index + offset, solution, None, None, False))
             continue
         for candidate in selected:
             bits |= candidate.bits
         coverage = _coveragePercent(bits, task.params.target_area)
         fitness = _fitnessScore(solution, coverage, task.params)
+        if task.trace_enabled:
+            traces.append(_makeTrace(task.start_index + offset, solution, coverage, fitness, True))
         if fitness > best_fitness:
             best_solution = solution
             best_fitness = float(fitness)
@@ -144,6 +184,37 @@ def _scoreCombinationChunk(task: CombinationTask) -> ChunkResult:
         best_fitness=best_fitness,
         best_coverage=best_coverage,
         best_solution=best_solution,
+        traces=tuple(traces),
+    )
+
+
+def _makeTrace(
+    index: int,
+    solution: Chromosome,
+    coverage: Optional[float],
+    fitness: Optional[float],
+    feasible: bool,
+) -> FitnessTrace:
+    center_x, center_y = _centerPoint(solution)
+    return FitnessTrace(
+        index=int(index),
+        sensor_count=len(solution),
+        positions=tuple(solution),
+        center_x=center_x,
+        center_y=center_y,
+        coverage=None if coverage is None else float(coverage),
+        fitness=None if fitness is None else float(fitness),
+        feasible=bool(feasible),
+    )
+
+
+def _centerPoint(solution: Chromosome) -> Tuple[Optional[float], Optional[float]]:
+    if not solution:
+        return None, None
+    count = float(len(solution))
+    return (
+        float(sum(point[0] for point in solution) / count),
+        float(sum(point[1] for point in solution) / count),
     )
 
 
@@ -155,9 +226,9 @@ class SensorCombinatorial:
     """
     Exact inner-area sensor deployment over a finite candidate domain.
 
-    This optimizer enumerates every candidate subset whose size is between
-    min_sensors and max_sensors. It returns the global optimum for that explicit
-    domain under FitnessFunc.fitness_from_coverage().
+    This optimizer enumerates every candidate subset in the configured finite
+    candidate domain. It returns the global optimum for that explicit domain
+    under FitnessFunc.fitness_from_coverage().
     """
 
     def __init__(
@@ -291,7 +362,7 @@ class SensorCombinatorial:
             "Combinatorial search domain is too large for the configured limit. "
             f"candidates={stats.candidates}, sensors={stats.min_sensors}-{stats.max_sensors}, "
             f"combinations={stats.combinations}, max_combinations={self.max_combinations}. "
-            "Increase candidate_stride, lower max_candidates/max_sensors, or set max_combinations=None."
+            "Increase candidate_stride, lower max_candidates, or set max_combinations=None."
         )
 
     def _fitnessParams(self, target_coverage: float) -> FitnessParams:
@@ -372,6 +443,16 @@ class SensorCombinatorial:
         )
         return next_solution, float(result.best_fitness), float(result.best_coverage)
 
+    def _logTrace(
+        self,
+        *,
+        trace_logger: Optional[CombinatorialFitnessLogger],
+        result: ChunkResult,
+    ) -> None:
+        if trace_logger is None:
+            return
+        trace_logger.log(result.traces)
+
     def _runSequential(
         self,
         *,
@@ -381,6 +462,7 @@ class SensorCombinatorial:
         domain_size: int,
         params: FitnessParams,
         logger,
+        trace_logger: Optional[CombinatorialFitnessLogger],
         profile: bool,
         profile_every: int,
         start: float,
@@ -394,11 +476,14 @@ class SensorCombinatorial:
             result = _scoreCombinationChunk(
                 CombinationTask(
                     chunk=chunk,
+                    start_index=evaluated,
                     corner_bits=self._corner_bits,
                     params=params,
+                    trace_enabled=trace_logger is not None,
                 )
             )
             evaluated += result.evaluated
+            self._logTrace(trace_logger=trace_logger, result=result)
             best_solution, best_fitness, best_coverage = self._consumeResult(
                 result=result,
                 evaluated=evaluated,
@@ -432,6 +517,7 @@ class SensorCombinatorial:
         domain_size: int,
         params: FitnessParams,
         logger,
+        trace_logger: Optional[CombinatorialFitnessLogger],
         profile: bool,
         profile_every: int,
         start: float,
@@ -444,17 +530,22 @@ class SensorCombinatorial:
         pending: Set = set()
         chunks = iter(self._combinationChunks(covers, min_count, max_count))
         max_pending = max(1, self.parallel_workers * 2)
+        next_start = 0
 
         def submitNext() -> bool:
+            nonlocal next_start
             try:
                 chunk = next(chunks)
             except StopIteration:
                 return False
             task = CombinationTask(
                 chunk=chunk,
+                start_index=next_start,
                 corner_bits=self._corner_bits,
                 params=params,
+                trace_enabled=trace_logger is not None,
             )
+            next_start += len(chunk)
             pending.add(pool.submit(_scoreCombinationChunk, task))
             return True
 
@@ -469,6 +560,7 @@ class SensorCombinatorial:
                 for future in done:
                     result = future.result()
                     evaluated += result.evaluated
+                    self._logTrace(trace_logger=trace_logger, result=result)
                     best_solution, best_fitness, best_coverage = self._consumeResult(
                         result=result,
                         evaluated=evaluated,
@@ -524,6 +616,7 @@ class SensorCombinatorial:
         profile_every: int = 100_000,
         parallel_workers: Optional[int] = None,
         chunk_size: Optional[int] = None,
+        fitness_log_path: Optional[str] = None,
         logger=None,
         **_,
     ) -> Chromosome:
@@ -549,6 +642,21 @@ class SensorCombinatorial:
             self.fitness_kwargs.get("target_coverage", target_coverage)
         )
         params = self._fitnessParams(effective_target)
+        trace_logger: Optional[CombinatorialFitnessLogger] = None
+        if fitness_log_path is not None:
+            trace_logger = CombinatorialFitnessLogger(
+                fitness_log_path,
+                metadata={
+                    "target_coverage": effective_target,
+                    "coverage": self.coverage,
+                    "candidates": len(covers),
+                    "min_sensors": min_count,
+                    "max_sensors": max_count,
+                    "combinations": domain_size,
+                    "parallel_workers": self.parallel_workers,
+                    "chunk_size": self.chunk_size,
+                },
+            )
 
         if verbose:
             print(
@@ -558,30 +666,36 @@ class SensorCombinatorial:
                 f"chunk={self.chunk_size}"
             )
 
-        if self.parallel_workers <= 1:
-            best_solution, best_fitness, best_coverage, evaluated = self._runSequential(
-                covers=covers,
-                min_count=min_count,
-                max_count=max_count,
-                domain_size=domain_size,
-                params=params,
-                logger=logger,
-                profile=bool(profile),
-                profile_every=max(1, int(profile_every)),
-                start=start,
-            )
-        else:
-            best_solution, best_fitness, best_coverage, evaluated = self._runParallel(
-                covers=covers,
-                min_count=min_count,
-                max_count=max_count,
-                domain_size=domain_size,
-                params=params,
-                logger=logger,
-                profile=bool(profile),
-                profile_every=max(1, int(profile_every)),
-                start=start,
-            )
+        try:
+            if self.parallel_workers <= 1:
+                best_solution, best_fitness, best_coverage, evaluated = self._runSequential(
+                    covers=covers,
+                    min_count=min_count,
+                    max_count=max_count,
+                    domain_size=domain_size,
+                    params=params,
+                    logger=logger,
+                    trace_logger=trace_logger,
+                    profile=bool(profile),
+                    profile_every=max(1, int(profile_every)),
+                    start=start,
+                )
+            else:
+                best_solution, best_fitness, best_coverage, evaluated = self._runParallel(
+                    covers=covers,
+                    min_count=min_count,
+                    max_count=max_count,
+                    domain_size=domain_size,
+                    params=params,
+                    logger=logger,
+                    trace_logger=trace_logger,
+                    profile=bool(profile),
+                    profile_every=max(1, int(profile_every)),
+                    start=start,
+                )
+        finally:
+            if trace_logger is not None:
+                trace_logger.close()
 
         self.best_solution = list(best_solution)
         self.best_fitness = float(best_fitness)

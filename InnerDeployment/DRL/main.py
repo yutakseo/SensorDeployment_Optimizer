@@ -86,6 +86,7 @@ class SensorPlacementEnv:
         max_candidates: Optional[int],
         min_separation: Optional[float],
         evaluator: FitnessFunc,
+        device: torch.device,
     ):
         self.installable_map = np.asarray(installable_map) > 0
         self.jobsite_map = np.asarray(jobsite_map) > 0
@@ -100,6 +101,7 @@ class SensorPlacementEnv:
         self.target_coverage = max(0.0, min(100.0, float(target_coverage)))
         self.min_separation = min_separation_cells(min_separation, int(coverage))
         self.evaluator = evaluator
+        self.device = device
         self.target_flat = self.jobsite_map.reshape(-1)
         self.target_area = max(1, int(np.count_nonzero(self.target_flat)))
         self.offsets = circle_offsets(self.coverage_cells)
@@ -135,11 +137,33 @@ class SensorPlacementEnv:
 
         self.candidates = points
         self.candidate_indices = indices
+        self.candidate_masks = self._candidateMasks(indices)
+        self.corner_mask = self._pointMask(self.corner_positions)
         self.static_gains = np.asarray([len(item) for item in indices], dtype=np.float32)
-        self.covered = np.zeros(self.height * self.width, dtype=bool)
+        self.covered = torch.zeros(self.height * self.width, dtype=torch.bool, device=self.device)
         self.selected = np.zeros(len(points), dtype=bool)
         self.solution: Chromosome = []
         self.coverage_percent = 0.0
+
+    def _pointMask(self, points: List[Gene]) -> torch.Tensor:
+        mask = torch.zeros(self.height * self.width, dtype=torch.bool, device=self.device)
+        for point in points:
+            indices = self._covered_indices(point)
+            if indices.size:
+                mask[torch.as_tensor(indices, dtype=torch.long, device=self.device)] = True
+        return mask
+
+    def _candidateMasks(self, indices: List[np.ndarray]) -> torch.Tensor:
+        masks = torch.zeros(
+            (len(indices), self.height * self.width),
+            dtype=torch.bool,
+            device=self.device,
+        )
+        for row, item in enumerate(indices):
+            if item.size:
+                index_tensor = torch.as_tensor(item, dtype=torch.long, device=self.device)
+                masks[row, index_tensor] = True
+        return masks
 
     def _covered_indices(self, point: Gene) -> np.ndarray:
         return covered_indices(
@@ -151,14 +175,13 @@ class SensorPlacementEnv:
         )
 
     def _coverage(self) -> float:
-        return float(100.0 * np.count_nonzero(self.covered & self.target_flat) / self.target_area)
+        return float(100.0 * self.covered.sum().item() / self.target_area)
 
     def reset(self) -> np.ndarray:
-        self.covered.fill(False)
+        self.covered.zero_()
         self.selected.fill(False)
         self.solution = []
-        for point in self.corner_positions:
-            self.covered[self._covered_indices(point)] = True
+        self.covered.logical_or_(self.corner_mask)
         self.coverage_percent = self._coverage()
         return self.action_features()
 
@@ -180,10 +203,12 @@ class SensorPlacementEnv:
 
     def marginal_gains(self, available: Optional[np.ndarray] = None) -> np.ndarray:
         actions = self.available_indices() if available is None else available
-        return np.asarray(
-            [np.count_nonzero(~self.covered[self.candidate_indices[int(i)]]) for i in actions],
-            dtype=np.float32,
-        )
+        if actions.size == 0:
+            return np.empty(0, dtype=np.float32)
+        action_tensor = torch.as_tensor(actions, dtype=torch.long, device=self.device)
+        masks = self.candidate_masks.index_select(0, action_tensor)
+        gains = masks.logical_and(~self.covered).sum(dim=1)
+        return gains.detach().cpu().numpy().astype(np.float32, copy=False)
 
     def action_features(
         self,
@@ -226,7 +251,7 @@ class SensorPlacementEnv:
         previous_fitness = self.evaluator.fitness_from_coverage(self.solution, previous)
         self.selected[action] = True
         self.solution.append(self.candidates[action])
-        self.covered[self.candidate_indices[action]] = True
+        self.covered.logical_or_(self.candidate_masks[action])
         self.coverage_percent = self._coverage()
 
         reached_target = (
@@ -309,6 +334,7 @@ class SensorDRL:
             max_candidates=max_candidates,
             min_separation=self.min_separation,
             evaluator=self.evaluator,
+            device=self.device,
         )
         self.q_network = CandidateQNetwork(self.env.FEATURE_DIM, hidden_dim).to(self.device)
         self.target_network = CandidateQNetwork(self.env.FEATURE_DIM, hidden_dim).to(self.device)
