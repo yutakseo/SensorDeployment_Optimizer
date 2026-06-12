@@ -15,7 +15,7 @@ MAP_NAMES = [
     "seocho.down",
 ]
 SENSOR_RANGES = [
-    (40, 140),
+    (20, 60),
 ]
 RANGE_ALGORITHMS = {"ga", "pso", "drl", "greedy"}
 DEFAULT_SENSOR_RANGE = (0, 140)
@@ -42,7 +42,7 @@ HARRIS_PARAMS = {
 COMMON_OPTIMIZER_PARAMS = {
     "coverage": 45,
 }
-GA_CPU_WORKERS = min(16, max(1, (os.cpu_count() or 2) - 1))
+GA_CPU_WORKERS = min(16, max(1, (os.cpu_count() or 2) - 4))
 ALGORITHMS = ("ga", "greedy", "drl", "pso")
 OPTIMIZER_PARAMS = {
     "ga": {
