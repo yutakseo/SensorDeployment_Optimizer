@@ -17,15 +17,22 @@ import numpy as np
 from ..geometry import candidate_points, circle_offsets, covered_indices
 from ..utils import is_far_enough, min_separation_cells, to_int_pairs
 
+try:
+    import torch
+except ImportError:  # pragma: no cover - torch is optional for CPU-only installs.
+    torch = None
+
 Gene = Tuple[int, int]
 Chromosome = List[Gene]
 MIN_COVERAGE_PRIORITY_MARGIN = 1.0
+DEFAULT_GPU_MAX_CELLS = 50_000_000
 
 
 @dataclass(frozen=True, slots=True)
 class CandidateCover:
     point: Gene
     bits: int
+    indices: Tuple[int, ...]
 
 
 @dataclass(frozen=True, slots=True)
@@ -48,6 +55,19 @@ class FitnessParams:
     overlap_min_dist: Optional[float]
     overlap_penalty: float
     min_separation: float
+
+
+@dataclass(frozen=True, slots=True)
+class AdaptiveParams:
+    start_sensors: int
+    samples_per_count: int
+    intensify_samples: int
+    patience: int
+    min_delta: float
+    regress_delta: float
+    uniform_ratio: float
+    weighted_ratio: float
+    local_ratio: float
 
 
 @dataclass(frozen=True, slots=True)
@@ -274,6 +294,7 @@ class SensorCombinatorial:
         self._target_area = int(self._target_flat.sum())
         self._offsets = circle_offsets(self.coverage_cells)
         self._target_index = self._buildTargetIndex()
+        self._corner_indices = self._buildCornerIndices()
         self._corner_bits = self._buildCornerBits()
 
     def _buildTargetIndex(self) -> Dict[int, int]:
@@ -281,18 +302,30 @@ class SensorCombinatorial:
         return {int(index): offset for offset, index in enumerate(target_indices.tolist())}
 
     def _buildBits(self, indices: np.ndarray) -> int:
+        return self._buildBitsFromOffsets(self._targetOffsets(indices))
+
+    def _buildBitsFromOffsets(self, offsets: Iterable[int]) -> int:
         bits = 0
+        for offset in offsets:
+            bits |= 1 << int(offset)
+        return bits
+
+    def _targetOffsets(self, indices: np.ndarray) -> Tuple[int, ...]:
+        offsets: List[int] = []
         for index in indices.tolist():
             offset = self._target_index.get(int(index))
             if offset is not None:
-                bits |= 1 << offset
-        return bits
+                offsets.append(int(offset))
+        return tuple(offsets)
+
+    def _buildCornerIndices(self) -> Tuple[int, ...]:
+        offsets: Set[int] = set()
+        for point in self.corner_positions:
+            offsets.update(self._targetOffsets(self._coveredIndices(point)))
+        return tuple(sorted(offsets))
 
     def _buildCornerBits(self) -> int:
-        bits = 0
-        for point in self.corner_positions:
-            bits |= self._buildBits(self._coveredIndices(point))
-        return bits
+        return self._buildBitsFromOffsets(self._corner_indices)
 
     def _coveredIndices(self, point: Gene) -> np.ndarray:
         return covered_indices(
@@ -326,8 +359,9 @@ class SensorCombinatorial:
     def _candidateCovers(self) -> List[CandidateCover]:
         covers: List[CandidateCover] = []
         for point in self._candidatePoints():
-            bits = self._buildBits(self._coveredIndices(point))
-            covers.append(CandidateCover(point=point, bits=bits))
+            indices = self._targetOffsets(self._coveredIndices(point))
+            bits = self._buildBitsFromOffsets(indices)
+            covers.append(CandidateCover(point=point, bits=bits, indices=indices))
         return covers
 
     def _bounds(self, count: int, max_sensors: Optional[int]) -> Tuple[int, int]:
@@ -494,6 +528,192 @@ class SensorCombinatorial:
         combinations_count = math.comb(count, size)
         return max(1.0, math.sqrt(float(combinations_count)))
 
+    def _adaptiveBudgetLimit(
+        self,
+        *,
+        min_count: int,
+        max_count: int,
+        params: AdaptiveParams,
+        sample_limit: Optional[int],
+    ) -> int:
+        count_span = max(1, max_count - min_count + 1)
+        base_budget = count_span * params.samples_per_count
+        intensify_budget = max(1, params.patience + 1) * params.intensify_samples
+        budget = base_budget + intensify_budget
+        if sample_limit is None:
+            return budget
+        return min(int(sample_limit), budget)
+
+    def _adaptiveParams(
+        self,
+        *,
+        min_count: int,
+        max_count: int,
+        adaptive_start_sensors: Optional[int],
+        adaptive_samples_per_count: int,
+        adaptive_intensify_samples: int,
+        adaptive_patience: int,
+        adaptive_min_delta: float,
+        adaptive_regress_delta: float,
+        adaptive_uniform_ratio: float,
+        adaptive_weighted_ratio: float,
+        adaptive_local_ratio: float,
+    ) -> AdaptiveParams:
+        default_start = max(min_count, min(max_count, 4))
+        start = default_start if adaptive_start_sensors is None else int(adaptive_start_sensors)
+        start = max(min_count, min(max_count, start))
+        uniform = max(0.0, float(adaptive_uniform_ratio))
+        weighted = max(0.0, float(adaptive_weighted_ratio))
+        local = max(0.0, float(adaptive_local_ratio))
+        total = uniform + weighted + local
+        if total <= 0.0:
+            uniform, weighted, local = 1.0, 0.0, 0.0
+            total = 1.0
+        return AdaptiveParams(
+            start_sensors=start,
+            samples_per_count=max(1, int(adaptive_samples_per_count)),
+            intensify_samples=max(0, int(adaptive_intensify_samples)),
+            patience=max(1, int(adaptive_patience)),
+            min_delta=max(0.0, float(adaptive_min_delta)),
+            regress_delta=max(0.0, float(adaptive_regress_delta)),
+            uniform_ratio=uniform / total,
+            weighted_ratio=weighted / total,
+            local_ratio=local / total,
+        )
+
+    def _sampleUniformIndices(
+        self,
+        *,
+        count: int,
+        sensor_count: int,
+        rng: random.Random,
+    ) -> Tuple[int, ...]:
+        if sensor_count <= 0:
+            return ()
+        return tuple(sorted(rng.sample(range(count), sensor_count)))
+
+    def _sampleWeightedIndices(
+        self,
+        *,
+        weights: List[float],
+        sensor_count: int,
+        rng: random.Random,
+    ) -> Tuple[int, ...]:
+        if sensor_count <= 0:
+            return ()
+        available = list(range(len(weights)))
+        selected: List[int] = []
+        local_weights = [max(1.0e-9, float(weight)) for weight in weights]
+        for _ in range(sensor_count):
+            choice = rng.choices(available, weights=local_weights, k=1)[0]
+            index = available.index(choice)
+            selected.append(choice)
+            available.pop(index)
+            local_weights.pop(index)
+        return tuple(sorted(selected))
+
+    def _resizeIndices(
+        self,
+        *,
+        base_indices: Tuple[int, ...],
+        sensor_count: int,
+        candidate_count: int,
+        rng: random.Random,
+    ) -> Tuple[int, ...]:
+        selected = set(base_indices)
+        while len(selected) > sensor_count:
+            selected.remove(rng.choice(tuple(selected)))
+        while len(selected) < sensor_count:
+            selected.add(rng.randrange(candidate_count))
+        return tuple(sorted(selected))
+
+    def _sampleLocalIndices(
+        self,
+        *,
+        base_indices: Tuple[int, ...],
+        sensor_count: int,
+        candidate_count: int,
+        rng: random.Random,
+    ) -> Tuple[int, ...]:
+        indices = set(
+            self._resizeIndices(
+                base_indices=base_indices,
+                sensor_count=sensor_count,
+                candidate_count=candidate_count,
+                rng=rng,
+            )
+        )
+        if sensor_count <= 0:
+            return ()
+        swaps = max(1, min(sensor_count, sensor_count // 3 + 1))
+        for _ in range(swaps):
+            if indices:
+                indices.remove(rng.choice(tuple(indices)))
+            while len(indices) < sensor_count:
+                indices.add(rng.randrange(candidate_count))
+        return tuple(sorted(indices))
+
+    def _solutionIndices(
+        self,
+        *,
+        solution: Chromosome,
+        cover_index: Dict[Gene, int],
+    ) -> Tuple[int, ...]:
+        return tuple(sorted(cover_index[point] for point in solution if point in cover_index))
+
+    def _adaptiveChunksForCount(
+        self,
+        *,
+        covers: List[CandidateCover],
+        sensor_count: int,
+        budget: int,
+        rng: random.Random,
+        best_indices: Tuple[int, ...],
+        params: AdaptiveParams,
+    ) -> Iterable[List[Tuple[CandidateCover, ...]]]:
+        candidate_count = len(covers)
+        if sensor_count < 0 or sensor_count > candidate_count or budget <= 0:
+            return
+
+        weights = [max(1.0, float(cover.bits.bit_count())) for cover in covers]
+        sampled: Set[Tuple[int, ...]] = set()
+        chunk: List[Tuple[CandidateCover, ...]] = []
+        attempts = 0
+        max_attempts = max(budget * 20, budget + 1000)
+
+        while len(sampled) < budget and attempts < max_attempts:
+            attempts += 1
+            draw = rng.random()
+            if best_indices and draw >= (params.uniform_ratio + params.weighted_ratio):
+                indices = self._sampleLocalIndices(
+                    base_indices=best_indices,
+                    sensor_count=sensor_count,
+                    candidate_count=candidate_count,
+                    rng=rng,
+                )
+            elif draw < params.uniform_ratio:
+                indices = self._sampleUniformIndices(
+                    count=candidate_count,
+                    sensor_count=sensor_count,
+                    rng=rng,
+                )
+            else:
+                indices = self._sampleWeightedIndices(
+                    weights=weights,
+                    sensor_count=sensor_count,
+                    rng=rng,
+                )
+            if indices in sampled:
+                continue
+            sampled.add(indices)
+            chunk.append(tuple(covers[index] for index in indices))
+            if len(chunk) >= self.chunk_size:
+                yield chunk
+                chunk = []
+
+        if chunk:
+            yield chunk
+
     def _logProgress(
         self,
         *,
@@ -550,6 +770,653 @@ class SensorCombinatorial:
         if trace_logger is None:
             return
         trace_logger.log(result.traces)
+
+    def _gpuMaxCells(self) -> int:
+        return max(
+            1,
+            int(self.fitness_kwargs.get("gpu_max_cells", DEFAULT_GPU_MAX_CELLS)),
+        )
+
+    def _torchDevice(self, device: Optional[str]) -> Optional[object]:
+        if torch is None:
+            return None
+        if device is not None:
+            requested = torch.device(str(device))
+            if requested.type == "cuda" and not torch.cuda.is_available():
+                return None
+            return requested
+        if torch.cuda.is_available():
+            return torch.device("cuda")
+        return None
+
+    def _canRunTorch(
+        self,
+        *,
+        covers: List[CandidateCover],
+        device: object,
+        verbose: bool,
+    ) -> bool:
+        cells = (len(covers) + 1) * max(1, self._target_area)
+        if cells <= self._gpuMaxCells():
+            return True
+        if verbose:
+            print(
+                "[Combinatorial GPU Fallback] "
+                f"cover_matrix_cells={cells} exceeds gpu_max_cells={self._gpuMaxCells()}"
+            )
+        return False
+
+    def _coverTensor(
+        self,
+        covers: List[CandidateCover],
+        device: object,
+    ):
+        matrix = np.zeros((len(covers) + 1, self._target_area), dtype=np.bool_)
+        for row, cover in enumerate(covers):
+            if cover.indices:
+                matrix[row, list(cover.indices)] = True
+        return torch.as_tensor(matrix, device=device)
+
+    def _cornerTensor(self, device: object):
+        mask = np.zeros((self._target_area,), dtype=np.bool_)
+        if self._corner_indices:
+            mask[list(self._corner_indices)] = True
+        return torch.as_tensor(mask, device=device)
+
+    def _pointTensor(self, covers: List[CandidateCover], device: object):
+        points = np.zeros((len(covers) + 1, 2), dtype=np.float32)
+        for row, cover in enumerate(covers):
+            points[row, 0] = float(cover.point[0])
+            points[row, 1] = float(cover.point[1])
+        return torch.as_tensor(points, device=device)
+
+    def _cornerPointTensor(self, device: object):
+        points = np.asarray(self.corner_positions, dtype=np.float32)
+        if points.size == 0:
+            points = points.reshape(0, 2)
+        return torch.as_tensor(points, device=device)
+
+    def _chunkIndexArray(
+        self,
+        chunk: List[Tuple[CandidateCover, ...]],
+        cover_index: Dict[Gene, int],
+        pad_index: int,
+    ) -> Tuple[np.ndarray, np.ndarray]:
+        width = max((len(selected) for selected in chunk), default=0)
+        indices = np.full((len(chunk), width), pad_index, dtype=np.int64)
+        counts = np.zeros((len(chunk),), dtype=np.int64)
+        for row, selected in enumerate(chunk):
+            counts[row] = len(selected)
+            for col, cover in enumerate(selected):
+                indices[row, col] = cover_index[cover.point]
+        return indices, counts
+
+    def _pairCounts(self, points, active, threshold: Optional[float]):
+        batch, count, _ = points.shape
+        if threshold is None or threshold <= 0.0 or count < 2:
+            return torch.zeros((batch,), dtype=torch.float32, device=points.device)
+
+        deltas = points.unsqueeze(2) - points.unsqueeze(1)
+        dist2 = torch.sum(deltas * deltas, dim=-1)
+        pair_mask = active.unsqueeze(2) & active.unsqueeze(1)
+        pair_mask &= torch.triu(
+            torch.ones((count, count), dtype=torch.bool, device=points.device),
+            diagonal=1,
+        ).unsqueeze(0)
+        return ((dist2 < float(threshold) ** 2) & pair_mask).sum(dim=(1, 2)).to(torch.float32)
+
+    def _scoreTorchChunk(
+        self,
+        *,
+        chunk: List[Tuple[CandidateCover, ...]],
+        start_index: int,
+        cover_index: Dict[Gene, int],
+        cover_tensor,
+        corner_tensor,
+        point_tensor,
+        corner_point_tensor,
+        params: FitnessParams,
+        trace_enabled: bool,
+        trace_stride: int,
+    ) -> ChunkResult:
+        if not chunk:
+            return ChunkResult(0, float("-inf"), 0.0, [])
+
+        pad_index = len(cover_index)
+        index_array, count_array = self._chunkIndexArray(chunk, cover_index, pad_index)
+        index_tensor = torch.as_tensor(index_array, dtype=torch.long, device=cover_tensor.device)
+        count_tensor = torch.as_tensor(count_array, dtype=torch.float32, device=cover_tensor.device)
+
+        if index_array.shape[1] == 0:
+            combined = corner_tensor.unsqueeze(0).expand(len(chunk), -1)
+            selected_points = point_tensor[index_tensor].reshape(len(chunk), 0, 2)
+            selected_active = torch.zeros((len(chunk), 0), dtype=torch.bool, device=cover_tensor.device)
+        else:
+            selected_cover = cover_tensor[index_tensor]
+            combined = torch.any(selected_cover, dim=1) | corner_tensor.unsqueeze(0)
+            selected_points = point_tensor[index_tensor]
+            selected_active = index_tensor != pad_index
+
+        coverage_tensor = combined.sum(dim=1).to(torch.float32)
+        coverage_tensor *= 100.0 / max(1, params.target_area)
+
+        corner_count = int(corner_point_tensor.shape[0])
+        if corner_count > 0:
+            corner_points = corner_point_tensor.unsqueeze(0).expand(len(chunk), -1, -1)
+            points = torch.cat((corner_points, selected_points), dim=1)
+            corner_active = torch.ones(
+                (len(chunk), corner_count),
+                dtype=torch.bool,
+                device=cover_tensor.device,
+            )
+            active = torch.cat((corner_active, selected_active), dim=1)
+        else:
+            points = selected_points
+            active = selected_active
+
+        separated = self._pairCounts(points, active, params.min_separation) <= 0.0
+        overlap_cost = self._pairCounts(points, active, params.overlap_min_dist)
+        overlap_cost *= float(params.overlap_penalty)
+
+        total_count = count_tensor + float(params.corner_count)
+        deficit = torch.clamp(float(params.target_coverage) - coverage_tensor, min=0.0)
+        capped = torch.clamp(coverage_tensor, max=float(params.target_coverage))
+        fitness_tensor = (
+            float(params.coverage_weight) * capped
+            - float(params.sensor_weight) * total_count
+            - float(params.deficit_penalty) * deficit
+            - overlap_cost
+        )
+        fitness_tensor = torch.where(
+            separated,
+            fitness_tensor,
+            torch.full_like(fitness_tensor, float("-inf")),
+        )
+
+        best_index = int(torch.argmax(fitness_tensor).item())
+        best_fitness = float(fitness_tensor[best_index].item())
+        best_coverage = float(coverage_tensor[best_index].item())
+        best_solution = [cover.point for cover in chunk[best_index]]
+        traces = self._makeTorchTraces(
+            chunk=chunk,
+            start_index=start_index,
+            trace_enabled=trace_enabled,
+            trace_stride=trace_stride,
+            coverage=coverage_tensor.detach().cpu().numpy(),
+            fitness=fitness_tensor.detach().cpu().numpy(),
+            feasible=separated.detach().cpu().numpy(),
+            best_index=best_index,
+        )
+        return ChunkResult(
+            evaluated=len(chunk),
+            best_fitness=best_fitness,
+            best_coverage=best_coverage,
+            best_solution=best_solution,
+            traces=traces,
+        )
+
+    def _makeTorchTraces(
+        self,
+        *,
+        chunk: List[Tuple[CandidateCover, ...]],
+        start_index: int,
+        trace_enabled: bool,
+        trace_stride: int,
+        coverage: np.ndarray,
+        fitness: np.ndarray,
+        feasible: np.ndarray,
+        best_index: int,
+    ) -> Tuple[FitnessTrace, ...]:
+        if not trace_enabled:
+            return ()
+        traces: List[FitnessTrace] = []
+        for offset, selected in enumerate(chunk):
+            index = start_index + offset
+            should_trace = index % trace_stride == 0 or offset == best_index
+            if not should_trace:
+                continue
+            solution = [cover.point for cover in selected]
+            is_feasible = bool(feasible[offset])
+            traces.append(
+                _makeTrace(
+                    index,
+                    solution,
+                    float(coverage[offset]) if is_feasible else None,
+                    float(fitness[offset]) if is_feasible else None,
+                    is_feasible,
+                )
+            )
+        return tuple(traces)
+
+    def _runTorch(
+        self,
+        *,
+        covers: List[CandidateCover],
+        min_count: int,
+        max_count: int,
+        domain_size: int,
+        progress_size: int,
+        sample_combinations: Optional[int],
+        sample_seed: int,
+        params: FitnessParams,
+        logger,
+        trace_logger: Optional[CombinatorialFitnessLogger],
+        fitness_trace_stride: int,
+        profile: bool,
+        profile_every: int,
+        start: float,
+        device: object,
+    ) -> Tuple[Chromosome, float, float, int]:
+        cover_index = {cover.point: index for index, cover in enumerate(covers)}
+        cover_tensor = self._coverTensor(covers, device)
+        corner_tensor = self._cornerTensor(device)
+        point_tensor = self._pointTensor(covers, device)
+        corner_point_tensor = self._cornerPointTensor(device)
+
+        evaluated = 0
+        best_solution: Chromosome = []
+        best_fitness = float("-inf")
+        best_coverage = _coveragePercent(self._corner_bits, self._target_area)
+        chunks = self._searchChunks(
+            covers=covers,
+            min_count=min_count,
+            max_count=max_count,
+            domain_size=domain_size,
+            sample_combinations=sample_combinations,
+            sample_seed=sample_seed,
+        )
+
+        with torch.no_grad():
+            for chunk in chunks:
+                result = self._scoreTorchChunk(
+                    chunk=chunk,
+                    start_index=evaluated,
+                    cover_index=cover_index,
+                    cover_tensor=cover_tensor,
+                    corner_tensor=corner_tensor,
+                    point_tensor=point_tensor,
+                    corner_point_tensor=corner_point_tensor,
+                    params=params,
+                    trace_enabled=trace_logger is not None,
+                    trace_stride=fitness_trace_stride,
+                )
+                evaluated += result.evaluated
+                self._logTrace(trace_logger=trace_logger, result=result)
+                best_solution, best_fitness, best_coverage = self._consumeResult(
+                    result=result,
+                    evaluated=evaluated,
+                    best_solution=best_solution,
+                    best_fitness=best_fitness,
+                    best_coverage=best_coverage,
+                    logger=logger,
+                )
+                should_print = (
+                    profile
+                    and profile_every > 0
+                    and evaluated % int(profile_every) < result.evaluated
+                )
+                if should_print:
+                    self._printProgress(
+                        evaluated,
+                        progress_size,
+                        best_solution,
+                        best_coverage,
+                        start,
+                    )
+
+        return best_solution, best_fitness, best_coverage, evaluated
+
+    def _evaluateAdaptiveCount(
+        self,
+        *,
+        covers: List[CandidateCover],
+        sensor_count: int,
+        budget: int,
+        rng: random.Random,
+        adaptive_params: AdaptiveParams,
+        best_indices: Tuple[int, ...],
+        params: FitnessParams,
+        evaluated: int,
+        progress_size: int,
+        best_solution: Chromosome,
+        best_fitness: float,
+        best_coverage: float,
+        logger,
+        trace_logger: Optional[CombinatorialFitnessLogger],
+        fitness_trace_stride: int,
+        profile: bool,
+        profile_every: int,
+        start: float,
+    ) -> Tuple[Chromosome, float, float, Chromosome, float, float, int]:
+        local_solution: Chromosome = []
+        local_fitness = float("-inf")
+        local_coverage = 0.0
+        chunks = self._adaptiveChunksForCount(
+            covers=covers,
+            sensor_count=sensor_count,
+            budget=budget,
+            rng=rng,
+            best_indices=best_indices,
+            params=adaptive_params,
+        )
+
+        for chunk in chunks:
+            result = _scoreCombinationChunk(
+                CombinationTask(
+                    chunk=chunk,
+                    start_index=evaluated,
+                    corner_bits=self._corner_bits,
+                    params=params,
+                    trace_enabled=trace_logger is not None,
+                    trace_stride=fitness_trace_stride,
+                )
+            )
+            evaluated += result.evaluated
+            self._logTrace(trace_logger=trace_logger, result=result)
+            if result.best_fitness > local_fitness:
+                local_solution = list(result.best_solution)
+                local_fitness = float(result.best_fitness)
+                local_coverage = float(result.best_coverage)
+            best_solution, best_fitness, best_coverage = self._consumeResult(
+                result=result,
+                evaluated=evaluated,
+                best_solution=best_solution,
+                best_fitness=best_fitness,
+                best_coverage=best_coverage,
+                logger=logger,
+            )
+            should_print = (
+                profile
+                and profile_every > 0
+                and evaluated % int(profile_every) < result.evaluated
+            )
+            if should_print:
+                self._printProgress(
+                    evaluated,
+                    progress_size,
+                    best_solution,
+                    best_coverage,
+                    start,
+                )
+
+        return (
+            best_solution,
+            best_fitness,
+            best_coverage,
+            local_solution,
+            local_fitness,
+            local_coverage,
+            evaluated,
+        )
+
+    def _runAdaptive(
+        self,
+        *,
+        covers: List[CandidateCover],
+        min_count: int,
+        max_count: int,
+        progress_size: int,
+        sample_combinations: Optional[int],
+        sample_seed: int,
+        params: FitnessParams,
+        adaptive_params: AdaptiveParams,
+        logger,
+        trace_logger: Optional[CombinatorialFitnessLogger],
+        fitness_trace_stride: int,
+        profile: bool,
+        profile_every: int,
+        start: float,
+    ) -> Tuple[Chromosome, float, float, int]:
+        rng = random.Random(sample_seed)
+        evaluated = 0
+        best_solution: Chromosome = []
+        best_fitness = float("-inf")
+        best_coverage = _coveragePercent(self._corner_bits, self._target_area)
+        best_count = adaptive_params.start_sensors
+        cover_index = {cover.point: index for index, cover in enumerate(covers)}
+        remaining = sample_combinations
+        no_improve = 0
+
+        for sensor_count in range(adaptive_params.start_sensors, max_count + 1):
+            if remaining is not None and remaining <= 0:
+                break
+            budget = adaptive_params.samples_per_count
+            if remaining is not None:
+                budget = min(budget, remaining)
+            base_indices = self._solutionIndices(
+                solution=best_solution,
+                cover_index=cover_index,
+            )
+            previous_fitness = best_fitness
+            (
+                best_solution,
+                best_fitness,
+                best_coverage,
+                local_solution,
+                local_fitness,
+                _,
+                evaluated,
+            ) = self._evaluateAdaptiveCount(
+                covers=covers,
+                sensor_count=sensor_count,
+                budget=budget,
+                rng=rng,
+                adaptive_params=adaptive_params,
+                best_indices=base_indices,
+                params=params,
+                evaluated=evaluated,
+                progress_size=progress_size,
+                best_solution=best_solution,
+                best_fitness=best_fitness,
+                best_coverage=best_coverage,
+                logger=logger,
+                trace_logger=trace_logger,
+                fitness_trace_stride=fitness_trace_stride,
+                profile=profile,
+                profile_every=profile_every,
+                start=start,
+            )
+            if remaining is not None:
+                remaining -= budget
+
+            improved = best_fitness > previous_fitness + adaptive_params.min_delta
+            regressed = local_fitness < previous_fitness - adaptive_params.regress_delta
+            if improved:
+                best_count = len(best_solution)
+                no_improve = 0
+                (
+                    best_solution,
+                    best_fitness,
+                    best_coverage,
+                    evaluated,
+                    remaining,
+                ) = self._intensifyAdaptive(
+                    covers=covers,
+                    sensor_count=sensor_count,
+                    remaining=remaining,
+                    rng=rng,
+                    adaptive_params=adaptive_params,
+                    cover_index=cover_index,
+                    params=params,
+                    evaluated=evaluated,
+                    progress_size=progress_size,
+                    best_solution=best_solution,
+                    best_fitness=best_fitness,
+                    best_coverage=best_coverage,
+                    logger=logger,
+                    trace_logger=trace_logger,
+                    fitness_trace_stride=fitness_trace_stride,
+                    profile=profile,
+                    profile_every=profile_every,
+                    start=start,
+                )
+                continue
+
+            no_improve += 1
+            if regressed or no_improve >= adaptive_params.patience:
+                (
+                    best_solution,
+                    best_fitness,
+                    best_coverage,
+                    evaluated,
+                ) = self._searchBestNeighborhood(
+                    covers=covers,
+                    best_count=best_count,
+                    min_count=min_count,
+                    max_count=max_count,
+                    remaining=remaining,
+                    rng=rng,
+                    adaptive_params=adaptive_params,
+                    cover_index=cover_index,
+                    params=params,
+                    evaluated=evaluated,
+                    progress_size=progress_size,
+                    best_solution=best_solution,
+                    best_fitness=best_fitness,
+                    best_coverage=best_coverage,
+                    logger=logger,
+                    trace_logger=trace_logger,
+                    fitness_trace_stride=fitness_trace_stride,
+                    profile=profile,
+                    profile_every=profile_every,
+                    start=start,
+                )
+                break
+
+        return best_solution, best_fitness, best_coverage, evaluated
+
+    def _intensifyAdaptive(
+        self,
+        *,
+        covers: List[CandidateCover],
+        sensor_count: int,
+        remaining: Optional[int],
+        rng: random.Random,
+        adaptive_params: AdaptiveParams,
+        cover_index: Dict[Gene, int],
+        params: FitnessParams,
+        evaluated: int,
+        progress_size: int,
+        best_solution: Chromosome,
+        best_fitness: float,
+        best_coverage: float,
+        logger,
+        trace_logger: Optional[CombinatorialFitnessLogger],
+        fitness_trace_stride: int,
+        profile: bool,
+        profile_every: int,
+        start: float,
+    ) -> Tuple[Chromosome, float, float, int, Optional[int]]:
+        budget = adaptive_params.intensify_samples
+        if budget <= 0:
+            return best_solution, best_fitness, best_coverage, evaluated, remaining
+        if remaining is not None:
+            if remaining <= 0:
+                return best_solution, best_fitness, best_coverage, evaluated, remaining
+            budget = min(budget, remaining)
+
+        best_indices = self._solutionIndices(solution=best_solution, cover_index=cover_index)
+        (
+            best_solution,
+            best_fitness,
+            best_coverage,
+            _,
+            _,
+            _,
+            evaluated,
+        ) = self._evaluateAdaptiveCount(
+            covers=covers,
+            sensor_count=sensor_count,
+            budget=budget,
+            rng=rng,
+            adaptive_params=adaptive_params,
+            best_indices=best_indices,
+            params=params,
+            evaluated=evaluated,
+            progress_size=progress_size,
+            best_solution=best_solution,
+            best_fitness=best_fitness,
+            best_coverage=best_coverage,
+            logger=logger,
+            trace_logger=trace_logger,
+            fitness_trace_stride=fitness_trace_stride,
+            profile=profile,
+            profile_every=profile_every,
+            start=start,
+        )
+        if remaining is not None:
+            remaining -= budget
+        return best_solution, best_fitness, best_coverage, evaluated, remaining
+
+    def _searchBestNeighborhood(
+        self,
+        *,
+        covers: List[CandidateCover],
+        best_count: int,
+        min_count: int,
+        max_count: int,
+        remaining: Optional[int],
+        rng: random.Random,
+        adaptive_params: AdaptiveParams,
+        cover_index: Dict[Gene, int],
+        params: FitnessParams,
+        evaluated: int,
+        progress_size: int,
+        best_solution: Chromosome,
+        best_fitness: float,
+        best_coverage: float,
+        logger,
+        trace_logger: Optional[CombinatorialFitnessLogger],
+        fitness_trace_stride: int,
+        profile: bool,
+        profile_every: int,
+        start: float,
+    ) -> Tuple[Chromosome, float, float, int]:
+        counts = [
+            count
+            for count in (best_count - 1, best_count, best_count + 1)
+            if min_count <= count <= max_count
+        ]
+        for sensor_count in dict.fromkeys(counts):
+            budget = adaptive_params.intensify_samples
+            if budget <= 0:
+                continue
+            if remaining is not None:
+                if remaining <= 0:
+                    break
+                budget = min(budget, remaining)
+            best_indices = self._solutionIndices(solution=best_solution, cover_index=cover_index)
+            (
+                best_solution,
+                best_fitness,
+                best_coverage,
+                _,
+                _,
+                _,
+                evaluated,
+            ) = self._evaluateAdaptiveCount(
+                covers=covers,
+                sensor_count=sensor_count,
+                budget=budget,
+                rng=rng,
+                adaptive_params=adaptive_params,
+                best_indices=best_indices,
+                params=params,
+                evaluated=evaluated,
+                progress_size=progress_size,
+                best_solution=best_solution,
+                best_fitness=best_fitness,
+                best_coverage=best_coverage,
+                logger=logger,
+                trace_logger=trace_logger,
+                fitness_trace_stride=fitness_trace_stride,
+                profile=profile,
+                profile_every=profile_every,
+                start=start,
+            )
+            if remaining is not None:
+                remaining -= budget
+        return best_solution, best_fitness, best_coverage, evaluated
 
     def _runSequential(
         self,
@@ -747,6 +1614,18 @@ class SensorCombinatorial:
         fitness_trace_stride: int = 1,
         sample_combinations: Optional[int] = None,
         sample_seed: int = 42,
+        search_mode: str = "adaptive",
+        adaptive_start_sensors: Optional[int] = None,
+        adaptive_samples_per_count: int = 20_000,
+        adaptive_intensify_samples: int = 20_000,
+        adaptive_patience: int = 2,
+        adaptive_min_delta: float = 1.0,
+        adaptive_regress_delta: float = 0.0,
+        adaptive_uniform_ratio: float = 0.70,
+        adaptive_weighted_ratio: float = 0.20,
+        adaptive_local_ratio: float = 0.10,
+        use_gpu: bool = False,
+        device: Optional[str] = None,
         logger=None,
         **_,
     ) -> Chromosome:
@@ -766,23 +1645,50 @@ class SensorCombinatorial:
         covers = self._candidateCovers()
         min_count, max_count = self._bounds(len(covers), max_sensors)
         domain_size = self._domainSize(len(covers), min_count, max_count)
+        mode = str(search_mode).lower()
+        if mode not in {"adaptive", "exhaustive", "sampled"}:
+            raise ValueError("search_mode must be one of: adaptive, exhaustive, sampled")
+        adaptive_params = self._adaptiveParams(
+            min_count=min_count,
+            max_count=max_count,
+            adaptive_start_sensors=adaptive_start_sensors,
+            adaptive_samples_per_count=adaptive_samples_per_count,
+            adaptive_intensify_samples=adaptive_intensify_samples,
+            adaptive_patience=adaptive_patience,
+            adaptive_min_delta=adaptive_min_delta,
+            adaptive_regress_delta=adaptive_regress_delta,
+            adaptive_uniform_ratio=adaptive_uniform_ratio,
+            adaptive_weighted_ratio=adaptive_weighted_ratio,
+            adaptive_local_ratio=adaptive_local_ratio,
+        )
+        adaptive_limit = self._adaptiveBudgetLimit(
+            min_count=min_count,
+            max_count=max_count,
+            params=adaptive_params,
+            sample_limit=sample_limit,
+        )
+        validation_limit = adaptive_limit if mode == "adaptive" else sample_limit
         self.search_stats = SearchStats(
             candidates=len(covers),
             min_sensors=min_count,
             max_sensors=max_count,
             combinations=domain_size,
         )
-        self._validateDomain(self.search_stats, sample_limit)
-        search_size = (
-            domain_size
-            if sample_limit is None
-            else min(sample_limit, domain_size)
-        )
+        self._validateDomain(self.search_stats, validation_limit)
+        if mode == "adaptive":
+            search_size = min(adaptive_limit, domain_size)
+        else:
+            search_size = domain_size if sample_limit is None else min(sample_limit, domain_size)
 
         effective_target = float(
             self.fitness_kwargs.get("target_coverage", target_coverage)
         )
         params = self._fitnessParams(effective_target, max_count)
+        torch_device = self._torchDevice(device) if use_gpu and mode != "adaptive" else None
+        use_torch = (
+            torch_device is not None
+            and self._canRunTorch(covers=covers, device=torch_device, verbose=verbose)
+        )
         trace_logger: Optional[CombinatorialFitnessLogger] = None
         if fitness_log_path is not None:
             trace_logger = CombinatorialFitnessLogger(
@@ -797,22 +1703,72 @@ class SensorCombinatorial:
                     "search_combinations": search_size,
                     "sample_combinations": sample_limit,
                     "sample_seed": int(sample_seed),
+                    "search_mode": mode,
+                    "adaptive_start_sensors": adaptive_params.start_sensors,
+                    "adaptive_samples_per_count": adaptive_params.samples_per_count,
+                    "adaptive_intensify_samples": adaptive_params.intensify_samples,
+                    "adaptive_patience": adaptive_params.patience,
+                    "adaptive_min_delta": adaptive_params.min_delta,
+                    "adaptive_regress_delta": adaptive_params.regress_delta,
+                    "adaptive_uniform_ratio": adaptive_params.uniform_ratio,
+                    "adaptive_weighted_ratio": adaptive_params.weighted_ratio,
+                    "adaptive_local_ratio": adaptive_params.local_ratio,
                     "parallel_workers": self.parallel_workers,
                     "chunk_size": self.chunk_size,
                     "fitness_trace_stride": trace_stride,
+                    "requested_gpu": bool(use_gpu),
+                    "use_gpu": bool(use_torch),
+                    "device": None if torch_device is None else str(torch_device),
                 },
             )
 
         if verbose:
+            engine = f"torch:{torch_device}" if use_torch else "cpu"
             print(
                 "[Combinatorial Start] "
                 f"candidates={len(covers)} / sensors={min_count}-{max_count} / "
                 f"domain={domain_size} / workers={self.parallel_workers} / "
-                f"chunk={self.chunk_size} / sample={sample_limit}"
+                f"chunk={self.chunk_size} / sample={sample_limit} / "
+                f"mode={mode} / engine={engine}"
             )
 
         try:
-            if self.parallel_workers <= 1:
+            if mode == "adaptive":
+                best_solution, best_fitness, best_coverage, evaluated = self._runAdaptive(
+                    covers=covers,
+                    min_count=min_count,
+                    max_count=max_count,
+                    progress_size=search_size,
+                    sample_combinations=sample_limit,
+                    sample_seed=int(sample_seed),
+                    params=params,
+                    adaptive_params=adaptive_params,
+                    logger=logger,
+                    trace_logger=trace_logger,
+                    fitness_trace_stride=trace_stride,
+                    profile=bool(profile),
+                    profile_every=max(1, int(profile_every)),
+                    start=start,
+                )
+            elif use_torch:
+                best_solution, best_fitness, best_coverage, evaluated = self._runTorch(
+                    covers=covers,
+                    min_count=min_count,
+                    max_count=max_count,
+                    domain_size=domain_size,
+                    progress_size=search_size,
+                    sample_combinations=sample_limit,
+                    sample_seed=int(sample_seed),
+                    params=params,
+                    logger=logger,
+                    trace_logger=trace_logger,
+                    fitness_trace_stride=trace_stride,
+                    profile=bool(profile),
+                    profile_every=max(1, int(profile_every)),
+                    start=start,
+                    device=torch_device,
+                )
+            elif self.parallel_workers <= 1:
                 best_solution, best_fitness, best_coverage, evaluated = self._runSequential(
                     covers=covers,
                     min_count=min_count,

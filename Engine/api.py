@@ -130,6 +130,18 @@ class CombinatorialRunConfig:
     fitness_trace_stride: int = 1
     sample_combinations: Optional[int] = None
     sample_seed: int = 42
+    search_mode: str = "adaptive"
+    adaptive_start_sensors: Optional[int] = None
+    adaptive_samples_per_count: int = 20_000
+    adaptive_intensify_samples: int = 20_000
+    adaptive_patience: int = 2
+    adaptive_min_delta: float = 1.0
+    adaptive_regress_delta: float = 0.0
+    adaptive_uniform_ratio: float = 0.70
+    adaptive_weighted_ratio: float = 0.20
+    adaptive_local_ratio: float = 0.10
+    use_gpu: bool = False
+    device: Optional[str] = None
 
 
 @dataclass

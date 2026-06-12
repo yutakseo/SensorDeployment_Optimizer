@@ -234,6 +234,18 @@ class CombinatorialOptimizerStrategy(InnerOptimizerStrategy):
             fitness_trace_stride=getattr(gr, "fitness_trace_stride", 1),
             sample_combinations=getattr(gr, "sample_combinations", None),
             sample_seed=getattr(gr, "sample_seed", 42),
+            search_mode=getattr(gr, "search_mode", "adaptive"),
+            adaptive_start_sensors=getattr(gr, "adaptive_start_sensors", None),
+            adaptive_samples_per_count=getattr(gr, "adaptive_samples_per_count", 20_000),
+            adaptive_intensify_samples=getattr(gr, "adaptive_intensify_samples", 20_000),
+            adaptive_patience=getattr(gr, "adaptive_patience", 2),
+            adaptive_min_delta=getattr(gr, "adaptive_min_delta", 1.0),
+            adaptive_regress_delta=getattr(gr, "adaptive_regress_delta", 0.0),
+            adaptive_uniform_ratio=getattr(gr, "adaptive_uniform_ratio", 0.70),
+            adaptive_weighted_ratio=getattr(gr, "adaptive_weighted_ratio", 0.20),
+            adaptive_local_ratio=getattr(gr, "adaptive_local_ratio", 0.10),
+            use_gpu=getattr(gr, "use_gpu", False),
+            device=getattr(gr, "device", None),
             logger=self.logger,
         )
 
