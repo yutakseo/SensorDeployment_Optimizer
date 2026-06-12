@@ -535,11 +535,14 @@ class SensorCombinatorial:
         max_count: int,
         params: AdaptiveParams,
         sample_limit: Optional[int],
+        refine_samples: int,
+        refine_rounds: int,
     ) -> int:
         count_span = max(1, max_count - min_count + 1)
         base_budget = count_span * params.samples_per_count
         intensify_budget = max(1, params.patience + 1) * params.intensify_samples
-        budget = base_budget + intensify_budget
+        refine_budget = max(0, int(refine_samples)) * max(0, int(refine_rounds)) * 3
+        budget = base_budget + intensify_budget + refine_budget
         if sample_limit is None:
             return budget
         return min(int(sample_limit), budget)
@@ -1160,6 +1163,8 @@ class SensorCombinatorial:
         sample_seed: int,
         params: FitnessParams,
         adaptive_params: AdaptiveParams,
+        refine_params: AdaptiveParams,
+        refine_rounds: int,
         logger,
         trace_logger: Optional[CombinatorialFitnessLogger],
         fitness_trace_stride: int,
@@ -1259,6 +1264,7 @@ class SensorCombinatorial:
                     best_fitness,
                     best_coverage,
                     evaluated,
+                    remaining,
                 ) = self._searchBestNeighborhood(
                     covers=covers,
                     best_count=best_count,
@@ -1282,6 +1288,36 @@ class SensorCombinatorial:
                     start=start,
                 )
                 break
+
+        if best_coverage < params.target_coverage and refine_rounds > 0:
+            (
+                best_solution,
+                best_fitness,
+                best_coverage,
+                evaluated,
+            ) = self._refineIncompleteCoverage(
+                covers=covers,
+                best_count=len(best_solution),
+                min_count=min_count,
+                max_count=max_count,
+                remaining=remaining,
+                rng=rng,
+                refine_params=refine_params,
+                refine_rounds=refine_rounds,
+                cover_index=cover_index,
+                params=params,
+                evaluated=evaluated,
+                progress_size=progress_size,
+                best_solution=best_solution,
+                best_fitness=best_fitness,
+                best_coverage=best_coverage,
+                logger=logger,
+                trace_logger=trace_logger,
+                fitness_trace_stride=fitness_trace_stride,
+                profile=profile,
+                profile_every=profile_every,
+                start=start,
+            )
 
         return best_solution, best_fitness, best_coverage, evaluated
 
@@ -1416,6 +1452,87 @@ class SensorCombinatorial:
             )
             if remaining is not None:
                 remaining -= budget
+        return best_solution, best_fitness, best_coverage, evaluated, remaining
+
+    def _refineIncompleteCoverage(
+        self,
+        *,
+        covers: List[CandidateCover],
+        best_count: int,
+        min_count: int,
+        max_count: int,
+        remaining: Optional[int],
+        rng: random.Random,
+        refine_params: AdaptiveParams,
+        refine_rounds: int,
+        cover_index: Dict[Gene, int],
+        params: FitnessParams,
+        evaluated: int,
+        progress_size: int,
+        best_solution: Chromosome,
+        best_fitness: float,
+        best_coverage: float,
+        logger,
+        trace_logger: Optional[CombinatorialFitnessLogger],
+        fitness_trace_stride: int,
+        profile: bool,
+        profile_every: int,
+        start: float,
+    ) -> Tuple[Chromosome, float, float, int]:
+        if not best_solution:
+            best_count = max(min_count, min(max_count, refine_params.start_sensors))
+        counts = [
+            count
+            for count in (best_count, best_count + 1, best_count - 1)
+            if min_count <= count <= max_count
+        ]
+
+        for _ in range(max(0, int(refine_rounds))):
+            for sensor_count in dict.fromkeys(counts):
+                if best_coverage >= params.target_coverage:
+                    return best_solution, best_fitness, best_coverage, evaluated
+                budget = refine_params.intensify_samples
+                if budget <= 0:
+                    continue
+                if remaining is not None:
+                    if remaining <= 0:
+                        return best_solution, best_fitness, best_coverage, evaluated
+                    budget = min(budget, remaining)
+                best_indices = self._solutionIndices(
+                    solution=best_solution,
+                    cover_index=cover_index,
+                )
+                (
+                    best_solution,
+                    best_fitness,
+                    best_coverage,
+                    _,
+                    _,
+                    _,
+                    evaluated,
+                ) = self._evaluateAdaptiveCount(
+                    covers=covers,
+                    sensor_count=sensor_count,
+                    budget=budget,
+                    rng=rng,
+                    adaptive_params=refine_params,
+                    best_indices=best_indices,
+                    params=params,
+                    evaluated=evaluated,
+                    progress_size=progress_size,
+                    best_solution=best_solution,
+                    best_fitness=best_fitness,
+                    best_coverage=best_coverage,
+                    logger=logger,
+                    trace_logger=trace_logger,
+                    fitness_trace_stride=fitness_trace_stride,
+                    profile=profile,
+                    profile_every=profile_every,
+                    start=start,
+                )
+                if remaining is not None:
+                    remaining -= budget
+
         return best_solution, best_fitness, best_coverage, evaluated
 
     def _runSequential(
@@ -1624,6 +1741,11 @@ class SensorCombinatorial:
         adaptive_uniform_ratio: float = 0.70,
         adaptive_weighted_ratio: float = 0.20,
         adaptive_local_ratio: float = 0.10,
+        adaptive_refine_samples: int = 80_000,
+        adaptive_refine_rounds: int = 2,
+        adaptive_refine_uniform_ratio: float = 0.10,
+        adaptive_refine_weighted_ratio: float = 0.30,
+        adaptive_refine_local_ratio: float = 0.60,
         use_gpu: bool = False,
         device: Optional[str] = None,
         logger=None,
@@ -1661,11 +1783,26 @@ class SensorCombinatorial:
             adaptive_weighted_ratio=adaptive_weighted_ratio,
             adaptive_local_ratio=adaptive_local_ratio,
         )
+        refine_params = self._adaptiveParams(
+            min_count=min_count,
+            max_count=max_count,
+            adaptive_start_sensors=adaptive_start_sensors,
+            adaptive_samples_per_count=adaptive_samples_per_count,
+            adaptive_intensify_samples=adaptive_refine_samples,
+            adaptive_patience=adaptive_patience,
+            adaptive_min_delta=adaptive_min_delta,
+            adaptive_regress_delta=adaptive_regress_delta,
+            adaptive_uniform_ratio=adaptive_refine_uniform_ratio,
+            adaptive_weighted_ratio=adaptive_refine_weighted_ratio,
+            adaptive_local_ratio=adaptive_refine_local_ratio,
+        )
         adaptive_limit = self._adaptiveBudgetLimit(
             min_count=min_count,
             max_count=max_count,
             params=adaptive_params,
             sample_limit=sample_limit,
+            refine_samples=adaptive_refine_samples,
+            refine_rounds=adaptive_refine_rounds,
         )
         validation_limit = adaptive_limit if mode == "adaptive" else sample_limit
         self.search_stats = SearchStats(
@@ -1713,6 +1850,11 @@ class SensorCombinatorial:
                     "adaptive_uniform_ratio": adaptive_params.uniform_ratio,
                     "adaptive_weighted_ratio": adaptive_params.weighted_ratio,
                     "adaptive_local_ratio": adaptive_params.local_ratio,
+                    "adaptive_refine_samples": int(adaptive_refine_samples),
+                    "adaptive_refine_rounds": int(adaptive_refine_rounds),
+                    "adaptive_refine_uniform_ratio": refine_params.uniform_ratio,
+                    "adaptive_refine_weighted_ratio": refine_params.weighted_ratio,
+                    "adaptive_refine_local_ratio": refine_params.local_ratio,
                     "parallel_workers": self.parallel_workers,
                     "chunk_size": self.chunk_size,
                     "fitness_trace_stride": trace_stride,
@@ -1743,6 +1885,8 @@ class SensorCombinatorial:
                     sample_seed=int(sample_seed),
                     params=params,
                     adaptive_params=adaptive_params,
+                    refine_params=refine_params,
+                    refine_rounds=int(adaptive_refine_rounds),
                     logger=logger,
                     trace_logger=trace_logger,
                     fitness_trace_stride=trace_stride,

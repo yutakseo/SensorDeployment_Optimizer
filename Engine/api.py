@@ -140,6 +140,11 @@ class CombinatorialRunConfig:
     adaptive_uniform_ratio: float = 0.70
     adaptive_weighted_ratio: float = 0.20
     adaptive_local_ratio: float = 0.10
+    adaptive_refine_samples: int = 80_000
+    adaptive_refine_rounds: int = 2
+    adaptive_refine_uniform_ratio: float = 0.10
+    adaptive_refine_weighted_ratio: float = 0.30
+    adaptive_refine_local_ratio: float = 0.60
     use_gpu: bool = False
     device: Optional[str] = None
 
