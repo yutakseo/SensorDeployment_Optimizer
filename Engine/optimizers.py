@@ -206,6 +206,8 @@ class CombinatorialOptimizerStrategy(InnerOptimizerStrategy):
             jobsite_map=self.jobsite_map,
             coverage=gi.coverage,
             corner_positions=self.corner_positions,
+            min_sensors=getattr(gi, "min_sensors", 0),
+            max_sensors=getattr(gi, "max_sensors", None),
             candidate_stride=getattr(gi, "candidate_stride", 1),
             max_candidates=getattr(gi, "max_candidates", 24),
             max_combinations=getattr(gi, "max_combinations", 5_000_000),
@@ -229,6 +231,9 @@ class CombinatorialOptimizerStrategy(InnerOptimizerStrategy):
             parallel_workers=getattr(gr, "parallel_workers", None),
             chunk_size=getattr(gr, "chunk_size", None),
             fitness_log_path=getattr(gr, "fitness_log_path", None),
+            fitness_trace_stride=getattr(gr, "fitness_trace_stride", 1),
+            sample_combinations=getattr(gr, "sample_combinations", None),
+            sample_seed=getattr(gr, "sample_seed", 42),
             logger=self.logger,
         )
 

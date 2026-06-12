@@ -4,6 +4,7 @@ import gc
 import json
 import math
 import os
+import random
 import time
 from concurrent.futures import FIRST_COMPLETED, ProcessPoolExecutor, wait
 from dataclasses import asdict, dataclass
@@ -18,6 +19,7 @@ from ..utils import is_far_enough, min_separation_cells, to_int_pairs
 
 Gene = Tuple[int, int]
 Chromosome = List[Gene]
+MIN_COVERAGE_PRIORITY_MARGIN = 1.0
 
 
 @dataclass(frozen=True, slots=True)
@@ -55,6 +57,7 @@ class CombinationTask:
     corner_bits: int
     params: FitnessParams
     trace_enabled: bool = False
+    trace_stride: int = 1
 
 
 @dataclass(frozen=True, slots=True)
@@ -62,8 +65,6 @@ class FitnessTrace:
     index: int
     sensor_count: int
     positions: Tuple[Gene, ...]
-    center_x: Optional[float]
-    center_y: Optional[float]
     coverage: Optional[float]
     fitness: Optional[float]
     feasible: bool
@@ -162,19 +163,22 @@ def _scoreCombinationChunk(task: CombinationTask) -> ChunkResult:
     traces: List[FitnessTrace] = []
 
     for offset, selected in enumerate(task.chunk):
+        index = task.start_index + offset
+        should_trace = task.trace_enabled and index % task.trace_stride == 0
         bits = task.corner_bits
         solution = [candidate.point for candidate in selected]
         if not _isSeparated(solution, task.params):
-            if task.trace_enabled:
-                traces.append(_makeTrace(task.start_index + offset, solution, None, None, False))
+            if should_trace:
+                traces.append(_makeTrace(index, solution, None, None, False))
             continue
         for candidate in selected:
             bits |= candidate.bits
         coverage = _coveragePercent(bits, task.params.target_area)
         fitness = _fitnessScore(solution, coverage, task.params)
-        if task.trace_enabled:
-            traces.append(_makeTrace(task.start_index + offset, solution, coverage, fitness, True))
-        if fitness > best_fitness:
+        is_chunk_best = fitness > best_fitness
+        if should_trace or (task.trace_enabled and is_chunk_best):
+            traces.append(_makeTrace(index, solution, coverage, fitness, True))
+        if is_chunk_best:
             best_solution = solution
             best_fitness = float(fitness)
             best_coverage = float(coverage)
@@ -195,31 +199,18 @@ def _makeTrace(
     fitness: Optional[float],
     feasible: bool,
 ) -> FitnessTrace:
-    center_x, center_y = _centerPoint(solution)
     return FitnessTrace(
         index=int(index),
         sensor_count=len(solution),
         positions=tuple(solution),
-        center_x=center_x,
-        center_y=center_y,
         coverage=None if coverage is None else float(coverage),
         fitness=None if fitness is None else float(fitness),
         feasible=bool(feasible),
     )
 
 
-def _centerPoint(solution: Chromosome) -> Tuple[Optional[float], Optional[float]]:
-    if not solution:
-        return None, None
-    count = float(len(solution))
-    return (
-        float(sum(point[0] for point in solution) / count),
-        float(sum(point[1] for point in solution) / count),
-    )
-
-
 def defaultParallelWorkers() -> int:
-    return min(16, max(1, (os.cpu_count() or 2) - 1))
+    return max(1, (os.cpu_count() or 2) - 4)
 
 
 class SensorCombinatorial:
@@ -348,7 +339,11 @@ class SensorCombinatorial:
     def _domainSize(self, count: int, min_count: int, max_count: int) -> int:
         return int(sum(math.comb(count, size) for size in range(min_count, max_count + 1)))
 
-    def _validateDomain(self, stats: SearchStats) -> None:
+    def _validateDomain(
+        self,
+        stats: SearchStats,
+        sample_combinations: Optional[int],
+    ) -> None:
         if stats.min_sensors > stats.max_sensors:
             raise ValueError(
                 "Combinatorial search domain is empty. "
@@ -356,17 +351,37 @@ class SensorCombinatorial:
             )
         if self.max_combinations is None:
             return
-        if stats.combinations <= self.max_combinations:
+        evaluated_limit = (
+            stats.combinations
+            if sample_combinations is None
+            else min(int(sample_combinations), stats.combinations)
+        )
+        if evaluated_limit <= self.max_combinations:
             return
         raise ValueError(
             "Combinatorial search domain is too large for the configured limit. "
             f"candidates={stats.candidates}, sensors={stats.min_sensors}-{stats.max_sensors}, "
-            f"combinations={stats.combinations}, max_combinations={self.max_combinations}. "
+            f"evaluated_limit={evaluated_limit}, max_combinations={self.max_combinations}. "
             "Increase candidate_stride, lower max_candidates, or set max_combinations=None."
         )
 
-    def _fitnessParams(self, target_coverage: float) -> FitnessParams:
+    def _defaultDeficitPenalty(self, max_inner_sensors: int) -> float:
+        if self._target_area <= 0:
+            return float(self.fitness_kwargs.get("deficit_penalty", 20.0))
+
+        sensor_weight = float(self.fitness_kwargs.get("sensor_weight", 1.0))
+        coverage_weight = float(self.fitness_kwargs.get("coverage_weight", 1.0))
+        max_total_sensors = max(1, int(max_inner_sensors) + len(self.corner_positions))
+        min_coverage_step = 100.0 / float(self._target_area)
+        required_weight = sensor_weight * float(max_total_sensors) / min_coverage_step
+        return max(20.0, required_weight - coverage_weight + MIN_COVERAGE_PRIORITY_MARGIN)
+
+    def _fitnessParams(self, target_coverage: float, max_inner_sensors: int) -> FitnessParams:
         overlap_min_dist = self.fitness_kwargs.get("overlap_min_dist", 15.0)
+        deficit_penalty = self.fitness_kwargs.get(
+            "deficit_penalty",
+            self._defaultDeficitPenalty(max_inner_sensors),
+        )
         return FitnessParams(
             corner_positions=tuple(self.corner_positions),
             corner_count=len(self.corner_positions),
@@ -374,7 +389,7 @@ class SensorCombinatorial:
             target_coverage=float(target_coverage),
             coverage_weight=float(self.fitness_kwargs.get("coverage_weight", 1.0)),
             sensor_weight=float(self.fitness_kwargs.get("sensor_weight", 1.0)),
-            deficit_penalty=float(self.fitness_kwargs.get("deficit_penalty", 20.0)),
+            deficit_penalty=float(deficit_penalty),
             overlap_min_dist=None if overlap_min_dist is None else float(overlap_min_dist),
             overlap_penalty=float(self.fitness_kwargs.get("overlap_penalty", 5.0)),
             min_separation=float(self.min_separation),
@@ -395,6 +410,89 @@ class SensorCombinatorial:
                     chunk = []
         if chunk:
             yield chunk
+
+    def _searchChunks(
+        self,
+        *,
+        covers: List[CandidateCover],
+        min_count: int,
+        max_count: int,
+        domain_size: int,
+        sample_combinations: Optional[int],
+        sample_seed: int,
+    ) -> Iterable[List[Tuple[CandidateCover, ...]]]:
+        if sample_combinations is None or int(sample_combinations) >= domain_size:
+            yield from self._combinationChunks(covers, min_count, max_count)
+            return
+        yield from self._sampledCombinationChunks(
+            covers=covers,
+            min_count=min_count,
+            max_count=max_count,
+            sample_combinations=int(sample_combinations),
+            sample_seed=int(sample_seed),
+        )
+
+    def _sampledCombinationChunks(
+        self,
+        *,
+        covers: List[CandidateCover],
+        min_count: int,
+        max_count: int,
+        sample_combinations: int,
+        sample_seed: int,
+    ) -> Iterable[List[Tuple[CandidateCover, ...]]]:
+        count = len(covers)
+        rng = random.Random(sample_seed)
+        sizes = list(range(min_count, max_count + 1))
+        weights = [self._sampleWeight(count, size) for size in sizes]
+        sampled: Set[Tuple[int, ...]] = set()
+        chunk: List[Tuple[CandidateCover, ...]] = []
+
+        for indices in self._seedSampleIndices(count, min_count, max_count):
+            if len(sampled) >= sample_combinations:
+                break
+            sampled.add(indices)
+            chunk.append(tuple(covers[index] for index in indices))
+            if len(chunk) >= self.chunk_size:
+                yield chunk
+                chunk = []
+
+        max_attempts = max(sample_combinations * 20, sample_combinations + 1000)
+        attempts = 0
+        while len(sampled) < sample_combinations and attempts < max_attempts:
+            attempts += 1
+            size = rng.choices(sizes, weights=weights, k=1)[0]
+            indices = tuple(sorted(rng.sample(range(count), size)))
+            if indices in sampled:
+                continue
+            sampled.add(indices)
+            chunk.append(tuple(covers[index] for index in indices))
+            if len(chunk) >= self.chunk_size:
+                yield chunk
+                chunk = []
+
+        if chunk:
+            yield chunk
+
+    def _seedSampleIndices(
+        self,
+        count: int,
+        min_count: int,
+        max_count: int,
+    ) -> Iterable[Tuple[int, ...]]:
+        if min_count <= 0 <= max_count:
+            yield ()
+        if min_count <= 1 <= max_count:
+            for index in range(count):
+                yield (index,)
+        if min_count <= 2 <= max_count:
+            for first in range(count):
+                for second in range(first + 1, count):
+                    yield (first, second)
+
+    def _sampleWeight(self, count: int, size: int) -> float:
+        combinations_count = math.comb(count, size)
+        return max(1.0, math.sqrt(float(combinations_count)))
 
     def _logProgress(
         self,
@@ -460,9 +558,13 @@ class SensorCombinatorial:
         min_count: int,
         max_count: int,
         domain_size: int,
+        progress_size: int,
+        sample_combinations: Optional[int],
+        sample_seed: int,
         params: FitnessParams,
         logger,
         trace_logger: Optional[CombinatorialFitnessLogger],
+        fitness_trace_stride: int,
         profile: bool,
         profile_every: int,
         start: float,
@@ -472,7 +574,15 @@ class SensorCombinatorial:
         best_fitness = float("-inf")
         best_coverage = _coveragePercent(self._corner_bits, self._target_area)
 
-        for chunk in self._combinationChunks(covers, min_count, max_count):
+        chunks = self._searchChunks(
+            covers=covers,
+            min_count=min_count,
+            max_count=max_count,
+            domain_size=domain_size,
+            sample_combinations=sample_combinations,
+            sample_seed=sample_seed,
+        )
+        for chunk in chunks:
             result = _scoreCombinationChunk(
                 CombinationTask(
                     chunk=chunk,
@@ -480,6 +590,7 @@ class SensorCombinatorial:
                     corner_bits=self._corner_bits,
                     params=params,
                     trace_enabled=trace_logger is not None,
+                    trace_stride=fitness_trace_stride,
                 )
             )
             evaluated += result.evaluated
@@ -500,7 +611,7 @@ class SensorCombinatorial:
             if should_print:
                 self._printProgress(
                     evaluated,
-                    domain_size,
+                    progress_size,
                     best_solution,
                     best_coverage,
                     start,
@@ -515,9 +626,13 @@ class SensorCombinatorial:
         min_count: int,
         max_count: int,
         domain_size: int,
+        progress_size: int,
+        sample_combinations: Optional[int],
+        sample_seed: int,
         params: FitnessParams,
         logger,
         trace_logger: Optional[CombinatorialFitnessLogger],
+        fitness_trace_stride: int,
         profile: bool,
         profile_every: int,
         start: float,
@@ -528,12 +643,23 @@ class SensorCombinatorial:
         best_fitness = float("-inf")
         best_coverage = _coveragePercent(self._corner_bits, self._target_area)
         pending: Set = set()
-        chunks = iter(self._combinationChunks(covers, min_count, max_count))
-        max_pending = max(1, self.parallel_workers * 2)
+        chunks = iter(
+            self._searchChunks(
+                covers=covers,
+                min_count=min_count,
+                max_count=max_count,
+                domain_size=domain_size,
+                sample_combinations=sample_combinations,
+                sample_seed=sample_seed,
+            )
+        )
+        max_pending = max(1, self.parallel_workers * 4)
         next_start = 0
 
         def submitNext() -> bool:
             nonlocal next_start
+            if pool is None:
+                raise RuntimeError("Process pool is not initialized.")
             try:
                 chunk = next(chunks)
             except StopIteration:
@@ -544,6 +670,7 @@ class SensorCombinatorial:
                 corner_bits=self._corner_bits,
                 params=params,
                 trace_enabled=trace_logger is not None,
+                trace_stride=fitness_trace_stride,
             )
             next_start += len(chunk)
             pending.add(pool.submit(_scoreCombinationChunk, task))
@@ -577,7 +704,7 @@ class SensorCombinatorial:
                     if should_print:
                         self._printProgress(
                             evaluated,
-                            domain_size,
+                            progress_size,
                             best_solution,
                             best_coverage,
                             start,
@@ -617,6 +744,9 @@ class SensorCombinatorial:
         parallel_workers: Optional[int] = None,
         chunk_size: Optional[int] = None,
         fitness_log_path: Optional[str] = None,
+        fitness_trace_stride: int = 1,
+        sample_combinations: Optional[int] = None,
+        sample_seed: int = 42,
         logger=None,
         **_,
     ) -> Chromosome:
@@ -625,6 +755,12 @@ class SensorCombinatorial:
             self.parallel_workers = max(1, int(parallel_workers))
         if chunk_size is not None:
             self.chunk_size = max(1, int(chunk_size))
+        trace_stride = max(1, int(fitness_trace_stride))
+        sample_limit = (
+            None
+            if sample_combinations is None
+            else max(1, int(sample_combinations))
+        )
 
         start = time.perf_counter()
         covers = self._candidateCovers()
@@ -636,12 +772,17 @@ class SensorCombinatorial:
             max_sensors=max_count,
             combinations=domain_size,
         )
-        self._validateDomain(self.search_stats)
+        self._validateDomain(self.search_stats, sample_limit)
+        search_size = (
+            domain_size
+            if sample_limit is None
+            else min(sample_limit, domain_size)
+        )
 
         effective_target = float(
             self.fitness_kwargs.get("target_coverage", target_coverage)
         )
-        params = self._fitnessParams(effective_target)
+        params = self._fitnessParams(effective_target, max_count)
         trace_logger: Optional[CombinatorialFitnessLogger] = None
         if fitness_log_path is not None:
             trace_logger = CombinatorialFitnessLogger(
@@ -653,8 +794,12 @@ class SensorCombinatorial:
                     "min_sensors": min_count,
                     "max_sensors": max_count,
                     "combinations": domain_size,
+                    "search_combinations": search_size,
+                    "sample_combinations": sample_limit,
+                    "sample_seed": int(sample_seed),
                     "parallel_workers": self.parallel_workers,
                     "chunk_size": self.chunk_size,
+                    "fitness_trace_stride": trace_stride,
                 },
             )
 
@@ -663,7 +808,7 @@ class SensorCombinatorial:
                 "[Combinatorial Start] "
                 f"candidates={len(covers)} / sensors={min_count}-{max_count} / "
                 f"domain={domain_size} / workers={self.parallel_workers} / "
-                f"chunk={self.chunk_size}"
+                f"chunk={self.chunk_size} / sample={sample_limit}"
             )
 
         try:
@@ -673,9 +818,13 @@ class SensorCombinatorial:
                     min_count=min_count,
                     max_count=max_count,
                     domain_size=domain_size,
+                    progress_size=search_size,
+                    sample_combinations=sample_limit,
+                    sample_seed=int(sample_seed),
                     params=params,
                     logger=logger,
                     trace_logger=trace_logger,
+                    fitness_trace_stride=trace_stride,
                     profile=bool(profile),
                     profile_every=max(1, int(profile_every)),
                     start=start,
@@ -686,9 +835,13 @@ class SensorCombinatorial:
                     min_count=min_count,
                     max_count=max_count,
                     domain_size=domain_size,
+                    progress_size=search_size,
+                    sample_combinations=sample_limit,
+                    sample_seed=int(sample_seed),
                     params=params,
                     logger=logger,
                     trace_logger=trace_logger,
+                    fitness_trace_stride=trace_stride,
                     profile=bool(profile),
                     profile_every=max(1, int(profile_every)),
                     start=start,

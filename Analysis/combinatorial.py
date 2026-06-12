@@ -23,8 +23,14 @@ def loadCombinatorialFitness(
     path: PathLike,
     *,
     only_feasible: bool = True,
+    max_points: Optional[int] = None,
 ) -> List[FitnessPoint]:
+    if max_points is not None and max_points <= 0:
+        raise ValueError("max_points must be positive when provided.")
+
     points: List[FitnessPoint] = []
+    step = 1
+    accepted = 0
     with Path(path).open("r", encoding="utf-8") as file:
         for line in file:
             payload = json.loads(line)
@@ -38,15 +44,19 @@ def loadCombinatorialFitness(
                 (int(position[0]), int(position[1]))
                 for position in payload.get("positions", [])
             )
-            points.append(
-                FitnessPoint(
-                    index=int(payload["index"]),
-                    positions=positions,
-                    fitness=float(payload["fitness"]),
-                    sensor_count=int(payload["sensor_count"]),
-                    coverage=float(payload["coverage"]),
-                )
+            point = FitnessPoint(
+                index=int(payload["index"]),
+                positions=positions,
+                fitness=float(payload["fitness"]),
+                sensor_count=int(payload["sensor_count"]),
+                coverage=float(payload["coverage"]),
             )
+            accepted += 1
+            if max_points is None or (accepted - 1) % step == 0:
+                points.append(point)
+            if max_points is not None and len(points) > max_points:
+                points = points[::2]
+                step *= 2
     return points
 
 
@@ -61,13 +71,22 @@ def plotCombinatorialFitness3d(
     marker_size: float = 12.0,
     alpha: float = 0.75,
     max_xtick_labels: int = 12,
+    max_points: Optional[int] = None,
     title: str = "Combinatorial Fitness Landscape",
 ) -> str:
-    points = loadCombinatorialFitness(path, only_feasible=only_feasible)
+    points = loadCombinatorialFitness(
+        path,
+        only_feasible=only_feasible,
+        max_points=max_points,
+    )
     if not points:
         raise ValueError(f"No plottable combinatorial fitness records found: {path}")
 
-    output_path = Path(save_path) if save_path is not None else Path(path).with_suffix(".fitness3d.png")
+    output_path = (
+        Path(save_path)
+        if save_path is not None
+        else Path(path).with_suffix(".fitness3d.png")
+    )
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     fig = plt.figure(figsize=figsize, dpi=dpi)
