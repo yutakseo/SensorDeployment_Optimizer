@@ -15,16 +15,13 @@ MAP_NAMES = [
     "seocho.down",
 ]
 SENSOR_RANGES = [
-    (40, 60),
-    (60, 80),
-    (80, 100),
-    (100, 120),
-    (120, 140),
+    (40, 140),
 ]
-RANGE_ALGORITHMS = {"ga", "pso"}
+RANGE_ALGORITHMS = {"ga", "pso", "drl", "greedy"}
 DEFAULT_SENSOR_RANGE = (0, 140)
 ITERATIONS = 100
-
+GENERATIONS = 1000
+TARGET_COVERAGE = 100.0
 # 1) Map loader / layer parameters
 MAP_LAYER_PARAMS = {
     "installable_values": [2],
@@ -53,13 +50,15 @@ OPTIMIZER_PARAMS = {
         "selection_size": 50,
         "child_chromo_size": 100,
         "min_sensors": 0,
-        "generations": 1000,
+        "generations": GENERATIONS,
+        "fitness_kwargs": {"target_coverage": TARGET_COVERAGE},
         "mutation_kwargs": {"min_separation": COMMON_OPTIMIZER_PARAMS["coverage"] / 5},
     },
     "pso": {
         "swarm_size": 100,
         "min_sensors": 0,
-        "generations": 1000,
+        "generations": GENERATIONS,
+        "fitness_kwargs": {"target_coverage": TARGET_COVERAGE},
     },
     "greedy": {
         "min_sensors": 0,
@@ -78,11 +77,11 @@ OPTIMIZER_PARAMS = {
     },
     "drl": {
         "min_sensors": 0,
-        "generations": 1000,
+        "generations": GENERATIONS,
         "candidate_stride": 5,
         "max_candidates": 512,
         "min_separation": COMMON_OPTIMIZER_PARAMS["coverage"] / 5,
-        "fitness_kwargs": {"target_coverage": 100.0},
+        "fitness_kwargs": {"target_coverage": TARGET_COVERAGE},
     },
 }
 
@@ -92,7 +91,7 @@ OPTIMIZER_RUN_PARAMS = {
         "tournament_size": 3,
         "mutation_rate": 0.7,
         "early_stop": False,
-        "early_stop_coverage": 90.0,
+        "early_stop_coverage": TARGET_COVERAGE,
         "early_stop_patience": 10,
         "return_best_only": True,
         "verbose": True,
@@ -107,7 +106,7 @@ OPTIMIZER_RUN_PARAMS = {
         "social": 2.0,
         "count_change_rate": 0.7,
         "early_stop": False,
-        "early_stop_coverage": 90.0,
+        "early_stop_coverage": TARGET_COVERAGE,
         "early_stop_patience": 10,
         "return_best_only": True,
         "verbose": True,
@@ -115,14 +114,14 @@ OPTIMIZER_RUN_PARAMS = {
         "profile_every": 1,
     },
     "greedy": {
-        "target_coverage": 100.0,
+        "target_coverage": TARGET_COVERAGE,
         "return_best_only": True,
         "verbose": True,
         "profile": True,
         "profile_every": 1,
     },
     "combinatorial": {
-        "target_coverage": 100.0,
+        "target_coverage": TARGET_COVERAGE,
         "return_best_only": True,
         "verbose": True,
         "profile": True,
@@ -134,7 +133,7 @@ OPTIMIZER_RUN_PARAMS = {
         "epsilon_start": 1.0,
         "epsilon_end": 0.05,
         "epsilon_decay": 0.985,
-        "heuristic_warmup_episodes": 1,
+        "heuristic_warmup_episodes": 10,
         "return_best_only": True,
         "verbose": True,
         "profile": True,
@@ -154,7 +153,7 @@ FINAL_PLOT_PARAMS = {
     "enabled": True,
     "show": False,
     "size": (10, 10),
-    "dpi": 300,
+    "dpi": 200,
     "title": "Final Sensor Locations after Optimization",
     "filename": None,  # None -> <run_name>_final_sensors.png
     "save_dir": None,  # None -> same directory as result JSON
