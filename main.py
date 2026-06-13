@@ -1,5 +1,7 @@
 from __future__ import annotations
 import os
+from copy import deepcopy
+from typing import Any
 
 from Engine import run_pipeline
 
@@ -14,14 +16,10 @@ MAP_NAMES = [
     "seocho.up",
     "seocho.down",
 ]
-
 SENSOR_RANGES = [
     (20, 60),
 ]
-
-RANGE_ALGORITHMS = {"ga", "pso", "drl", "greedy"}
-
-DEFAULT_SENSOR_RANGE = (20, 60)
+ALGORITHMS = ("greedy", "drl", "pso")
 ITERATIONS = 100
 GENERATIONS = 100
 EPISODES = 1000
@@ -48,8 +46,7 @@ COMMON_OPTIMIZER_PARAMS = {
     "coverage": 45,
 }
 GA_CPU_WORKERS = min(16, max(1, (os.cpu_count() or 2) - 4))
-ALGORITHMS = ("ga", "greedy", "drl", "pso")
-OPTIMIZER_PARAMS = {
+OPTIMIZER_PARAMS: dict[str, dict[str, Any]] = {
     "ga": {
         "initial_size": 100,
         "selection_size": 50,
@@ -69,6 +66,7 @@ OPTIMIZER_PARAMS = {
         "min_sensors": 0,
         "candidate_stride": 5,
         "min_separation": COMMON_OPTIMIZER_PARAMS["coverage"] / 5,
+        "fitness_kwargs": {"target_coverage": TARGET_COVERAGE},
     },
     "combinatorial": {
         "min_sensors": 0,
@@ -79,6 +77,7 @@ OPTIMIZER_PARAMS = {
         "min_separation": COMMON_OPTIMIZER_PARAMS["coverage"] / 5,
         "parallel_workers": GA_CPU_WORKERS,
         "chunk_size": 4096,
+        "fitness_kwargs": {"target_coverage": TARGET_COVERAGE},
     },
     "drl": {
         "min_sensors": 0,
@@ -90,7 +89,7 @@ OPTIMIZER_PARAMS = {
     },
 }
 
-OPTIMIZER_RUN_PARAMS = {
+OPTIMIZER_RUN_PARAMS: dict[str, dict[str, Any]] = {
     "ga": {
         "selection_method": "elite",
         "tournament_size": 3,
@@ -109,6 +108,8 @@ OPTIMIZER_RUN_PARAMS = {
         "inertia": 0.72,
         "cognitive": 2.0,
         "social": 2.0,
+        "count_add_rate": 0.4,
+        "count_del_rate": 0.3,
         "count_change_rate": 0.7,
         "early_stop": EARLY_STOP,
         "early_stop_coverage": TARGET_COVERAGE,
@@ -166,41 +167,63 @@ FINAL_PLOT_PARAMS = {
 }
 
 
-if __name__ == "__main__":
-    for algorithm in ALGORITHMS:
-        algorithm_key = str(algorithm).lower()
-        sensor_ranges = (
-            SENSOR_RANGES
-            if algorithm_key in RANGE_ALGORITHMS
-            else [DEFAULT_SENSOR_RANGE]
+def algorithmKey(algorithm: str) -> str:
+    return str(algorithm).lower()
+
+
+def selectedAlgorithms() -> tuple[str, ...]:
+    selected = tuple(algorithmKey(algorithm) for algorithm in ALGORITHMS)
+    configured = set(OPTIMIZER_PARAMS) & set(OPTIMIZER_RUN_PARAMS)
+    unknown = sorted(set(selected) - configured)
+    if unknown:
+        available = sorted(configured)
+        raise ValueError(
+            f"Algorithms are not configured: {unknown}. "
+            f"Available algorithms: {available}"
         )
-        for sensor_range in sensor_ranges:
-            range_label = f"{sensor_range[0]}-{sensor_range[1]}"
+    return selected
+
+
+def resultsDir(*, algorithm: str, map_name: str, sensor_range: tuple[int, int]) -> str:
+    algorithm_key = algorithmKey(algorithm)
+    range_label = f"{sensor_range[0]}-{sensor_range[1]}"
+    return f"{RESULTS_ROOT}/{algorithm_key}/{map_name}/{range_label}"
+
+
+def optimizerParams() -> dict[str, dict[str, Any]]:
+    return deepcopy(OPTIMIZER_PARAMS)
+
+
+def optimizerRunParams() -> dict[str, dict[str, Any]]:
+    return deepcopy(OPTIMIZER_RUN_PARAMS)
+
+
+if __name__ == "__main__":
+    run_optimizer_params = optimizerParams()
+    run_optimizer_params_by_algorithm = optimizerRunParams()
+    for algorithm in selectedAlgorithms():
+        for sensor_range in SENSOR_RANGES:
             for map_name in MAP_NAMES:
-                if algorithm_key in RANGE_ALGORITHMS:
-                    results_dir = f"{RESULTS_ROOT}/{algorithm}/{map_name}/{range_label}"
-                else:
-                    results_dir = f"{RESULTS_ROOT}/{algorithm}/{map_name}"
+                output_dir = resultsDir(
+                    algorithm=algorithm,
+                    map_name=map_name,
+                    sensor_range=sensor_range,
+                )
                 for _ in range(ITERATIONS):
                     final_points, out_path = run_pipeline(
                         map_name=map_name,
                         algorithm=algorithm,
                         sensor_range=sensor_range,
-                        results_dir=results_dir,
+                        results_dir=output_dir,
                         map_layer_params=MAP_LAYER_PARAMS,
                         harris_params=HARRIS_PARAMS,
                         common_optimizer_params=COMMON_OPTIMIZER_PARAMS,
-                        optimizer_params=OPTIMIZER_PARAMS,
-                        optimizer_run_params=OPTIMIZER_RUN_PARAMS,
+                        optimizer_params=run_optimizer_params,
+                        optimizer_run_params=run_optimizer_params_by_algorithm,
                         logger_params=LOGGER_PARAMS,
                         final_plot_params=FINAL_PLOT_PARAMS,
                     )
-                    range_text = (
-                        f"range={sensor_range}"
-                        if algorithm_key in RANGE_ALGORITHMS
-                        else "range=excluded"
-                    )
                     print(
                         f"[Done] map={map_name} algorithm={algorithm} "
-                        f"{range_text} sensors={len(final_points)} result={out_path}"
+                        f"range={sensor_range} sensors={len(final_points)} result={out_path}"
                     )
