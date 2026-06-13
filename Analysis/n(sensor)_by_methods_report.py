@@ -2,11 +2,15 @@ from __future__ import annotations
 
 import argparse
 import math
+import sys
 import xml.etree.ElementTree as ElementTree
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Sequence
+from typing import Iterable, Sequence
+
+if __package__ in {None, ""}:
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from Analysis.result_io import loadRecords
 
@@ -14,8 +18,15 @@ ALGORITHM_NAMES: tuple[str, ...] = ("drl", "ga", "greedy", "pso")
 DEFAULT_RESULTS_ROOT = "__RESULTS__"
 DEFAULT_OUTPUT_PATH = "__RESULTS__/analysis/n(sensor)_by_methods_report.xlsx"
 METRIC_NAME = "n_inner"
-XML_INDENT_SPACES = 2
-STAT_NAMES: tuple[str, ...] = ("minimum", "average", "maximum", "stddev", "runs")
+XML_INDENT_SPACES = 1
+STAT_KEYS: tuple[str, ...] = ("minimum", "average", "maximum", "stddev", "runs")
+STAT_LABELS: dict[str, str] = {
+    "minimum": "Min",
+    "average": "Avg",
+    "maximum": "Max",
+    "stddev": "StdDev",
+    "runs": "Runs",
+}
 
 
 @dataclass(frozen=True, slots=True)
@@ -215,15 +226,15 @@ def saveXlsx(
     column = 2
     for algorithm in algorithms:
         start_column = column
-        end_column = column + len(STAT_NAMES) - 1
+        end_column = column + len(STAT_KEYS) - 1
         summary.merge_cells(start_row=1, start_column=start_column, end_row=1, end_column=end_column)
         cell = summary.cell(row=1, column=start_column, value=algorithm)
         cell.font = title_font
         cell.fill = header_fill
         cell.alignment = center
 
-        for stat_name in STAT_NAMES:
-            stat_cell = summary.cell(row=2, column=column, value=stat_name)
+        for stat_key in STAT_KEYS:
+            stat_cell = summary.cell(row=2, column=column, value=STAT_LABELS[stat_key])
             stat_cell.font = title_font
             stat_cell.fill = subheader_fill
             stat_cell.alignment = center
@@ -236,10 +247,10 @@ def saveXlsx(
         column = 2
         for algorithm in algorithms:
             stats = cells_by_key.get((map_name, algorithm))
-            for stat_name in STAT_NAMES:
-                value = "" if stats is None else statValue(stats, stat_name)
+            for stat_key in STAT_KEYS:
+                value = "" if stats is None else statValue(stats, stat_key)
                 data_cell = summary.cell(row=row_index, column=column, value=value)
-                if stat_name in {"average", "stddev"}:
+                if stat_key in {"average", "stddev"}:
                     data_cell.number_format = "0.0000"
                 column += 1
 

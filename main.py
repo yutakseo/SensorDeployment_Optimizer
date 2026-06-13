@@ -18,10 +18,12 @@ SENSOR_RANGES = [
     (20, 60),
 ]
 RANGE_ALGORITHMS = {"ga", "pso", "drl", "greedy"}
-DEFAULT_SENSOR_RANGE = (0, 140)
+DEFAULT_SENSOR_RANGE = (20, 60)
 ITERATIONS = 100
-GENERATIONS = 1000
-TARGET_COVERAGE = 100.0
+GENERATIONS = 100
+EPISODES = 1000
+EARLY_STOP = False
+TARGET_COVERAGE = 99.0
 # 1) Map loader / layer parameters
 MAP_LAYER_PARAMS = {
     "installable_values": [2],
@@ -77,7 +79,7 @@ OPTIMIZER_PARAMS = {
     },
     "drl": {
         "min_sensors": 0,
-        "generations": GENERATIONS,
+        "generations": EPISODES,
         "candidate_stride": 5,
         "max_candidates": 512,
         "min_separation": COMMON_OPTIMIZER_PARAMS["coverage"] / 5,
@@ -90,7 +92,7 @@ OPTIMIZER_RUN_PARAMS = {
         "selection_method": "elite",
         "tournament_size": 3,
         "mutation_rate": 0.7,
-        "early_stop": False,
+        "early_stop": EARLY_STOP,
         "early_stop_coverage": TARGET_COVERAGE,
         "early_stop_patience": 10,
         "return_best_only": True,
@@ -105,7 +107,7 @@ OPTIMIZER_RUN_PARAMS = {
         "cognitive": 2.0,
         "social": 2.0,
         "count_change_rate": 0.7,
-        "early_stop": False,
+        "early_stop": EARLY_STOP,
         "early_stop_coverage": TARGET_COVERAGE,
         "early_stop_patience": 10,
         "return_best_only": True,
