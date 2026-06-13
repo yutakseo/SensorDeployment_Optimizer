@@ -7,8 +7,8 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 
 import matplotlib.pyplot as plt
 
-from Analysis.distance_metrics import asPoints, nearestStats
-from Analysis.visualization import VisualTool
+from Analysis.internal.distance_metrics import asPoints, nearestStats
+from Analysis.internal.visualization import VisualTool
 from Engine.map_loader import MapLoader
 
 

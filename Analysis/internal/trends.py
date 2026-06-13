@@ -9,8 +9,8 @@ from typing import Any, Dict, Iterable, List, Literal, Optional, Sequence, Tuple
 import matplotlib.pyplot as plt
 import numpy as np
 
-from Analysis.distance_metrics import asPoints
-from Analysis.result_io import (
+from Analysis.internal.distance_metrics import asPoints
+from Analysis.internal.result_io import (
     bandKey,
     listBands as _list_bands,
     loadAlgoRuns,
@@ -617,6 +617,7 @@ def saveReport(
     threshold: float = 0.5,
     target_values: Sequence[int] = (2, 3),
     band_mode: BandMode = "auto",
+    convergence_figsize: Tuple[float, float] = (8.0, 4.8),
     dpi: int = 300,
     show: bool = False,
 ) -> Dict[str, Any]:
@@ -644,6 +645,7 @@ def saveReport(
         include_corners=include_corners,
         metric=metric,
         threshold=threshold,
+        figsize=convergence_figsize,
         save_path=str(convergence_path),
         dpi=dpi,
         show=show,

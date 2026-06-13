@@ -1,14 +1,15 @@
-from .analyzer import Analyzer
-from .combinatorial import loadCombinatorialFitness, plotCombinatorialFitness3d
-from .result_io import (
+from .internal.analyzer import Analyzer
+from .internal.combinatorial import loadCombinatorialFitness, plotCombinatorialFitness3d
+from .internal.distance_metrics import nearestStats
+from .internal.result_io import (
     finalPoints,
     listBands,
     loadAlgoRuns,
     loadRecords,
     loadRuns,
 )
-from .statistics import calcStats, printStats, reportCluster
-from .trends import (
+from .internal.statistics import calcStats, printStats, reportCluster
+from .internal.trends import (
     coverOverlap,
     coverSummary,
     plotConverge,
@@ -27,6 +28,7 @@ __all__ = [
     "loadAlgoRuns",
     "loadRecords",
     "loadRuns",
+    "nearestStats",
     "plotConverge",
     "plotCombinatorialFitness3d",
     "plotOverlap",

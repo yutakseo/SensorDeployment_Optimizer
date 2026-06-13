@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional, Tuple
 
-from Analysis.result_io import finalPoints, loadRuns as loadRunList, meanVal, stdVal
+from Analysis.internal.result_io import finalPoints, loadRuns as loadRunList, meanVal, stdVal
 
 TARGET_GENERATION = 100
 
@@ -239,7 +239,7 @@ def reportCluster(
     run별로 구한 뒤, 그 평균·표준편차를 실제 거리(m)로 출력합니다.
     grid_m: 1그리드당 미터 (기본 5m).
     """
-    from Analysis.distance_metrics import meanNearest
+    from Analysis.internal.distance_metrics import meanNearest
 
     try:
         runs = loadRuns(root_dir)

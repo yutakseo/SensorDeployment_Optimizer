@@ -8,7 +8,7 @@ from typing import Any, Dict, List, Sequence, Tuple
 
 from cpuinfo import get_cpu_info
 
-from Analysis.visualization import VisualTool
+from Analysis.internal.visualization import VisualTool
 from Engine.api import make_optimizer_configs
 from Engine.logger import GAJsonLogger
 from Engine.map_loader import MapLoader

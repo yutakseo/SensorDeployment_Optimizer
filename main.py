@@ -14,12 +14,16 @@ MAP_NAMES = [
     "seocho.up",
     "seocho.down",
 ]
+MAP_NAMES = [
+    "seocho.up",
+]
 SENSOR_RANGES = [
     (20, 60),
 ]
 RANGE_ALGORITHMS = {"ga", "pso", "drl", "greedy"}
+RANGE_ALGORITHMS = {"ga"}
 DEFAULT_SENSOR_RANGE = (20, 60)
-ITERATIONS = 100
+ITERATIONS = 28
 GENERATIONS = 100
 EPISODES = 1000
 EARLY_STOP = False
