@@ -8,6 +8,7 @@ from typing import Any, Dict, Iterable, List, Literal, Optional, Sequence, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.ticker import MaxNLocator
 
 from Analysis.internal.distance_metrics import asPoints
 from Analysis.internal.result_io import (
@@ -74,6 +75,13 @@ def buildTrend(run_series: List[List[float]]) -> Tuple[List[float], List[float]]
         mean_list.append(mean_value)
         std_list.append(std_value)
     return (mean_list, std_list)
+
+
+def axisFloor(values: Sequence[float]) -> int:
+    clean = [float(value) for value in values if not math.isnan(float(value))]
+    if not clean:
+        return 0
+    return int(math.floor(min(clean)))
 
 
 def collectAvgRuns(root_dir: str, band: str, map_name: str) -> List[List[float]]:
@@ -277,8 +285,10 @@ def plotConverge(
     fig, ax = plt.subplots(figsize=figsize, dpi=dpi)
     linestyle_cycle = ["-", "--", "-.", ":"]
     marker_cycle = ["o", "s", "^", "D", "x", "+"]
+    plotted_values: List[float] = []
     for idx, (band, data) in enumerate(sorted(info.items(), key=lambda item: bandKey(item[0]))):
         y = data["mean"]
+        plotted_values.extend(float(value) for value in y)
         x = list(range(1, len(y) + 1))
         style = linestyle_cycle[idx % len(linestyle_cycle)]
         marker = marker_cycle[idx % len(marker_cycle)]
@@ -299,11 +309,13 @@ def plotConverge(
             ax.fill_between(x, low, high, alpha=0.12)
 
     ax.set_xlim(0, max(x) + 1)
-    ax.set_ylim(bottom=0)
+    ax.set_ylim(bottom=axisFloor(plotted_values))
     ax.set_title(title or f"{algorithm.upper()} sensor-count convergence: {map_name}")
     ax.set_xlabel("Generation")
     ylabel = "Sensors (inner + corner)" if include_corners else "Inner sensors"
     ax.set_ylabel(ylabel)
+    ax.xaxis.set_major_locator(MaxNLocator(integer=True))
+    ax.yaxis.set_major_locator(MaxNLocator(integer=True))
     ax.grid(True, alpha=0.3)
     ax.legend(frameon=False)
     fig.tight_layout()
@@ -567,21 +579,21 @@ def plotOverlap(
 
     bands = sorted(summary, key=bandKey)
     x = np.arange(len(bands))
-    width = 0.2
+    width = 0.14
     cov = [summary[b]["coverage_percent_mean"] for b in bands]
     cov_std = [summary[b]["coverage_percent_std"] for b in bands]
     overlap = [summary[b]["overlap_percent_of_covered_mean"] for b in bands]
     overlap_std = [summary[b]["overlap_percent_of_covered_std"] for b in bands]
 
     fig, ax = plt.subplots(figsize=figsize, dpi=dpi)
-    ax.bar(x - width / 2, cov, width, yerr=cov_std, capsize=3, label="Total coverage (%)")
+    ax.bar(x - width / 2, cov, width, yerr=cov_std, capsize=3, label="Total coverage(%)")
     ax.bar(
         x + width / 2,
         overlap,
         width,
         yerr=overlap_std,
         capsize=3,
-        label="Overlapped area within covered (%)",
+        label="Overlapped ratio(%)",
     )
     ax.set_title(f"{algorithm.upper()} final coverage and overlap: {map_name}")
     x_label = "Run group" if bands == [ALL_RUNS_LABEL] else "Initial sensor seed band"
@@ -591,7 +603,12 @@ def plotOverlap(
     ax.set_xticklabels(bands)
     ax.set_ylim(0, max(100.0, max(cov + overlap) * 1.08))
     ax.grid(True, axis="y", alpha=0.3)
-    ax.legend(frameon=False)
+    ax.legend(
+        frameon=False,
+        loc="center left",
+        bbox_to_anchor=(1.02, 0.5),
+        borderaxespad=0.0,
+    )
     fig.tight_layout()
 
     if save_path is not None:
@@ -706,12 +723,14 @@ def plotAvgTrend(
     result: Dict[str, Dict[str, Any]] = {}
 
     fig = plt.figure(figsize=figsize, dpi=dpi)
+    plotted_values: List[float] = []
 
     for idx, band in enumerate(band_list):
         run_series = collectAvgRuns(root_dir, band, map_name)
         mean_list, std_list = buildTrend(run_series)
         if not mean_list:
             continue
+        plotted_values.extend(float(value) for value in mean_list)
 
         x = list(range(1, len(mean_list) + 1))
 
@@ -742,10 +761,12 @@ def plotAvgTrend(
         }
 
     plt.xlim(0, max(x) + 1)
-    plt.ylim(bottom=0)
+    plt.ylim(bottom=axisFloor(plotted_values))
     plt.xlabel("Generation")
     plt.ylabel("Number of Sensors")
     plt.title(title or f"Convergence of Sensors")
+    plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))
+    plt.gca().yaxis.set_major_locator(MaxNLocator(integer=True))
     plt.grid(True, alpha=0.3)
     plt.legend(frameon=False)
 

@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 import matplotlib.pyplot as plt
+from matplotlib.ticker import MaxNLocator
 
 from Analysis.internal.distance_metrics import asPoints, nearestStats
 from Analysis.internal.visualization import VisualTool
@@ -171,6 +172,10 @@ class Analyzer:
             ticks = list(ticks) + [x[-1]]
 
         plt.xticks(ticks)
+        plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))
+
+    def _apply_integer_yaxis(self) -> None:
+        plt.gca().yaxis.set_major_locator(MaxNLocator(integer=True))
 
     def _resolve_save_path(
         self,
@@ -338,6 +343,7 @@ class Analyzer:
         plt.ylim(bottom=0)
 
         self._apply_xticks(x, xtick_step=xtick_step)
+        self._apply_integer_yaxis()
 
         plt.grid(True, linewidth=0.5, alpha=0.5)
         plt.legend()
