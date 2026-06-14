@@ -23,6 +23,8 @@ INSTALLABLE_VALUE = 2
 UNINSTALLABLE_VALUE = 3
 TARGET_VALUES: tuple[int, ...] = (2, 3)
 PERCENT_MULTIPLIER = 100.0
+CELL_SIZE_M = 5
+CELL_AREA_M2 = CELL_SIZE_M * CELL_SIZE_M
 
 
 @dataclass(frozen=True, slots=True)
@@ -34,12 +36,15 @@ class MapStats:
     width: int
     total_cells: int
     site_cells: int
+    site_area_m2: int
     installable_cells: int
+    installable_area_m2: int
     uninstallable_cells: int
+    uninstallable_area_m2: int
     target_cells: int
-    installable_percent_of_site: float
-    uninstallable_percent_of_site: float
-    target_percent_of_site: float
+    target_area_m2: int
+    installable_percent_of_target: float
+    uninstallable_percent_of_target: float
 
 
 def listMapFiles(maps_root: Path) -> list[Path]:
@@ -116,12 +121,15 @@ def calcStats(*, map_name: str, source_path: Path, variable_name: str, map_array
         width=width,
         total_cells=total_cells,
         site_cells=site_cells,
+        site_area_m2=site_cells * CELL_AREA_M2,
         installable_cells=installable_cells,
+        installable_area_m2=installable_cells * CELL_AREA_M2,
         uninstallable_cells=uninstallable_cells,
+        uninstallable_area_m2=uninstallable_cells * CELL_AREA_M2,
         target_cells=target_cells,
-        installable_percent_of_site=calcPercent(installable_cells, site_cells),
-        uninstallable_percent_of_site=calcPercent(uninstallable_cells, site_cells),
-        target_percent_of_site=calcPercent(target_cells, site_cells),
+        target_area_m2=target_cells * CELL_AREA_M2,
+        installable_percent_of_target=calcPercent(installable_cells, target_cells),
+        uninstallable_percent_of_target=calcPercent(uninstallable_cells, target_cells),
     )
 
 
@@ -167,19 +175,17 @@ def saveXlsx(*, rows: Sequence[MapStats], output_path: Path, maps_root: Path) ->
     center = Alignment(horizontal="center", vertical="center")
 
     headers = [
-        "map",
-        "H",
-        "W",
-        "H * W",
-        "construction_site(value=1,2,3)",
-        "installable_count(value=2)",
-        "installable_ratio_of_construction_site(%)",
-        "uninstallable_count(value=3)",
-        "uninstallable_ratio_of_construction_site(%)",
-        "target_area_count(value=2,3)",
-        "target_area_ratio_of_construction_site(%)",
-        "variable",
-        "source_path",
+        "Study Area",
+        "Map Height (cells)",
+        "Map Width (cells)",
+        "Grid Cells (cells)",
+        "Site Cells (cells)",
+        "Site Area (m2)",
+        "Target Area (m2)",
+        "Installable Area (m2)",
+        "Installable Ratio (%)",
+        "Restricted Area (m2)",
+        "Restricted Ratio (%)",
     ]
 
     for column, header in enumerate(headers, start=1):
@@ -195,31 +201,30 @@ def saveXlsx(*, rows: Sequence[MapStats], output_path: Path, maps_root: Path) ->
             row.width,
             row.total_cells,
             row.site_cells,
-            row.installable_cells,
-            row.installable_percent_of_site,
-            row.uninstallable_cells,
-            row.uninstallable_percent_of_site,
-            row.target_cells,
-            row.target_percent_of_site,
-            row.variable_name,
-            row.source_path,
+            row.site_area_m2,
+            row.target_area_m2,
+            row.installable_area_m2,
+            row.installable_percent_of_target,
+            row.uninstallable_area_m2,
+            row.uninstallable_percent_of_target,
         ]
         for column, value in enumerate(values, start=1):
-            cell = summary.cell(row=row_index, column=column, value=value)
+            cell_value = round(value, 2) if isinstance(value, float) else value
+            cell = summary.cell(row=row_index, column=column, value=cell_value)
             if isinstance(value, float):
-                cell.number_format = "0.0000"
+                cell.number_format = "0.00"
 
     for column_index in range(1, summary.max_column + 1):
         letter = get_column_letter(column_index)
         summary.column_dimensions[letter].width = 18
     summary.column_dimensions["A"].width = 34
-    summary.column_dimensions["E"].width = 34
-    summary.column_dimensions["F"].width = 32
-    summary.column_dimensions["G"].width = 28
-    summary.column_dimensions["H"].width = 30
-    summary.column_dimensions["I"].width = 30
-    summary.column_dimensions["J"].width = 36
-    summary.column_dimensions["L"].width = 88
+    summary.column_dimensions["E"].width = 18
+    summary.column_dimensions["F"].width = 24
+    summary.column_dimensions["G"].width = 24
+    summary.column_dimensions["H"].width = 26
+    summary.column_dimensions["I"].width = 38
+    summary.column_dimensions["J"].width = 22
+    summary.column_dimensions["K"].width = 38
 
     writeMetadata(workbook=workbook, maps_root=maps_root, row_count=len(rows))
     workbook.save(output_path)
@@ -231,12 +236,18 @@ def writeMetadata(*, workbook, maps_root: Path, row_count: int) -> None:
     meta.append(["maps_root", str(maps_root)])
     meta.append(["excluded_roots", ",".join(EXCLUDED_ROOTS)])
     meta.append(["map_variables", ",".join(MAP_VARIABLES)])
+    meta.append(["cell_size_m", CELL_SIZE_M])
+    meta.append(["cell_area_m2", CELL_AREA_M2])
+    meta.append(["construction_site_area_formula", "construction_site_count * 25"])
+    meta.append(["target_area_formula", "target_area_count(value=2,3) * 25"])
+    meta.append(["installable_area_formula", "installable_count(value=2) * 25"])
+    meta.append(["uninstallable_area_formula", "uninstallable_count(value=3) * 25"])
     meta.append(["construction_site_values", ",".join(str(value) for value in SITE_VALUES)])
     meta.append(["installable_value", INSTALLABLE_VALUE])
     meta.append(["uninstallable_value", UNINSTALLABLE_VALUE])
     meta.append(["target_values", ",".join(str(value) for value in TARGET_VALUES)])
-    meta.append(["percentage_basis", "installable/uninstallable/target percentages use value in [1,2,3] as denominator"])
-    meta.append(["formula", "ratio = matching cell count / construction_site_count * 100"])
+    meta.append(["percentage_basis", "installable/uninstallable percentages use target area(value=2,3) as denominator"])
+    meta.append(["formula", "ratio = area / target_area_m2 * 100"])
     meta.append(["map_count", row_count])
     meta.append(["generated_at_utc", datetime.now(timezone.utc).isoformat()])
     meta.column_dimensions["A"].width = 28
