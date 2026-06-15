@@ -7,18 +7,23 @@ from Engine import run_pipeline
 
 RESULTS_ROOT = "__RESULTS__"
 MAP_NAMES = [
-    "gangjin.full",
-    "gangjin.up",
-    "gangjin.down",
-    "sejong.full",
-    "seocho.full",
-    "seocho.up",
+    #"gangjin.full",
+    #"gangjin.up",
+    #"gangjin.down",
+    #"sejong.full",
+    #"seocho.full",
+    #"seocho.up",
     "seocho.down",
 ]
 SENSOR_RANGES = [
     (20, 60),
 ]
-ALGORITHMS = ("greedy", "drl", "pso")
+ALGORITHMS = (
+    "ga",
+    #"greedy", 
+    #"drl", 
+    #"pso"
+    )
 ITERATIONS = 100
 GENERATIONS = 100
 EPISODES = 1000

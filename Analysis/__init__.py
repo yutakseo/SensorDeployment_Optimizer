@@ -9,6 +9,7 @@ from .internal.result_io import (
     loadRuns,
 )
 from .internal.statistics import calcStats, printStats, reportCluster
+from .internal.reports.coverage_ratio_chart import saveCoverageChart
 from .internal.trends import (
     coverOverlap,
     coverSummary,
@@ -34,5 +35,6 @@ __all__ = [
     "plotOverlap",
     "printStats",
     "reportCluster",
+    "saveCoverageChart",
     "saveReport",
 ]
