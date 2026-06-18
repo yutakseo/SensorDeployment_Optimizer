@@ -13,7 +13,10 @@ if __package__ in {None, ""}:
 from Analysis.internal.result_io import bandKey, loadRecords
 from Analysis.internal.trends import analyzeChange, buildTrend, getSensorSeries
 
-ALGORITHM_NAMES: tuple[str, ...] = ("drl", "ga", "greedy", "pso")
+ALGORITHM_NAMES: tuple[str, ...] = (
+    "drl", "ga",
+    #"greedy", "pso"
+    )
 DEFAULT_RESULTS_ROOT = "__RESULTS__"
 DEFAULT_OUTPUT_PATH = "__RESULTS__/analysis/Trend_report.xlsx"
 DEFAULT_THRESHOLD = 0.5

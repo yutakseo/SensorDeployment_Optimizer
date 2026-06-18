@@ -14,41 +14,40 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.axes import Axes
 from matplotlib.container import BarContainer
+from matplotlib.ticker import MaxNLocator
 from openpyxl import load_workbook
 from openpyxl.worksheet.worksheet import Worksheet
 
 from Analysis.internal.plot_style import DEFAULT_DPI, SPINE_WIDTH, applySciStyle, styleAxis
-from Analysis.internal.reports.coverage_ratio import ALGORITHM_NAMES
+from Analysis.internal.reports.n_sensor import ALGORITHM_NAMES
 
-DEFAULT_INPUT_PATH = "__RESULTS__/analysis/ratio(coverage)_report.xlsx"
-DEFAULT_OUTPUT_DIR = "__RESULTS__/analysis/coverage_overlap_by_algorithm"
+DEFAULT_INPUT_PATH = "__RESULTS__/analysis/n(sensor)_by_methods_report.xlsx"
+DEFAULT_OUTPUT_DIR = "__RESULTS__/analysis/n_sensor_by_algorithm"
 SUMMARY_SHEET = "summary"
-COVERAGE_METRIC = "coverage"
-OVERLAP_METRIC = "overlap"
-AVERAGE_STAT = "avg"
+AVG_STAT = "Avg"
 BAR_WIDTH = 0.56
-Y_AXIS_TOP = 100.0
 FIGURE_SIZE = (3.5, 2.6)
-LABEL_PADDING = 3
-BAR_LABEL_SIZE = 7
-COVERAGE_COLOR = "0.70"
-OVERLAP_COLOR = "white"
+Y_AXIS_PADDING = 1.18
+MIN_Y_AXIS_TOP = 5.0
+Y_AXIS_STEP = 1
+BAR_COLOR = "0.70"
 BAR_EDGE_COLOR = "0.15"
-OVERLAP_HATCH = "////"
+HIGHLIGHT_ALGORITHM = "ga"
+HIGHLIGHT_COLOR = "#8EC7E8"
+BAR_LABEL_SIZE = 7
+LABEL_PADDING = 3
 
 
 @dataclass(frozen=True, slots=True)
-class RatioPoint:
+class SensorPoint:
     map_name: str
     algorithm: str
-    coverage: float
-    overlap: float
+    average: float
 
 
 @dataclass(frozen=True, slots=True)
 class HeaderCell:
     algorithm: str
-    metric: str
     stat: str
 
 
@@ -69,53 +68,47 @@ def cleanNumber(value: object) -> float | None:
 def loadHeaders(sheet: Worksheet) -> dict[int, HeaderCell]:
     headers: dict[int, HeaderCell] = {}
     algorithm = ""
-    metric = ""
 
     for column in range(2, sheet.max_column + 1):
         algorithm_value = cleanText(sheet.cell(row=1, column=column).value)
-        metric_value = cleanText(sheet.cell(row=2, column=column).value)
-        stat = cleanText(sheet.cell(row=3, column=column).value)
+        stat = cleanText(sheet.cell(row=2, column=column).value)
 
         if algorithm_value:
             algorithm = algorithm_value
-        if metric_value:
-            metric = metric_value
 
-        headers[column] = HeaderCell(algorithm=algorithm, metric=metric, stat=stat)
+        headers[column] = HeaderCell(algorithm=algorithm, stat=stat)
 
     return headers
 
 
-def loadRatioPoints(
+def loadSensorPoints(
     *,
     input_path: Path,
     algorithms: Sequence[str],
-) -> list[RatioPoint]:
+) -> list[SensorPoint]:
     workbook = load_workbook(input_path, data_only=True)
     if SUMMARY_SHEET not in workbook.sheetnames:
         raise ValueError(f"Workbook has no '{SUMMARY_SHEET}' sheet: {input_path}")
 
     sheet = workbook[SUMMARY_SHEET]
     headers = loadHeaders(sheet)
-    points: list[RatioPoint] = []
+    points: list[SensorPoint] = []
 
-    for row in range(4, sheet.max_row + 1):
+    for row in range(3, sheet.max_row + 1):
         map_name = cleanText(sheet.cell(row=row, column=1).value)
         if not map_name:
             continue
 
         values = loadRowValues(sheet=sheet, row=row, headers=headers)
         for algorithm in algorithms:
-            coverage = values.get((algorithm, COVERAGE_METRIC))
-            overlap = values.get((algorithm, OVERLAP_METRIC))
-            if coverage is None or overlap is None:
+            average = values.get((algorithm, AVG_STAT))
+            if average is None:
                 continue
             points.append(
-                RatioPoint(
+                SensorPoint(
                     map_name=map_name,
                     algorithm=algorithm,
-                    coverage=coverage,
-                    overlap=overlap,
+                    average=average,
                 )
             )
 
@@ -129,108 +122,88 @@ def loadRowValues(
 ) -> dict[tuple[str, str], float]:
     values: dict[tuple[str, str], float] = {}
     for column, header in headers.items():
-        if header.stat != AVERAGE_STAT:
-            continue
-        if header.metric not in {COVERAGE_METRIC, OVERLAP_METRIC}:
+        if header.stat != AVG_STAT:
             continue
 
         value = cleanNumber(sheet.cell(row=row, column=column).value)
         if value is None:
             continue
-        values[(header.algorithm, header.metric)] = value
+        values[(header.algorithm, header.stat)] = value
 
     return values
 
 
-def groupByMap(points: Sequence[RatioPoint]) -> dict[str, list[RatioPoint]]:
-    grouped: dict[str, list[RatioPoint]] = {}
+def groupByMap(points: Sequence[SensorPoint]) -> dict[str, list[SensorPoint]]:
+    grouped: dict[str, list[SensorPoint]] = {}
     for point in points:
         grouped.setdefault(point.map_name, []).append(point)
     return grouped
 
 
-def pointMap(points: Sequence[RatioPoint]) -> dict[str, RatioPoint]:
+def pointMap(points: Sequence[SensorPoint]) -> dict[str, SensorPoint]:
     return {point.algorithm: point for point in points}
 
 
-def annotateBars(
-    axis: Axes,
-    bars: BarContainer,
-    *,
-    color: str,
-) -> None:
-    for bar in bars:
-        height = float(bar.get_height())
+def annotateBars(axis: Axes, bars: BarContainer, values: Sequence[float]) -> None:
+    for bar, value in zip(bars, values):
         axis.annotate(
-            f"{height:.1f}",
-            xy=(bar.get_x() + bar.get_width() / 2, height),
+            f"{value:.1f}",
+            xy=(bar.get_x() + bar.get_width() / 2, float(value)),
             xytext=(0, LABEL_PADDING),
             textcoords="offset points",
             ha="center",
             va="bottom",
             fontsize=BAR_LABEL_SIZE,
-            color=color,
+            color="black",
             clip_on=False,
+            zorder=6,
+            bbox={
+                "boxstyle": "square,pad=0.08",
+                "facecolor": "white",
+                "edgecolor": "none",
+                "alpha": 0.85,
+            },
         )
+
+
+def barColors(algorithms: Sequence[str]) -> list[str]:
+    return [
+        HIGHLIGHT_COLOR if algorithm == HIGHLIGHT_ALGORITHM else BAR_COLOR
+        for algorithm in algorithms
+    ]
 
 
 def drawMap(
     axis: Axes,
     map_name: str,
-    points: Sequence[RatioPoint],
+    points: Sequence[SensorPoint],
     algorithms: Sequence[str],
+    y_axis_top: float,
 ) -> None:
     by_algorithm = pointMap(points)
     available = [algorithm for algorithm in algorithms if algorithm in by_algorithm]
-    x = np.arange(len(available))
-    coverage = [by_algorithm[algorithm].coverage for algorithm in available]
-    overlap = [by_algorithm[algorithm].overlap for algorithm in available]
+    x_values = np.arange(len(available))
+    averages = [by_algorithm[algorithm].average for algorithm in available]
 
-    coverage_bars = axis.bar(
-        x,
-        coverage,
+    bars = axis.bar(
+        x_values,
+        averages,
         BAR_WIDTH,
-        color=COVERAGE_COLOR,
+        color=barColors(available),
         edgecolor=BAR_EDGE_COLOR,
         linewidth=SPINE_WIDTH,
-        label="Coverage (%)",
-    )
-    overlap_bars = axis.bar(
-        x,
-        overlap,
-        BAR_WIDTH,
-        color=OVERLAP_COLOR,
-        edgecolor=BAR_EDGE_COLOR,
-        hatch=OVERLAP_HATCH,
-        linewidth=SPINE_WIDTH,
-        label="Overlap (%)",
+        label="Average",
         zorder=3,
     )
+    annotateBars(axis, bars, averages)
 
-    annotateBars(
-        axis,
-        coverage_bars,
-        color="black",
-    )
-    annotateBars(
-        axis,
-        overlap_bars,
-        color="black",
-    )
-    axis.set_ylabel("Percent (%)")
-    axis.set_xticks(x)
+    axis.set_ylabel("Number of sensors")
+    axis.set_xticks(x_values)
     axis.set_xticklabels([algorithm.upper() for algorithm in available])
-    axis.set_ylim(0, Y_AXIS_TOP)
+    axis.set_ylim(0, y_axis_top)
+    axis.yaxis.set_major_locator(MaxNLocator(integer=True))
     axis.set_axisbelow(True)
     axis.grid(True, axis="y", color="0.88", linewidth=0.5)
-    axis.legend(
-        frameon=False,
-        loc="lower center",
-        ncol=2,
-        bbox_to_anchor=(0.5, 1.08),
-        borderaxespad=0.0,
-        handlelength=1.4,
-    )
     styleAxis(axis)
 
 
@@ -242,14 +215,15 @@ def saveMapChart(
     *,
     output_dir: Path,
     map_name: str,
-    points: Sequence[RatioPoint],
+    points: Sequence[SensorPoint],
     algorithms: Sequence[str],
+    y_axis_top: float,
     dpi: int,
     show: bool,
 ) -> Path:
     applySciStyle()
     fig, axis = plt.subplots(figsize=FIGURE_SIZE, dpi=dpi)
-    drawMap(axis, map_name, points, algorithms)
+    drawMap(axis, map_name, points, algorithms, y_axis_top)
     fig.tight_layout()
 
     output_path = chartPath(output_dir, map_name)
@@ -261,7 +235,13 @@ def saveMapChart(
     return output_path
 
 
-def saveCoverageChart(
+def calcYAxisTop(points: Sequence[SensorPoint]) -> float:
+    max_average = max(point.average for point in points)
+    padded_top = max(MIN_Y_AXIS_TOP, max_average * Y_AXIS_PADDING)
+    return float(math.ceil(padded_top / Y_AXIS_STEP) * Y_AXIS_STEP)
+
+
+def saveSensorChart(
     *,
     input_path: str = DEFAULT_INPUT_PATH,
     output_dir: str = DEFAULT_OUTPUT_DIR,
@@ -269,14 +249,15 @@ def saveCoverageChart(
     dpi: int = DEFAULT_DPI,
     show: bool = False,
 ) -> list[Path]:
-    """Create one overlaid coverage/overlap bar chart per map."""
+    """Create one per-map sensor-count chart by algorithm."""
     source = Path(input_path)
     target_dir = Path(output_dir)
-    points = loadRatioPoints(input_path=source, algorithms=algorithms)
+    points = loadSensorPoints(input_path=source, algorithms=algorithms)
     if not points:
-        raise ValueError(f"No plottable coverage ratio rows found: {source}")
+        raise ValueError(f"No plottable sensor-count rows found: {source}")
 
     grouped = groupByMap(points)
+    y_axis_top = calcYAxisTop(points)
     target_dir.mkdir(parents=True, exist_ok=True)
     return [
         saveMapChart(
@@ -284,6 +265,7 @@ def saveCoverageChart(
             map_name=map_name,
             points=grouped[map_name],
             algorithms=algorithms,
+            y_axis_top=y_axis_top,
             dpi=dpi,
             show=show,
         )
@@ -293,7 +275,7 @@ def saveCoverageChart(
 
 def parseArgs() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Create per-map coverage/overlap bar charts from the ratio Excel report."
+        description="Create per-map sensor-count charts from the sensor count Excel report."
     )
     parser.add_argument("--input", default=DEFAULT_INPUT_PATH)
     parser.add_argument("--output-dir", default=DEFAULT_OUTPUT_DIR)
@@ -305,7 +287,7 @@ def parseArgs() -> argparse.Namespace:
 
 def main() -> None:
     args = parseArgs()
-    output_paths = saveCoverageChart(
+    output_paths = saveSensorChart(
         input_path=args.input,
         output_dir=args.output_dir,
         algorithms=tuple(args.algorithms),
