@@ -18,6 +18,7 @@ from openpyxl import load_workbook
 from openpyxl.worksheet.worksheet import Worksheet
 
 from Analysis.internal.plot_style import DEFAULT_DPI, SPINE_WIDTH, applySciStyle, styleAxis
+from Analysis.internal.map_names import sortMapNames
 from Analysis.internal.reports.coverage_ratio import ALGORITHM_NAMES
 
 DEFAULT_INPUT_PATH = "__RESULTS__/analysis/ratio(coverage)_report.xlsx"
@@ -287,7 +288,7 @@ def saveCoverageChart(
             dpi=dpi,
             show=show,
         )
-        for map_name in sorted(grouped)
+        for map_name in sortMapNames(set(grouped))
     ]
 
 

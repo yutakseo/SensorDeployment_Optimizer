@@ -12,6 +12,7 @@ if __package__ in {None, ""}:
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from Analysis.internal.trends import loadOverlapRows
+from Analysis.internal.map_names import displayMapName, sortMapNames
 from Engine.map_loader import MapLoader
 
 ALGORITHM_NAMES: tuple[str, ...] = ("drl", "ga", "greedy", "pso")
@@ -57,7 +58,7 @@ def listMaps(results_root: Path, algorithms: Sequence[str]) -> list[str]:
         if not algorithm_root.exists():
             continue
         map_names.update(path.name for path in algorithm_root.iterdir() if path.is_dir())
-    return sorted(map_names)
+    return sortMapNames(map_names)
 
 
 def listAlgorithms(results_root: Path, algorithms: Sequence[str]) -> tuple[str, ...]:
@@ -254,9 +255,9 @@ def saveXlsx(
 
 def writeRows(summary, cells: Sequence[ReportCell], algorithms: Sequence[str]) -> None:
     cells_by_key = cellMap(cells)
-    map_names = sorted({cell.map_name for cell in cells})
+    map_names = sortMapNames({cell.map_name for cell in cells})
     for row_index, map_name in enumerate(map_names, start=4):
-        summary.cell(row=row_index, column=1, value=map_name)
+        summary.cell(row=row_index, column=1, value=displayMapName(map_name))
         column = 2
         for algorithm in algorithms:
             stats = cells_by_key.get((map_name, algorithm))

@@ -5,7 +5,7 @@ from typing import Any
 from Engine import run_pipeline
 
 
-RESULTS_ROOT = "__RESULTS__/convergence_exp"
+RESULTS_ROOT = "__RESULTS__/GA_convergence_exp"
 MAP_NAMES = [
     "gangjin.full",
     "gangjin.up",
@@ -16,13 +16,17 @@ MAP_NAMES = [
     "seocho.down",
 ]
 SENSOR_RANGES = [
-    (100, 100),
+    (120, 140),
+    (100, 120),
+    (80, 100),
+    (60, 80),
+    (40, 60),
 ]
 ALGORITHMS = (
     "ga",
     #"greedy", 
-    "drl", 
-    "pso"
+    #"drl", 
+    #"pso"
     )
 
 ITERATIONS = 100
@@ -37,7 +41,13 @@ MAP_LAYER_PARAMS = {
     "jobsite_values": [2, 3],
 }
 
-# 2) Outermost sensor placement parameters
+
+#Inner sensor optimizer parameters
+COMMON_OPTIMIZER_PARAMS = {
+    "coverage": 45,
+}
+
+# 2) Outermost-corner sensor placement parameters
 HARRIS_PARAMS = {
     "blockSize": 3,
     "ksize": 3,
@@ -46,10 +56,7 @@ HARRIS_PARAMS = {
     "min_dist": 9,
 }
 
-# 3) Inner sensor optimizer parameters
-COMMON_OPTIMIZER_PARAMS = {
-    "coverage": 45,
-}
+# 3) Inner sensor placement parameters
 GA_CPU_WORKERS = min(16, max(1, (os.cpu_count() or 2) - 4))
 OPTIMIZER_PARAMS: dict[str, dict[str, Any]] = {
     "ga": {
@@ -166,6 +173,7 @@ FINAL_PLOT_PARAMS = {
     "size": (10, 10),
     "dpi": 200,
     "title": "Final Sensor Locations after Optimization",
+    "save_title": False,
     "filename": None,  # None -> <run_name>_final_sensors.png
     "save_dir": None,  # None -> same directory as result JSON
     "cmap": "gray",

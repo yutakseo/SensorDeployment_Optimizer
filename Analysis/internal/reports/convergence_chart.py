@@ -16,6 +16,7 @@ from matplotlib.axes import Axes
 from matplotlib.ticker import MaxNLocator
 
 from Analysis.internal.plot_style import DEFAULT_DPI, applySciStyle, styleAxis
+from Analysis.internal.map_names import sortMapNames
 from Analysis.internal.result_io import cornerCount, loadRecords
 from Analysis.internal.reports.n_sensor import ALGORITHM_NAMES
 
@@ -69,7 +70,7 @@ def listMaps(results_root: Path, algorithms: Sequence[str]) -> list[str]:
         if not algorithm_root.exists():
             continue
         map_names.update(path.name for path in algorithm_root.iterdir() if path.is_dir())
-    return sorted(map_names)
+    return sortMapNames(map_names)
 
 
 def metricValue(

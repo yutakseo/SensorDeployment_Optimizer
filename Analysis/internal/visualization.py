@@ -48,6 +48,7 @@ class VisualTool:
         tight: bool = True,             # bbox/pad 제어
         pad_inches: float = 0.0,
         facecolor: Optional[str] = None,  # 저장 배경 (None=matplotlib default)
+        save_title: bool = False,
     ):
         self.root_dir = save_dir
         self.show = show
@@ -59,6 +60,7 @@ class VisualTool:
         self.tight = bool(tight)
         self.pad_inches = float(pad_inches)
         self.facecolor = facecolor
+        self.save_title = bool(save_title)
 
         self.time = datetime.now().strftime("%m-%d-%H-%M")
         self.output_dir: Optional[str] = (
@@ -999,13 +1001,18 @@ class VisualTool:
     ) -> None:
         """
         - show=True: 타이틀 포함 상태로 화면 표시
-        - save=True: 저장 직전에 타이틀 제거 + 축 제거 후 저장
+        - save=True: 저장 직전에 타이틀 제거 후 저장
+        - preserve_axes=False: 저장 직전에 축까지 제거 후 저장
         """
         # 1) 화면 출력 (타이틀 보임)
         if self.show:
             plt.show()
 
-        # 2) 저장 직전에만 타이틀 제거 + 축 제거
+        # 2) 저장 직전에만 타이틀/축 제거
+        if self.save and not self.save_title:
+            for ax in fig.axes:
+                ax.set_title("")
+
         if not preserve_axes:
             for ax in fig.axes:
                 ax.set_axis_off()
@@ -1017,7 +1024,6 @@ class VisualTool:
                     labelleft=False,
                     labelbottom=False,
                 )
-                ax.set_title("")
 
         fname = (
             f"{filename}_{self.time}.png"

@@ -14,6 +14,8 @@ import numpy as np
 if __package__ in {None, ""}:
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
+from Analysis.internal.map_names import displayMapName, mapOrderKey
+
 DEFAULT_MAPS_ROOT = "__MAPS__"
 DEFAULT_OUTPUT_PATH = "__RESULTS__/analysis/map_statistics_report.xlsx"
 EXCLUDED_ROOTS: tuple[str, ...] = ("v1", "v2")
@@ -194,9 +196,10 @@ def saveXlsx(*, rows: Sequence[MapStats], output_path: Path, maps_root: Path) ->
         cell.fill = header_fill
         cell.alignment = center
 
-    for row_index, row in enumerate(rows, start=2):
+    sorted_rows = sorted(rows, key=lambda row: mapOrderKey(row.map_name))
+    for row_index, row in enumerate(sorted_rows, start=2):
         values = [
-            row.map_name,
+            displayMapName(row.map_name),
             row.height,
             row.width,
             row.total_cells,
@@ -226,7 +229,7 @@ def saveXlsx(*, rows: Sequence[MapStats], output_path: Path, maps_root: Path) ->
     summary.column_dimensions["J"].width = 22
     summary.column_dimensions["K"].width = 38
 
-    writeMetadata(workbook=workbook, maps_root=maps_root, row_count=len(rows))
+    writeMetadata(workbook=workbook, maps_root=maps_root, row_count=len(sorted_rows))
     workbook.save(output_path)
 
 

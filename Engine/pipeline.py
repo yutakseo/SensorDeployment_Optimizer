@@ -209,6 +209,7 @@ def plot_final_sensor_placement(
         tight=bool(plot_params.get("tight", True)),
         pad_inches=float(plot_params.get("pad_inches", 0.0)),
         facecolor=plot_params.get("facecolor", None),
+        save_title=bool(plot_params.get("save_title", False)),
     )
     vis.showMapCircle(
         map_data=map_data,

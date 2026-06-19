@@ -11,6 +11,7 @@ if __package__ in {None, ""}:
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from Analysis.internal.result_io import bandKey, loadRecords
+from Analysis.internal.map_names import displayMapName, sortMapNames
 from Analysis.internal.trends import analyzeChange, buildTrend, getSensorSeries
 
 ALGORITHM_NAMES: tuple[str, ...] = (
@@ -57,7 +58,7 @@ def listMaps(results_root: Path, algorithms: Sequence[str]) -> list[str]:
         if not algorithm_root.exists():
             continue
         map_names.update(path.name for path in algorithm_root.iterdir() if path.is_dir())
-    return sorted(map_names)
+    return sortMapNames(map_names)
 
 
 def listBands(map_root: Path) -> tuple[str, ...]:
@@ -206,7 +207,7 @@ def writeSummary(summary, trends: Sequence[TrendStats]) -> None:
         summary.append(
             [
                 trend.algorithm,
-                trend.map_name,
+                displayMapName(trend.map_name),
                 trend.seed_band,
                 trend.run_count,
                 trend.generation_count,
@@ -228,7 +229,7 @@ def writeTrendData(sheet, trends: Sequence[TrendStats]) -> None:
             sheet.append(
                 [
                     trend.algorithm,
-                    trend.map_name,
+                    displayMapName(trend.map_name),
                     trend.seed_band,
                     index,
                     mean_value,

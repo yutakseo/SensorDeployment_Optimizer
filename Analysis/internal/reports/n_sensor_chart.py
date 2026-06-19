@@ -19,6 +19,7 @@ from openpyxl import load_workbook
 from openpyxl.worksheet.worksheet import Worksheet
 
 from Analysis.internal.plot_style import DEFAULT_DPI, SPINE_WIDTH, applySciStyle, styleAxis
+from Analysis.internal.map_names import sortMapNames
 from Analysis.internal.reports.n_sensor import ALGORITHM_NAMES
 
 DEFAULT_INPUT_PATH = "__RESULTS__/analysis/n(sensor)_by_methods_report.xlsx"
@@ -269,7 +270,7 @@ def saveSensorChart(
             dpi=dpi,
             show=show,
         )
-        for map_name in sorted(grouped)
+        for map_name in sortMapNames(set(grouped))
     ]
 
 
