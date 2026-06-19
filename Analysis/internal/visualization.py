@@ -9,6 +9,12 @@ from typing import Dict, List, Optional, Sequence, Tuple, Union
 
 RESULTS_DIR = "__RESULTS__"
 GRID_SIZE_M = 5.0
+OVERVIEW_TITLE_SIZE = 13
+OVERVIEW_SCALE_SIZE = 11
+OVERVIEW_LEGEND_SIZE = 11
+OVERVIEW_LEGEND_BORDER_PAD = 0.9
+OVERVIEW_LEGEND_HANDLE_LENGTH = 2.0
+OVERVIEW_LEGEND_HANDLE_HEIGHT = 1.0
 MAP_OVERVIEW_COLORS = {
     0: "#f7f7f3",
     1: "#4a4a4a",
@@ -470,7 +476,13 @@ class VisualTool:
         map_data = self._padSquare(map_data, fill_value=0)
         fig, ax = plt.subplots(figsize=self.figsize, dpi=self.dpi)
         self._drawMapOverview(ax, map_data, title=title, grid_m=grid_m, labels=labels)
-        self.saveOrShow(fig, filename, save_path, preserve_axes=True)
+        self.saveOrShow(
+            fig,
+            filename,
+            save_path,
+            preserve_axes=True,
+            square_output=True,
+        )
 
     def _isScalarOverview(self, zone_style: Optional[str]) -> bool:
         style = str(zone_style or "").lower()
@@ -608,7 +620,7 @@ class VisualTool:
         ax.set_title(
             title,
             pad=6,
-            fontsize=10,
+            fontsize=OVERVIEW_TITLE_SIZE,
             fontfamily="serif",
             fontweight="normal",
         )
@@ -715,7 +727,7 @@ class VisualTool:
             "50 m",
             ha="center",
             va="bottom",
-            fontsize=8,
+            fontsize=OVERVIEW_SCALE_SIZE,
             fontfamily="serif",
             color="#1f1f1f",
             zorder=zorder,
@@ -739,7 +751,10 @@ class VisualTool:
             framealpha=0.92,
             edgecolor="#d0d0ca",
             facecolor="white",
-            prop={"family": "serif", "size": 8},
+            prop={"family": "serif", "size": OVERVIEW_LEGEND_SIZE},
+            borderpad=OVERVIEW_LEGEND_BORDER_PAD,
+            handlelength=OVERVIEW_LEGEND_HANDLE_LENGTH,
+            handleheight=OVERVIEW_LEGEND_HANDLE_HEIGHT,
         )
         legend.set_zorder(10)
 
@@ -1038,6 +1053,8 @@ class VisualTool:
             outpath = os.path.join(dirpath, fname)
 
             save_kwargs = {}
+            if square_output:
+                fig.subplots_adjust(left=0.0, right=1.0, bottom=0.0, top=1.0)
             if self.tight and not square_output:
                 save_kwargs["bbox_inches"] = "tight"
                 save_kwargs["pad_inches"] = self.pad_inches
