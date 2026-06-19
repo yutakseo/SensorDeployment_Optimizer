@@ -9,6 +9,8 @@ from typing import Dict, List, Optional, Sequence, Tuple, Union
 
 RESULTS_DIR = "__RESULTS__"
 GRID_SIZE_M = 5.0
+HARRIS_OVERLAY_GAMMA = 0.6
+HARRIS_OVERLAY_CMAP = "Reds"
 OVERVIEW_TITLE_SIZE = 13
 OVERVIEW_SCALE_SIZE = 11
 OVERVIEW_LEGEND_SIZE = 11
@@ -436,6 +438,11 @@ class VisualTool:
         if self._isHeatmapOverlay(zone_style):
             if base_map is None:
                 raise ValueError("base_map is required for heatmap overlay overview.")
+            if self._isHarrisOverlay(zone_style):
+                overlay_threshold_percentile = None
+                overlay_spread = max(0, int(overlay_spread))
+                overlay_gamma = min(float(overlay_gamma), HARRIS_OVERLAY_GAMMA)
+                overlay_cmap = HARRIS_OVERLAY_CMAP
             self.showHeatmapOverlayOverview(
                 heatmap_data=map_data,
                 base_map=base_map,
@@ -449,6 +456,25 @@ class VisualTool:
                 spread=overlay_spread,
                 gamma=overlay_gamma,
                 cmap=overlay_cmap,
+                vmin=vmin,
+                vmax=vmax,
+            )
+            return
+
+        if self._isScalarOverview(zone_style) and base_map is not None:
+            self.showHeatmapOverlayOverview(
+                heatmap_data=map_data,
+                base_map=base_map,
+                title=title,
+                filename=filename,
+                save_path=save_path,
+                grid_m=grid_m,
+                alpha=overlay_alpha,
+                vmax_percentile=overlay_percentile,
+                threshold_percentile=overlay_threshold_percentile,
+                spread=overlay_spread,
+                gamma=overlay_gamma,
+                cmap=overlay_cmap if overlay_cmap is not None else cmap,
                 vmin=vmin,
                 vmax=vmax,
             )
@@ -496,6 +522,10 @@ class VisualTool:
             "harris",
             "harris_corner",
         }
+
+    def _isHarrisOverlay(self, zone_style: Optional[str]) -> bool:
+        style = str(zone_style or "").lower()
+        return style in {"corner_heatmap", "harris", "harris_corner"}
 
     def _prepareOverviewMap(
         self,
